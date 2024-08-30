@@ -1,0 +1,201 @@
+/* OrderLife.css */
+
+.order-life-container {
+    padding: 20px;
+    margin-left: 250px; /* Adjust this based on the width of your sidebar */
+    margin-top: 20px; /* Adjust this based on the height of your header */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 80vh;
+    box-sizing: border-box;
+    background-color: #f7f7f7;
+  }
+  
+  .content-box {
+    background-color: #f7f7f7;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 1400px; /* Adjust based on your layout */
+    width: 100%;
+  }
+  
+  .tab-section {
+    display: flex;
+    justify-content: space-between; /* Distributes space evenly between the tabs and the search input */
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .tab-button {
+    padding: 10px 20px;
+    background-color: #e6e6e6;
+    border: none;
+    border-radius: 20px;
+    color: #333;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .tab-button.active {
+    background-color: #333; /* Active button color */
+    color: white;
+  }
+  
+  .tab-button:hover {
+    background-color: #333;
+    color: white;
+  }
+  
+  .search-container {
+    position: relative;
+    display: inline-block;
+    width: 250px; /* Adjust the width as needed */
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 10px 40px 10px 15px; /* Add padding-right to accommodate the icon */
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+  
+  .search-input::placeholder {
+    color: #888; /* Placeholder text color */
+  }
+  
+  .search-icon {
+    position: absolute;
+    right: 10px; /* Position the icon inside the input field */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #333;
+    font-size: 16px;
+  }
+  
+  
+  
+  .action-button {
+    padding: 6px 12px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .action-button:hover {
+    background-color: #45a049;
+  }
+  /* OrderLife.css */
+  .Modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    outline: none;
+    width: 400px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .Overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+  }
+  
+  .close-button:hover {
+    color: #000;
+  }
+  
+  .modal-content {
+    padding: 20px;
+  }
+  
+  .order-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: larger;
+  }
+
+  .order-info-button {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: larger;
+  }
+  
+  .sweet-details-container {
+    margin-top: 20px;
+  }
+  
+  .sweet-details h3 {
+    margin-top: 20px;
+    font-size: 22px;
+    color: #333;
+  }
+  
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .order-table th, .order-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #00000070;
+  }
+  
+  .order-table tr:hover{
+    background-color: #e6e6e6;
+    cursor: pointer;
+  }
+  .order-table th {
+    background-color: #e6e6e6;
+    font-weight: bold;
+  }
+  
+  .order-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
