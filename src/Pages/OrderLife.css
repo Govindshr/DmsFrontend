@@ -2,7 +2,7 @@
 
 .order-life-container {
     padding: 20px;
-    margin-left: 250px; /* Adjust this based on the width of your sidebar */
+    /* margin-left: 250px; */
     margin-top: 20px; /* Adjust this based on the height of your header */
     display: flex;
     justify-content: center;
@@ -186,10 +186,7 @@
     border: 1px solid #00000070;
   }
   
-  .order-table tr:hover{
-    background-color: #e6e6e6;
-    cursor: pointer;
-  }
+ 
   .order-table th {
     background-color: #e6e6e6;
     font-weight: bold;
@@ -198,4 +195,112 @@
   .order-table tr:nth-child(even) {
     background-color: #f9f9f9;
   }
-  
+  .custom-sweets-modal {
+    width: 80%; /* Adjust width as needed */
+    max-width: 1000px; /* Adjust max-width as needed */
+    height: 80%; /* Adjust height as needed */
+    max-height: 700px; /* Adjust max-height as needed */
+    margin: auto;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling */
+    z-index: 1100; /* Ensure the modal is above the header */
+    position: relative; /* Ensure positioning context is correct */
+}
+
+.custom-sweets-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Slightly transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure the overlay is above most elements */
+}
+.unique-sweet-selection-box {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.unique-sweet-field {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 10px;
+  flex: 1;
+}
+
+.unique-sweet-field:last-child {
+  margin-right: 0;
+}
+
+.unique-sweet-field label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.unique-form-control {
+  width: 60%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+  .unique-sweet-selection-box {
+      flex-direction: column;
+  }
+
+  .unique-sweet-field {
+      margin-right: 0;
+      margin-bottom: 10px;
+  }
+
+  .unique-sweet-field:last-child {
+      margin-bottom: 0;
+  }
+}
+.unique-button-group {
+  display: flex;
+  justify-content:left;
+  margin-top: 20px;
+}
+
+.unique-add-button,
+.unique-submit-button,
+.unique-delete-button {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.unique-add-button:hover,
+.unique-submit-button:hover,
+.unique-delete-button:hover {
+  background-color: #94221a;
+}
+
+.unique-delete-button {
+  background-color: #f44336;
+  margin-top: 24px; /* To align with other fields */
+}
+
+.unique-delete-button:hover {
+  background-color: #e41f1f;
+}
+

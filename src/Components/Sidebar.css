@@ -1,18 +1,15 @@
+/* src/components/Sidebar.css */
+
 .sidebar {
   width: 200px;
   background-color: #333;
   padding: 20px;
-  height: calc(100vh - 80px); /* Adjust to match header height */
+  height: calc(100vh - 80px);
   position: fixed;
-  top: 80px; /* Start below the header */
+  top: 100px;
   left: 0;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
-}
-
-.sidebar h3 {
-  color: white;
-  text-align: center;
-  margin-bottom: 30px;
+  transition: transform 0.3s ease-in-out;
 }
 
 .sidebar ul {
@@ -28,8 +25,8 @@
   color: white;
   text-decoration: none;
   font-size: 18px;
-  display: flex; /* Flexbox for alignment */
-  align-items: center; /* Vertical alignment */
+  display: flex;
+  align-items: center;
   padding: 10px;
   transition: background 0.3s, color 0.3s;
 }
@@ -42,5 +39,56 @@
 }
 
 .sidebar ul li a .fa-icon {
-  margin-right: 10px; /* Space between icon and text */
+  margin-right: 10px;
+}
+
+/* Responsive sidebar */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 250px;
+    transform: translateX(-100%);
+    position: fixed;
+    top: 96px;
+    left: 0;
+    height: 100%;
+    z-index: 1000;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  .sidebar ul li a {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  .sidebar ul li a .fa-icon {
+    margin-right: 8px;
+  }
+}
+
+/* Hamburger menu styles */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  cursor: pointer;
+}
+
+.hamburger div {
+  width: 35px;
+  height: 4px;
+  background-color: #333;
+  margin: 6px 0;
+  transition: 0.4s;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
 }

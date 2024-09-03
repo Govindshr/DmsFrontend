@@ -8,7 +8,7 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const [data, setData] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [totalWeights, setTotalWeights] = useState({});
   const [Weightobjects, setWeightobject] = useState({});
@@ -16,7 +16,6 @@ const Dashboard = () => {
   const [selectedSweet, setSelectedSweet] = useState(null); // State to track selected sweet
   const [boxnumber, setBoxnumber] = useState({});
   const [packedboxnumber, setPackedboxnumber] = useState({});
-  const [tableType, setTableType] = useState('Total'); // State to track which table to show
 
   useEffect(() => {
     let isMounted = true;
@@ -27,7 +26,7 @@ const Dashboard = () => {
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
-            setData(result.data);
+            
             calculateTotalWeights(result.data);
             setLoading(false);
           }
@@ -45,7 +44,6 @@ const Dashboard = () => {
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
-            console.log("Box Data", result);
             setBoxnumber(result.data);
           }
         } else {
@@ -62,11 +60,10 @@ const Dashboard = () => {
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
-            console.log("Packed Box Data", result);
             setPackedboxnumber(result.data)
           }
         } else {
-          toast.error('Failed to fetch data!');
+          toast.error('No  Unpacked Orders found!');
         }
       } catch (error) {
         toast.error('An error occurred while fetching data!');
@@ -75,7 +72,7 @@ const Dashboard = () => {
 
     fetchData();
     fetchBoxData();
-    fetchPackedBoxData()
+    fetchPackedBoxData();
     return () => {
       isMounted = false;
     };
@@ -105,11 +102,7 @@ const Dashboard = () => {
   };
 
   const handleCardClick = (sweetName) => {
-
-   
-    
-    setSelectedSweet(sweetName); // Set selected sweet when a card is clicked
-
+    setSelectedSweet(sweetName);
     const filteredSweets = boxnumber.filter(sweet => sweet.sweetName === sweetName);
 
     if (filteredSweets.length === 0) {
@@ -126,64 +119,64 @@ const Dashboard = () => {
       '250gm': sweet.totalQuarterKg,
     };
 
-    // Function to add other object fields
     const addOtherObjectFields = (obj) => {
       Object.keys(obj).forEach(key => {
-        if (!isNaN(key) && key != 0) {
-          weightObject[`${key}gm`] = obj[key];
+        if (!isNaN(key) && key !== 0) {
+          if (weightObject[`${key}gm`]) {
+            weightObject[`${key}gm`] += obj[key]; // If key exists, add to the existing value
+          } else {
+            weightObject[`${key}gm`] = obj[key]; // If key does not exist, set it
+          }
         }
       });
     };
 
-    // Add fields from otherObject1 and otherObject2
     addOtherObjectFields(sweet.totalOtherWeight);
     addOtherObjectFields(sweet.totalOtherWeight2);
 
     setWeightobject(weightObject);
-    handlePackedBoxNumber(sweetName)
+
+    handlePackedBoxNumber(sweetName);
   };
 
   const handlePackedBoxNumber = (sweetName) => {
-    setSelectedSweet(sweetName); // Set selected sweet when a card is clicked
+    if (packedboxnumber.length) {
+      const filteredSweets = packedboxnumber.filter(sweet => sweet.sweetName === sweetName);
 
-    const filteredSweets = packedboxnumber.filter(sweet => sweet.sweetName === sweetName);
+      if (filteredSweets.length === 0) {
+        console.log('No sweets found with that name.');
+        return null;
+      }
 
-    if (filteredSweets.length === 0) {
-      console.log('No sweets found with that name.');
-      return null;
+      const sweet = filteredSweets[0]; // Assuming you only want the first match
+
+      const weightObject = {
+        '1000gm': sweet.totalOneKg,
+        '500gm': sweet.totalHalfKg,
+        '250gm': sweet.totalQuarterKg,
+      };
+
+      const addOtherObjectFields = (obj) => {
+        Object.keys(obj).forEach(key => {
+          if (!isNaN(key) && key !== 0) {
+            if (weightObject[`${key}gm`]) {
+              weightObject[`${key}gm`] += obj[key]; // If key exists, add to the existing value
+            } else {
+              weightObject[`${key}gm`] = obj[key]; // If key does not exist, set it
+            }
+          }
+        });
+      };
+
+      addOtherObjectFields(sweet.totalOtherWeight);
+      addOtherObjectFields(sweet.totalOtherWeight2);
+
+      setPackedWeightobject(weightObject);
     }
-
-    const sweet = filteredSweets[0]; // Assuming you only want the first match
-
-    // Create the new object with desired fields
-    const weightObject = {
-      '1000gm': sweet.totalOneKg,
-      '500gm': sweet.totalHalfKg,
-      '250gm': sweet.totalQuarterKg,
-    };
-
-    // Function to add other object fields
-    const addOtherObjectFields = (obj) => {
-      Object.keys(obj).forEach(key => {
-        if (!isNaN(key) && key != 0) {
-          weightObject[`${key}gm`] = obj[key];
-        }
-      });
-    };
-
-    // Add fields from otherObject1 and otherObject2
-    addOtherObjectFields(sweet.totalOtherWeight);
-    addOtherObjectFields(sweet.totalOtherWeight2);
-
-    setPackedWeightobject(weightObject);
   };
 
   const handleBackClick = () => {
     setSelectedSweet(null); // Clear the selected sweet and go back to cards view
-  };
-
-  const handleTableTypeChange = (type) => {
-    setTableType(type); // Change table type between 'total' and 'packed'
   };
 
   return (
@@ -203,23 +196,22 @@ const Dashboard = () => {
 
                   return (
                     <div className="card" key={index} onClick={() => handleCardClick(sweetName)} style={{ cursor: 'pointer' }}>
-                    <h3>{sweetName}</h3>
-                    <div style={{ width: '120px', margin: '0 auto', marginTop: '15px' }}>
-                      <CircularProgressbar
-                        value={percentage}
-                        text={`${percentage.toFixed(2)}%`}
-                        styles={buildStyles({
-                          textColor: '#333',
-                          pathColor: '#28a745',
-                          trailColor: '#eee',
-                        })}
-                      />
+                      <h3>{sweetName.replace(/_/g, ' ')}</h3>
+                      <div style={{ width: '120px', margin: '0 auto', marginTop: '15px' }}>
+                        <CircularProgressbar
+                          value={percentage}
+                          text={`${percentage.toFixed(2)}%`}
+                          styles={buildStyles({
+                            textColor: '#333',
+                            pathColor: '#28a745',
+                            trailColor: '#eee',
+                          })}
+                        />
+                      </div>
+                      <p style={{ marginTop: '30px' }}><b>Total: {totalWeight.toFixed(2)} Kg</b></p>
+                      <p><b>Packed: {packedWeight.toFixed(2)} Kg</b></p>
+                      <p><b>Remaining: {(totalWeight - packedWeight).toFixed(2)} Kg</b></p>
                     </div>
-                    <p style={{marginTop:'30px'}}><b>Total: {totalWeight.toFixed(2)} Kg</b></p>
-                    <p><b>Packed: {packedWeight.toFixed(2)} Kg</b></p>
-                    <p><b>Remaining: {(totalWeight - packedWeight).toFixed(2)} Kg</b></p>
-                  </div>
-                  
                   );
                 })
               )}
@@ -227,47 +219,36 @@ const Dashboard = () => {
           ) : (
             <div className="table-container">
               <div className="table-header">
-                <h2>{tableType} {selectedSweet} Boxes</h2>
-                <div className="table-buttons">
-                  <button onClick={() => handleTableTypeChange('Total')} className={tableType === 'Total' ? 'active' : ''}>Total</button>
-                  <button onClick={() => handleTableTypeChange('To Pack')} className={tableType === 'To Pack' ? 'active' : ''}> Not Packed</button>
-                </div>
+                <h2>{selectedSweet.replace(/_/g, ' ')} Boxes</h2>
               </div>
-              {tableType === 'Total' ? (
-                <table className="order-table">
-                  <thead>
-                    <tr>
-                      <th>Packing</th>
-                      <th>Number of Boxes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(Weightobjects).map((packing, index) => (
-                      <tr key={index}>
-                        <td>{packing}</td>
-                        <td>{Weightobjects[packing]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <table className="order-table">
-                  <thead>
-                    <tr>
-                      <th>Packing</th>
-                      <th>Number of Boxes</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(PackedWeightobject).map((packing, index) => (
-                      <tr key={index}>
-                        <td>{packing}</td>
-                        <td>{PackedWeightobject[packing]}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
+              <table className="order-table">
+                <thead>
+                  <tr>
+                    <th>Packing</th>
+                    <th>Total Boxes</th>
+                    <th>Packed Boxes</th>
+                    <th>Remaining Boxes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.keys(Weightobjects)
+                    .filter(packing => packing !== '0gm')
+                    .map((packing, index) => {
+                      const remainingBoxes = PackedWeightobject[packing] || 0;
+                      const packedBoxes = Weightobjects[packing] - remainingBoxes;
+
+                      return (
+                        <tr key={index}>
+                          <td>{packing}</td>
+                          <td>{Weightobjects[packing]}</td>
+                          <td>{packedBoxes}</td>
+                          <td>{remainingBoxes}</td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+
               <button onClick={handleBackClick} className="back-button">
                 <FontAwesomeIcon icon={faArrowLeft} style={{ cursor: 'pointer', color: 'white', marginRight: '5px' }} />
                 Back

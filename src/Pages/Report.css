@@ -1,0 +1,62 @@
+/* src/Components/Report.css */
+
+body {
+    background-color: #f1f1f1;
+    font-family: 'Arial', sans-serif;
+}
+
+.report-container {
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: auto;
+}
+
+.report-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.report-header h1 {
+    font-size: 28px;
+    color: #333;
+    margin: 0;
+    padding: 10px 0;
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.report-card {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.report-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.report-card h2 {
+    margin-top: 0;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.report-card p {
+    font-size: 18px;
+    margin: 0;
+}
+

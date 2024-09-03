@@ -4,6 +4,7 @@ import { faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
 import './Header.css';
 
 const Header = () => {
+  
   return (
     <header className="header">
       <div className="logo-section">

@@ -7,6 +7,8 @@ import AddItems from './Pages/Additems';
 import AddOrder from './Pages/AddOrder';
 import OrderLife from './Pages/OrderLife';
 import Dashboard from './Pages/Dashboard';
+import Expense from './Pages/Expense';
+import Report from './Pages/Report';
 import './App.css';
 
 function App() {
@@ -18,11 +20,13 @@ function App() {
           <Sidebar />
           <div className="main-content">
             <Routes>
-              <Route path="/" element={<Navigate to="/inventory" />} />
+              <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="/inventory" element={<AddItems />} />
               <Route path="/add-order" element={<AddOrder />} />
               <Route path="/order-life" element={<OrderLife />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/expense" element={<Expense />} />
+              <Route path="/report" element={<Report />} />
               {/* Add more routes as needed */}
             </Routes>
           </div>

@@ -9,11 +9,13 @@ const AddOrder = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
   const [orderData, setOrderData] = useState({
-    kajuKatli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-    gulabJamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
-    rasgulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-    laddoo: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
-    barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+    Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
+    Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
+    Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
+    Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+    Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
+    Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+    Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
   });
 
   const handleChange = (sweet, field, value) => {
@@ -59,10 +61,10 @@ const AddOrder = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Create a copy of the orderData to modify it
+    
     const updatedOrderData = { ...orderData };
 
-    // Calculate and add totalWeight for each sweet
+    
     Object.keys(updatedOrderData).forEach(sweet => {
       const sweetData = updatedOrderData[sweet];
       const oneKgWeight = sweetData.oneKg * 1;
@@ -109,11 +111,13 @@ const AddOrder = () => {
     setName('');
     setNumber('');
     setOrderData({
-      kajuKatli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-      gulabJamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
-      rasgulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-      laddoo: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
-      barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 ,is_packed:0 },
+      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 ,is_packed:0},
+      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 ,is_packed:0},
+      Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
+      Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350,is_packed:0 },
+      Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
+      Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
     });
   };
 
@@ -138,7 +142,7 @@ const AddOrder = () => {
                     required
                   />
                 </div>
-                <div className="form-group" style={{ marginLeft: '155px' }}>
+                <div className="form-group" >
                   <label htmlFor="number"><b>Customer Number* </b>:</label>
                   <input
                     type="text"
@@ -168,7 +172,7 @@ const AddOrder = () => {
                   {Object.keys(orderData).map((sweet, index) => (
                     <tr key={sweet}>
                       <td><b>{index + 1}</b></td>
-                      <td><b>{sweet}</b></td>
+                      <td><b>{sweet.replace(/_/g, ' ')}</b></td>
                       <td><b>{orderData[sweet].price}</b></td>
                       <td>
                         <input

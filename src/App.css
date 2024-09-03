@@ -2,8 +2,6 @@
 .App {
   display: flex;
   flex-direction: column;
-  /* padding: 20px; */
-  
 }
 
 .content-area {
@@ -11,12 +9,31 @@
   margin-top: 80px; /* Adjust this value to match the header height */
 }
 
+.sidebar {
+  flex: 0 0 250px; /* Ensure sidebar takes up a fixed width */
+  max-width: 250px;
+}
+
 .main-content {
   flex: 1; /* Take up remaining space */
   padding: 20px;
+  margin-left: 250px; /* Ensure the main content accounts for the sidebar's width */
 }
 
-/* ------------------------------------------SIDEBAR------------------------------------------------------ */
-/* -------------------------------------------------------ADD-ITEM---------------------------- */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0; /* On mobile, we want the content to take full width */
+    padding: 10px;
+  }
 
+  .sidebar {
+    position: fixed;
+    top: 80px;
+    left: -250px;
+    transition: left 0.3s ease-in-out;
+  }
 
+  .sidebar.open {
+    left: 0;
+  }
+}
