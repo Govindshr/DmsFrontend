@@ -234,8 +234,8 @@ const Dashboard = () => {
                   {Object.keys(Weightobjects)
                     .filter(packing => packing !== '0gm')
                     .map((packing, index) => {
-                      const remainingBoxes = PackedWeightobject[packing] || 0;
-                      const packedBoxes = Weightobjects[packing] - remainingBoxes;
+                      const packedBoxes = PackedWeightobject[packing] || 0;
+                      const remainingBoxes = Weightobjects[packing] - packedBoxes;
 
                       return (
                         <tr key={index}>

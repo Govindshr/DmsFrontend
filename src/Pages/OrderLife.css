@@ -12,6 +12,9 @@
     background-color: #f7f7f7;
   }
   
+.highlight-row {
+  background-color: #f8d7da !important;
+}
   .content-box {
     background-color: #f7f7f7;
     padding: 20px;

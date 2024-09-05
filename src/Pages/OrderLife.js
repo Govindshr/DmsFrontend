@@ -1,23 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye,faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { Tooltip } from 'react-tooltip';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faX } from '@fortawesome/free-solid-svg-icons/faX';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';  
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import './OrderLife.css';
 
-Modal.setAppElement('#root'); // Bind modal to your app root
+Modal.setAppElement('#root');
 
 const OrderLife = () => {
-    const [activeTab, setActiveTab] = useState('initial');
+    const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [items, setItems] = useState([]);
-    
+    const navigate = useNavigate();
     const [selectedItem, setSelectedItem] = useState(null);
     const [orderData, setOrderData] = useState(null);
     const [remainingOrder, setRemainingOrder] = useState(null);
@@ -31,7 +33,18 @@ const OrderLife = () => {
         { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
     ]);
     useEffect(() => {
-        fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
+        if (activeTab === "initial") {
+            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
+        } else if (activeTab === "all") {
+            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+        }
+        else if (activeTab === "packed") {
+            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
+        } else if (activeTab === "delivered") {
+            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
+        } else if (activeTab === "paid") {
+            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
+        }
     }, []);
     const handlereset =()=>{
         setSweetSelections([
@@ -91,15 +104,54 @@ const OrderLife = () => {
 
     const handleWeightChange = (index, e) => {
         const updatedSelections = [...sweetSelections];
-        updatedSelections[index].weight = e.target.value;
+        const sweetName = updatedSelections[index].sweetName;
+        const weight = e.target.value;
+        const sweet = showsweetsinmodel.sweets[sweetName] || {};
+    
+        let maxQuantity = 0;
+        
+        // Set the maximum quantity available based on the selected weight
+        switch (weight) {
+            case '1 Kg':
+                maxQuantity = sweet.oneKg;
+                break;
+            case '1/2 Kg':
+                maxQuantity = sweet.halfKg;
+                break;
+            case '1/4 Kg':
+                maxQuantity = sweet.quarterKg;
+                break;
+            case `${sweet.otherWeight}g`:
+                maxQuantity = sweet.otherPackings;
+                break;
+            case `${sweet.otherWeight2}g`:
+                maxQuantity = sweet.otherPackings2;
+                break;
+            default:
+                maxQuantity = 0;
+        }
+    
+        updatedSelections[index].weight = weight;
+        updatedSelections[index].maxQuantity = maxQuantity; // Store max quantity
+        updatedSelections[index].quantity = Math.min(updatedSelections[index].quantity, maxQuantity); // Adjust quantity if it's higher than available
         setSweetSelections(updatedSelections);
     };
-
+    
     const handleQuantityChange = (index, e) => {
         const updatedSelections = [...sweetSelections];
-        updatedSelections[index].quantity = e.target.value;
+        const newQuantity = Number(e.target.value);
+        
+        // Restrict the quantity to be within the range 0 to maxQuantity
+        if (newQuantity <= updatedSelections[index].maxQuantity) {
+            updatedSelections[index].quantity = newQuantity;
+        } else {
+            updatedSelections[index].quantity = updatedSelections[index].maxQuantity; // Set it to the max available
+            toast.error(`Cannot exceed maximum available boxes (${updatedSelections[index].maxQuantity}) for this weight!`);
+        }
+    
         setSweetSelections(updatedSelections);
     };
+    
 
     const addSelection = () => {
         setSweetSelections([
@@ -258,6 +310,8 @@ const OrderLife = () => {
                     fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
                     fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
+                } else if (activeTab === "paid") {
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -319,6 +373,8 @@ const OrderLife = () => {
                     fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
                     fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
+                } else if (activeTab === "paid") {
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -348,6 +404,8 @@ const OrderLife = () => {
                     fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
                     fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
+                } else if (activeTab === "paid") {
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -393,6 +451,8 @@ const OrderLife = () => {
                     fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
                     fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
+                } else if (activeTab === "paid") {
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to submit payment.', 'error');
@@ -401,40 +461,86 @@ const OrderLife = () => {
             Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
         }
     };
-   
-    const handleSubmit = async  (e) => {
+    const handleEditClick = (route,id) => {
+        navigate(`${route}/${id}`);  
+      };
+    
+      const handleSubmit = async (e) => {
         e.preventDefault();
+        
         const payload = sweetSelections.reduce((acc, { sweetName, weight, quantity }) => {
             if (sweetName && weight && quantity > 0) {
+                // If the sweet name does not exist in the payload, create a new object for it
                 if (!acc[sweetName]) {
-                    acc[sweetName] = [];
+                    acc[sweetName] = {
+                        oneKg: 0,
+                        halfKg: 0,
+                        quarterKg: 0,
+                        otherWeight: 0,
+                        otherPackings: 0,
+                        otherWeight2: 0,
+                        otherPackings2: 0,
+                        totalWeight: 0,
+                        price: showsweetsinmodel.sweets[sweetName].price // Assuming price is part of the sweets object
+                    };
                 }
-                acc[sweetName].push({ weight, quantity });
+                
+                // Depending on the weight, increment the correct field
+                switch (weight) {
+                    case '1 Kg':
+                        acc[sweetName].oneKg += Number(quantity);
+                        break;
+                    case '1/2 Kg':
+                        acc[sweetName].halfKg += Number(quantity);
+                        break;
+                    case '1/4 Kg':
+                        acc[sweetName].quarterKg += Number(quantity);
+                        break;
+                    case `${showsweetsinmodel.sweets[sweetName].otherWeight}g`:
+                        acc[sweetName].otherPackings += Number(quantity);
+                        acc[sweetName].otherWeight = showsweetsinmodel.sweets[sweetName].otherWeight;
+                        break;
+                    case `${showsweetsinmodel.sweets[sweetName].otherWeight2}g`:
+                        acc[sweetName].otherPackings2 += Number(quantity);
+                        acc[sweetName].otherWeight2 = showsweetsinmodel.sweets[sweetName].otherWeight2;
+                        break;
+                    default:
+                        break;
+                }
+    
+                // Calculate total weight based on weight type
+                const oneKgWeight = acc[sweetName].oneKg * 1;
+                const halfKgWeight = acc[sweetName].halfKg * 0.5;
+                const quarterKgWeight = acc[sweetName].quarterKg * 0.25;
+                const otherWeightKg = (acc[sweetName].otherWeight / 1000) * acc[sweetName].otherPackings;
+                const otherWeightKg2 = (acc[sweetName].otherWeight2 / 1000) * acc[sweetName].otherPackings2;
+    
+                acc[sweetName].totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
             }
             return acc;
         }, {});
-        
-        // console.log("payload",payload)
-
+        console.log("payload",payload)
+    
         try {
             const response = await fetch('http://localhost:2025/update_remaining_order', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({order_id:raw_id,remaining_order:payload}),
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id: raw_id, remaining_order: payload }),
             });
-      
+    
             if (response.ok) {
-              toast.success('Operation was successful!');
-              setIsSweetsModalOpen(false)
+                toast.success('Operation was successful!');
+                setIsSweetsModalOpen(false);
             } else {
-              toast.error('Operation Failed!');
+                toast.error('Operation Failed!');
             }
-          } catch (error) {
+        } catch (error) {
             toast.error('An error occurred!');
-          }
-    }
+        }
+    };
+    
 
     return (
         <div className="order-life-container">
@@ -497,7 +603,7 @@ const OrderLife = () => {
                             <div style={{ display: 'flex' }}>
                                 <div >
                                     <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Name:</b> {selectedItem.name}</p>
-                                    <p style={{ marginRight: '100px', fontSize: 'larger' }} ><b>Price:</b> ₹{selectedItem.summary.totalPrice.toFixed(2)}</p>
+                                    <p style={{ marginRight: '100px', fontSize: 'larger' }} ><b>Price:</b> ₹{selectedItem.summary.totalPrice}</p>
                                     <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Date & Time:</b> {selectedItem.created}</p>
                                 </div>
                                 <div>
@@ -621,16 +727,33 @@ const OrderLife = () => {
                                     <th><b>S.No.</b></th>
                                     <th><b>Name</b></th>
                                     <th><b>Price</b></th>
+                                    {activeTab === 'all' && <th><b>Amount Received</b></th>}
+                                    {activeTab === 'all' && <th><b>Difference Amount</b></th>}
                                     <th><b>Date & Time</b></th>
                                     <th><b>Action</b></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {items.map((item, index) => (
-                                    <tr key={item._id}>
+                                <tr
+                                key={item._id}
+                               
+                            >
+                                        {console.log(item.name,"1",activeTab === 'all',"2",item.received_amount!==null,"3",item.received_amount < item.summary.totalPrice)}
                                         <td><b>{index + 1}</b></td>
                                         <td><b>{item.name}</b></td>
-                                        <td><b>₹{item?.summary?.totalPrice.toFixed(2)}</b></td>
+                                        <td><b>₹{item?.summary?.totalPrice}</b></td>
+                                        {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount:" NA"}</b></td>}
+                                         {activeTab === 'all' && <td  className={
+                                    activeTab === 'all' &&
+                                    item.received_amount !== null &&
+                                    typeof item.received_amount === 'number' &&
+                                    item.summary &&
+                                    item.summary.totalPrice !== undefined &&
+                                    item.received_amount < item.summary.totalPrice
+                                        ? 'highlight-row'
+                                        : ''
+                                }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice-item.received_amount.toFixed(2):" NA"}</b></td>}
                                         <td><b>{item.created}</b></td>
                                         <td>
                                             <FontAwesomeIcon
@@ -665,7 +788,8 @@ const OrderLife = () => {
                                                     <Tooltip id="Deliver-tooltip" place="top" type="dark" effect="solid" />
                                                 </>
                                             )}
-                                            {activeTab !== "paid" && activeTab !== "all" && (
+                                           
+                                            {activeTab == "paid" && activeTab !== "all" && (
                                                 <>
                                                     <FontAwesomeIcon
                                                         icon={faThumbsUp}
@@ -677,7 +801,19 @@ const OrderLife = () => {
                                                     <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
                                                 </>
                                             )}
-                                            {activeTab !== "delivered" && activeTab !== "packed" && activeTab !== "paid" && (
+                                             {activeTab === "initial" && (
+                                                <>
+                                                    <FontAwesomeIcon
+                                                        icon={faEdit}
+                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                        data-tooltip-id="edit-tooltip"
+                                                        data-tooltip-content="Edit Order"
+                                                        onClick={() => handleEditClick('/edit-order',item._id)}
+                                                    />
+                                                    <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
+                                                </>
+                                            )}
+                                            {activeTab === "initial" && activeTab !== "packed" && activeTab !== "paid" && (
                                                 <>
                                                     <FontAwesomeIcon
                                                         icon={faTrashAlt}
@@ -709,7 +845,7 @@ const OrderLife = () => {
                 {itempaid && (
                     <div>
                         <p><b>Order Name:</b> {itempaid.name}</p>
-                        <p><b>Total Price:</b> ₹{activeTab === "all" ? itempaid?.totalPric.toFixed(2) : itempaid?.summary?.totalPrice.toFixed(2)}</p>
+                        <p><b>Total Price:</b> ₹{activeTab === "all" ? itempaid?.totalPric : itempaid?.summary?.totalPrice}</p>
                         <div className="form-group">
                             <label htmlFor="receivedMoney"><b>Received Money:</b></label>
                             <input
@@ -733,7 +869,7 @@ const OrderLife = () => {
             className="custom-sweets-modal"
             overlayClassName="custom-sweets-overlay"
         >
-            <h2>Pack Sweets</h2>
+            <h2>Remaining Sweets</h2>
             {showsweetsinmodel && sweetSelections.map((selection, index) => (
                 <div key={index} className="unique-sweet-selection-box">
                     <div className="unique-sweet-field">
@@ -755,6 +891,7 @@ const OrderLife = () => {
 
                     <div className="unique-sweet-field">
                         <label htmlFor={`weight-${index}`}>Select Weight:</label>
+                        {console.log("availabel weight",selection.availableWeights)}
                         <select
                             id={`weight-${index}`}
                             className="unique-form-control"

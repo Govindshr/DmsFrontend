@@ -44,6 +44,7 @@
 
 .card:hover {
   background-color: #e6e6e6;
+  transform: translateY(-5px);
 }
 
 .card h3 {
@@ -78,7 +79,7 @@
 .order-table td {
   padding: 10px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #070707;
 }
 
 button {

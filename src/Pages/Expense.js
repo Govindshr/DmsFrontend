@@ -125,6 +125,7 @@ const Expense = () => {
                             name="type"
                             value={newExpense.type}
                             onChange={handleInputChange}
+                            style={{width:'100%'}}
                             required
                         >
                             <option value="" disabled>Select type*</option>
@@ -142,6 +143,7 @@ const Expense = () => {
                             name="receiver"
                             value={newExpense.receiver}
                             onChange={handleInputChange}
+                            style={{width:'100%'}}
                             placeholder="Enter receiver name"
                             required
                         />
@@ -154,6 +156,7 @@ const Expense = () => {
                             name="amount"
                             value={newExpense.amount}
                             onChange={handleInputChange}
+                            style={{width:'100%'}}
                             placeholder="Enter amount"
                             required
                         />
@@ -165,6 +168,7 @@ const Expense = () => {
                             name="remark"
                             value={newExpense.remark}
                             onChange={handleInputChange}
+                            style={{width:'100%'}}
                             placeholder="Enter remark"
                         />
                     </div>
@@ -175,6 +179,7 @@ const Expense = () => {
                             id="bill"
                             name="bill"
                             accept="image/*"
+                            style={{width:'100%'}}
                             onChange={handleFileChange}
                         />
                     </div>
@@ -204,7 +209,7 @@ const Expense = () => {
                                 <td><b>{expense.type}</b></td>
                                 <td>
                                     <a href={expense.bill_image} target="_blank" rel="noopener noreferrer">
-                                        <img src={expense.bill_image} width={100} height={100} alt="Image" />
+                                        <img src={expense.bill_image} width={50} height={50} alt="Image" />
                                     </a>
                                 </td>
 

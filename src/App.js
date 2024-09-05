@@ -9,6 +9,8 @@ import OrderLife from './Pages/OrderLife';
 import Dashboard from './Pages/Dashboard';
 import Expense from './Pages/Expense';
 import Report from './Pages/Report';
+import ExtraSweets from './Pages/ExtraSweets';
+import EditOrder from './Pages/EditOrder';
 import './App.css';
 
 function App() {
@@ -26,7 +28,9 @@ function App() {
               <Route path="/order-life" element={<OrderLife />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/expense" element={<Expense />} />
+              <Route path="/extra-sweets" element={<ExtraSweets />} />
               <Route path="/report" element={<Report />} />
+              <Route path="/edit-order/:id" element={<EditOrder />} />
               {/* Add more routes as needed */}
             </Routes>
           </div>

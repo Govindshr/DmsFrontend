@@ -1,12 +1,16 @@
-import React, { useState, useMemo } from 'react';
-import './AddOrder.css';
+import React, { useState, useEffect, useMemo } from 'react';
+import './EditOrder.css'; 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
+import { useParams } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';  
 import 'react-toastify/dist/ReactToastify.css';
 
-const AddOrder = () => {
+const EditOrder = () => {
+  const { id } = useParams(); // Get the dynamic id from the URL
   const [name, setName] = useState('');
+  const navigate = useNavigate();
   const [number, setNumber] = useState('');
   const [orderData, setOrderData] = useState({
     Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
@@ -17,6 +21,36 @@ const AddOrder = () => {
     Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
     Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
   });
+
+  // Fetch order details based on the id from the route
+  useEffect(() => {
+    if (id) {
+      getEditedData(id);
+    }
+  }, [id]);
+
+  const getEditedData = async (id) => {
+    try {
+      const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: id }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("data",data)
+        // Set the fetched order data to state
+        setOrderData(data.data[0].sweets);
+        setName(data.data[0].name);
+        setNumber(data.data[0].number);
+      } else {
+        toast.error('Failed to fetch order details!');
+      }
+    } catch (error) {
+      toast.error('An error occurred while fetching order details!');
+    }
+  };
 
   const handleChange = (sweet, field, value) => {
     setOrderData(prevData => ({
@@ -39,8 +73,8 @@ const AddOrder = () => {
       const oneKgWeight = sweetData.oneKg * 1;
       const halfKgWeight = sweetData.halfKg * 0.5;
       const quarterKgWeight = sweetData.quarterKg * 0.25;
-      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings; // Convert grams to kilograms
-      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2; // Convert grams to kilograms
+      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
+      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
 
       const sweetTotalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
       const sweetTotalPrice = sweetTotalWeight * sweetPrice;
@@ -61,33 +95,29 @@ const AddOrder = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    
     const updatedOrderData = { ...orderData };
-
-    
     Object.keys(updatedOrderData).forEach(sweet => {
       const sweetData = updatedOrderData[sweet];
       const oneKgWeight = sweetData.oneKg * 1;
       const halfKgWeight = sweetData.halfKg * 0.5;
       const quarterKgWeight = sweetData.quarterKg * 0.25;
-      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings; // Convert grams to kilograms
-      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2; // Convert grams to kilograms
+      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
+      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
 
       const totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
-
-      // Add the totalWeight to the sweet's data
       updatedOrderData[sweet].totalWeight = totalWeight;
     });
 
     const finalOrder = {
+      order_id:id,
       name,
       number,
       sweets: updatedOrderData,
       summary: calculateSummary,
     };
-
+console.log("finalOrder",finalOrder)
     try {
-      const response = await fetch('http://localhost:2025/sweet_order_details', {
+      const response = await fetch('http://localhost:2025/update_sweet_order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -96,37 +126,36 @@ const AddOrder = () => {
       });
 
       if (response.ok) {
-        toast.success('Operation was successful!');
-        handleReset();
+        navigate('/order-life'); 
+        toast.success('Order updated successfully!');
+       
       } else {
-        toast.error('Operation Failed!');
+        toast.error('Failed to update order!');
       }
     } catch (error) {
-      toast.error('An error occurred!');
+      toast.error('An error occurred while updating order!');
     }
   };
-
 
   const handleReset = () => {
     setName('');
     setNumber('');
     setOrderData({
-      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 ,is_packed:0 },
-      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 ,is_packed:0},
-      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 ,is_packed:0},
-      Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
-      Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350,is_packed:0 },
-      Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
-      Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 ,is_packed:0},
+      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
+      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
+      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
+      Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+      Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
+      Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+      Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
     });
   };
-
   return (
     <>
       <div className="add-order-container">
         <div className="add-order-wrapper">
           <div className="add-order">
-            <h1>Add New Order</h1>
+            <h1>Edit Order</h1>
             <form onSubmit={handleSubmit}>
               <div className='extra'>
                 <div className="form-group">
@@ -279,7 +308,7 @@ const AddOrder = () => {
 
               <div className="button-group">
                 <button type="submit">Submit Order</button>
-                <button type="button" onClick={handleReset} className="reset-button"><b>Reset</b></button>
+                
               </div>
             </form>
           </div>
@@ -299,4 +328,4 @@ const AddOrder = () => {
   );
 };
 
-export default AddOrder;
+export default EditOrder;
