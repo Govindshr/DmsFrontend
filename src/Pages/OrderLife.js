@@ -32,48 +32,28 @@ const OrderLife = () => {
     const [sweetSelections, setSweetSelections] = useState([
         { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
     ]);
-    useEffect(() => {
-        if (activeTab === "initial") {
-            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
-        } else if (activeTab === "all") {
-            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
-        }
-        else if (activeTab === "packed") {
-            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
-        } else if (activeTab === "delivered") {
-            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
-        } else if (activeTab === "paid") {
-            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
-        }
-    }, []);
-    const handlereset =()=>{
-        setSweetSelections([
-            { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
-        ]);
-    }
    
-
     useEffect(() => {
         if (remainingOrder) {
+            console.log("remaining roeder",remainingOrder)
             const initialSelections = [];
 
             Object.keys(remainingOrder).forEach((sweetName) => {
-                const sweetDataArray = remainingOrder[sweetName];
-                sweetDataArray.forEach((sweetData) => {
-                    const sweet = showsweetsinmodel.sweets[sweetName] || {};
-                    const weights = [];
-                    if (sweet.oneKg > 0) weights.push('1 Kg');
-                    if (sweet.halfKg > 0) weights.push('1/2 Kg');
-                    if (sweet.quarterKg > 0) weights.push('1/4 Kg');
-                    if (sweet.otherPackings > 0) weights.push(`${sweet.otherWeight}g`);
-                    if (sweet.otherPackings2 > 0) weights.push(`${sweet.otherWeight2}g`);
+                const sweetData = remainingOrder[sweetName]; 
+                const sweet = showsweetsinmodel.sweets[sweetName] || {};
+                const weights = [];
 
-                    initialSelections.push({
-                        sweetName,
-                        weight: sweetData.weight,
-                        quantity: sweetData.quantity,
-                        availableWeights: weights,
-                    });
+                if (sweet.oneKg > 0) weights.push('1 Kg');
+                if (sweet.halfKg > 0) weights.push('1/2 Kg');
+                if (sweet.quarterKg > 0) weights.push('1/4 Kg');
+                if (sweet.otherPackings > 0) weights.push(`${sweet.otherWeight}g`);
+                if (sweet.otherPackings2 > 0) weights.push(`${sweet.otherWeight2}g`);
+
+                initialSelections.push({
+                    sweetName,
+                    weight: '',
+                    quantity: 0,
+                    availableWeights: weights,
                 });
             });
 
@@ -86,6 +66,7 @@ const OrderLife = () => {
         const updatedSelections = [...sweetSelections];
         const sweet = showsweetsinmodel.sweets[sweetName] || {};
         const weights = [];
+
         if (sweet.oneKg > 0) weights.push('1 Kg');
         if (sweet.halfKg > 0) weights.push('1/2 Kg');
         if (sweet.quarterKg > 0) weights.push('1/4 Kg');
@@ -107,10 +88,9 @@ const OrderLife = () => {
         const sweetName = updatedSelections[index].sweetName;
         const weight = e.target.value;
         const sweet = showsweetsinmodel.sweets[sweetName] || {};
-    
+
         let maxQuantity = 0;
-        
-        // Set the maximum quantity available based on the selected weight
+
         switch (weight) {
             case '1 Kg':
                 maxQuantity = sweet.oneKg;
@@ -130,28 +110,26 @@ const OrderLife = () => {
             default:
                 maxQuantity = 0;
         }
-    
+
         updatedSelections[index].weight = weight;
-        updatedSelections[index].maxQuantity = maxQuantity; // Store max quantity
-        updatedSelections[index].quantity = Math.min(updatedSelections[index].quantity, maxQuantity); // Adjust quantity if it's higher than available
+        updatedSelections[index].maxQuantity = maxQuantity;
+        updatedSelections[index].quantity = Math.min(updatedSelections[index].quantity, maxQuantity);
         setSweetSelections(updatedSelections);
     };
-    
+
     const handleQuantityChange = (index, e) => {
         const updatedSelections = [...sweetSelections];
         const newQuantity = Number(e.target.value);
-        
-        // Restrict the quantity to be within the range 0 to maxQuantity
+
         if (newQuantity <= updatedSelections[index].maxQuantity) {
             updatedSelections[index].quantity = newQuantity;
         } else {
-            updatedSelections[index].quantity = updatedSelections[index].maxQuantity; // Set it to the max available
+            updatedSelections[index].quantity = updatedSelections[index].maxQuantity;
             toast.error(`Cannot exceed maximum available boxes (${updatedSelections[index].maxQuantity}) for this weight!`);
         }
-    
+
         setSweetSelections(updatedSelections);
     };
-    
 
     const addSelection = () => {
         setSweetSelections([
@@ -164,6 +142,158 @@ const OrderLife = () => {
         const updatedSelections = sweetSelections.filter((_, i) => i !== index);
         setSweetSelections(updatedSelections);
     };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const payload = sweetSelections.reduce((acc, { sweetName, weight, quantity }) => {
+            if (sweetName && weight && quantity > 0) {
+                if (!acc[sweetName]) {
+                    acc[sweetName] = {
+                        oneKg: 0,
+                        halfKg: 0,
+                        quarterKg: 0,
+                        otherWeight: 0,
+                        otherPackings: 0,
+                        otherWeight2: 0,
+                        otherPackings2: 0,
+                        totalWeight: 0,
+                        price: showsweetsinmodel.sweets[sweetName].price,
+                    };
+                }
+
+                switch (weight) {
+                    case '1 Kg':
+                        acc[sweetName].oneKg += Number(quantity);
+                        break;
+                    case '1/2 Kg':
+                        acc[sweetName].halfKg += Number(quantity);
+                        break;
+                    case '1/4 Kg':
+                        acc[sweetName].quarterKg += Number(quantity);
+                        break;
+                    case `${showsweetsinmodel.sweets[sweetName].otherWeight}g`:
+                        acc[sweetName].otherPackings += Number(quantity);
+                        acc[sweetName].otherWeight = showsweetsinmodel.sweets[sweetName].otherWeight;
+                        break;
+                    case `${showsweetsinmodel.sweets[sweetName].otherWeight2}g`:
+                        acc[sweetName].otherPackings2 += Number(quantity);
+                        acc[sweetName].otherWeight2 = showsweetsinmodel.sweets[sweetName].otherWeight2;
+                        break;
+                    default:
+                        break;
+                }
+
+                const oneKgWeight = acc[sweetName].oneKg * 1;
+                const halfKgWeight = acc[sweetName].halfKg * 0.5;
+                const quarterKgWeight = acc[sweetName].quarterKg * 0.25;
+                const otherWeightKg = (acc[sweetName].otherWeight / 1000) * acc[sweetName].otherPackings;
+                const otherWeightKg2 = (acc[sweetName].otherWeight2 / 1000) * acc[sweetName].otherPackings2;
+
+                acc[sweetName].totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
+            }
+            return acc;
+        }, {});
+
+        try {
+            const response = await fetch('http://localhost:2025/update_remaining_order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id: raw_id, remaining_order: payload }),
+            });
+
+            if (response.ok) {
+                toast.success('Operation was successful!');
+                setIsSweetsModalOpen(false);
+            } else {
+                toast.error('Operation Failed!');
+            }
+        } catch (error) {
+            toast.error('An error occurred!');
+        }
+    };
+
+    const handlereset =()=>{
+        setSweetSelections([
+            { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
+        ]);
+    }
+    useEffect(() => {
+        if (remainingOrder && showsweetsinmodel) {
+            const initialSelections = [];
+    
+            Object.keys(remainingOrder).forEach((sweetName) => {
+                const sweetData = remainingOrder[sweetName]; // This is the object with weights and quantities
+                const sweet = showsweetsinmodel.sweets[sweetName] || {};
+                const weights = [];
+    
+                // Gather available weights
+                if (sweet.oneKg > 0) weights.push('1 Kg');
+                if (sweet.halfKg > 0) weights.push('1/2 Kg');
+                if (sweet.quarterKg > 0) weights.push('1/4 Kg');
+                if (sweet.otherPackings > 0) weights.push(`${sweet.otherWeight}g`);
+                if (sweet.otherPackings2 > 0) weights.push(`${sweet.otherWeight2}g`);
+    
+                // Add the data into initialSelections for each weight
+                if (sweetData.oneKg > 0) {
+                    initialSelections.push({
+                        sweetName,
+                        weight: '1 Kg',
+                        quantity: sweetData.oneKg,
+                        availableWeights: weights,
+                    });
+                }
+                if (sweetData.halfKg > 0) {
+                    initialSelections.push({
+                        sweetName,
+                        weight: '1/2 Kg',
+                        quantity: sweetData.halfKg,
+                        availableWeights: weights,
+                    });
+                }
+                if (sweetData.quarterKg > 0) {
+                    initialSelections.push({
+                        sweetName,
+                        weight: '1/4 Kg',
+                        quantity: sweetData.quarterKg,
+                        availableWeights: weights,
+                    });
+                }
+                if (sweetData.otherPackings > 0) {
+                    initialSelections.push({
+                        sweetName,
+                        weight: `${sweet.otherWeight}g`,
+                        quantity: sweetData.otherPackings,
+                        availableWeights: weights,
+                    });
+                }
+                if (sweetData.otherPackings2 > 0) {
+                    initialSelections.push({
+                        sweetName,
+                        weight: `${sweet.otherWeight2}g`,
+                        quantity: sweetData.otherPackings2,
+                        availableWeights: weights,
+                    });
+                }
+            });
+    
+            // Set the pre-filled selections
+            setSweetSelections(initialSelections);
+        }
+    }, [remainingOrder, showsweetsinmodel]);
+    
+ 
+
+   
+    
+ 
+    
+
+   
+
+  
     const fetchItemsFromAPI = async (url) => {
         setItems([])
         try {
@@ -205,10 +335,10 @@ const OrderLife = () => {
 
                 // Process the search results as needed
             } else {
-                console.error('Failed to fetch search results');
+               
             }
         } catch (error) {
-            console.error('An error occurred while fetching search results:', error);
+           
         }
     };
 
@@ -433,7 +563,7 @@ const OrderLife = () => {
         }
 
         try {
-            // console.log("response")
+          
             const response = await fetch('http://localhost:2025/update_sweet_order_paid', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -465,81 +595,7 @@ const OrderLife = () => {
         navigate(`${route}/${id}`);  
       };
     
-      const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-        const payload = sweetSelections.reduce((acc, { sweetName, weight, quantity }) => {
-            if (sweetName && weight && quantity > 0) {
-                // If the sweet name does not exist in the payload, create a new object for it
-                if (!acc[sweetName]) {
-                    acc[sweetName] = {
-                        oneKg: 0,
-                        halfKg: 0,
-                        quarterKg: 0,
-                        otherWeight: 0,
-                        otherPackings: 0,
-                        otherWeight2: 0,
-                        otherPackings2: 0,
-                        totalWeight: 0,
-                        price: showsweetsinmodel.sweets[sweetName].price // Assuming price is part of the sweets object
-                    };
-                }
-                
-                // Depending on the weight, increment the correct field
-                switch (weight) {
-                    case '1 Kg':
-                        acc[sweetName].oneKg += Number(quantity);
-                        break;
-                    case '1/2 Kg':
-                        acc[sweetName].halfKg += Number(quantity);
-                        break;
-                    case '1/4 Kg':
-                        acc[sweetName].quarterKg += Number(quantity);
-                        break;
-                    case `${showsweetsinmodel.sweets[sweetName].otherWeight}g`:
-                        acc[sweetName].otherPackings += Number(quantity);
-                        acc[sweetName].otherWeight = showsweetsinmodel.sweets[sweetName].otherWeight;
-                        break;
-                    case `${showsweetsinmodel.sweets[sweetName].otherWeight2}g`:
-                        acc[sweetName].otherPackings2 += Number(quantity);
-                        acc[sweetName].otherWeight2 = showsweetsinmodel.sweets[sweetName].otherWeight2;
-                        break;
-                    default:
-                        break;
-                }
-    
-                // Calculate total weight based on weight type
-                const oneKgWeight = acc[sweetName].oneKg * 1;
-                const halfKgWeight = acc[sweetName].halfKg * 0.5;
-                const quarterKgWeight = acc[sweetName].quarterKg * 0.25;
-                const otherWeightKg = (acc[sweetName].otherWeight / 1000) * acc[sweetName].otherPackings;
-                const otherWeightKg2 = (acc[sweetName].otherWeight2 / 1000) * acc[sweetName].otherPackings2;
-    
-                acc[sweetName].totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
-            }
-            return acc;
-        }, {});
-        console.log("payload",payload)
-    
-        try {
-            const response = await fetch('http://localhost:2025/update_remaining_order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ order_id: raw_id, remaining_order: payload }),
-            });
-    
-            if (response.ok) {
-                toast.success('Operation was successful!');
-                setIsSweetsModalOpen(false);
-            } else {
-                toast.error('Operation Failed!');
-            }
-        } catch (error) {
-            toast.error('An error occurred!');
-        }
-    };
+  
     
 
     return (
@@ -739,7 +795,7 @@ const OrderLife = () => {
                                 key={item._id}
                                
                             >
-                                        {console.log(item.name,"1",activeTab === 'all',"2",item.received_amount!==null,"3",item.received_amount < item.summary.totalPrice)}
+                                       
                                         <td><b>{index + 1}</b></td>
                                         <td><b>{item.name}</b></td>
                                         <td><b>₹{item?.summary?.totalPrice}</b></td>
@@ -789,7 +845,7 @@ const OrderLife = () => {
                                                 </>
                                             )}
                                            
-                                            {activeTab == "paid" && activeTab !== "all" && (
+                                            {activeTab !== "paid" && activeTab !== "all" && (
                                                 <>
                                                     <FontAwesomeIcon
                                                         icon={faThumbsUp}
@@ -813,7 +869,7 @@ const OrderLife = () => {
                                                     <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
                                                 </>
                                             )}
-                                            {activeTab === "initial" && activeTab !== "packed" && activeTab !== "paid" && (
+                                            {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
                                                 <>
                                                     <FontAwesomeIcon
                                                         icon={faTrashAlt}
@@ -863,93 +919,86 @@ const OrderLife = () => {
                 <button onClick={closeModal}>Close</button>
             </Modal>
             <Modal
-            isOpen={issweetsModalOpen}
-            onRequestClose={closeModal}
-            contentLabel="Pack Sweets Modal"
-            className="custom-sweets-modal"
-            overlayClassName="custom-sweets-overlay"
-        >
-            <h2>Remaining Sweets</h2>
-            {showsweetsinmodel && sweetSelections.map((selection, index) => (
-                <div key={index} className="unique-sweet-selection-box">
-                    <div className="unique-sweet-field">
-                        <label htmlFor={`sweetName-${index}`}>Select Sweet:</label>
-                        <select
-                            id={`sweetName-${index}`}
-                            className="unique-form-control"
-                            value={selection.sweetName}
-                            onChange={(e) => handleSweetChange(index, e)}
-                        >
-                            <option value="" disabled>Select a sweet</option>
-                            {Object.keys(showsweetsinmodel.sweets).map((sweetName, i) => (
-                                <option key={i} value={sweetName}>
-                                    {sweetName.replace(/_/g, ' ')}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                isOpen={issweetsModalOpen}
+                onRequestClose={closeModal}
+                contentLabel="Pack Sweets Modal"
+                className="custom-sweets-modal"
+                overlayClassName="custom-sweets-overlay"
+            >
+                <h2>Remaining Sweets</h2>
+                {showsweetsinmodel && sweetSelections.map((selection, index) => (
+                    <div key={index} className="unique-sweet-selection-box">
+                        <div className="unique-sweet-field">
+                            <label htmlFor={`sweetName-${index}`}>Select Sweet:</label>
+                            <select
+                                id={`sweetName-${index}`}
+                                className="unique-form-control"
+                                value={selection.sweetName}
+                                onChange={(e) => handleSweetChange(index, e)}
+                            >
+                                <option value="" disabled>Select a sweet</option>
+                                {Object.keys(showsweetsinmodel.sweets).map((sweetName, i) => (
+                                    <option key={i} value={sweetName}>
+                                        {sweetName.replace(/_/g, ' ')}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <div className="unique-sweet-field">
-                        <label htmlFor={`weight-${index}`}>Select Weight:</label>
-                        {console.log("availabel weight",selection.availableWeights)}
-                        <select
-                            id={`weight-${index}`}
-                            className="unique-form-control"
-                            value={selection.weight}
-                            onChange={(e) => handleWeightChange(index, e)}
-                            disabled={!selection.availableWeights.length}
-                        >
-                            <option value="" disabled>Select a weight</option>
-                            {selection.availableWeights.map((weight, i) => (
-                                <option key={i} value={weight}>
-                                    {weight}
-                                </option>
-                            ))} 
-                        </select>
-                    </div>
+                        <div className="unique-sweet-field">
+                            <label htmlFor={`weight-${index}`}>Select Weight:</label>
+                            
+                            <select
+                                id={`weight-${index}`}
+                                className="unique-form-control"
+                                value={selection.weight}
+                                onChange={(e) => handleWeightChange(index, e)}
+                                disabled={!selection.availableWeights.length}
+                            >
+                                <option value="" disabled>Select a weight</option>
+                                {selection.availableWeights.map((weight, i) => (
+                                    <option key={i} value={weight}>
+                                        {weight}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
 
-                    <div className="unique-sweet-field">
-                        <label htmlFor={`quantity-${index}`}>Enter Quantity:</label>
-                        <input
-                            type="number"
-                            id={`quantity-${index}`}
-                            className="unique-form-control"
-                            value={selection.quantity}
-                            onChange={(e) => handleQuantityChange(index, e)}
-                            min="0"
-                            disabled={!selection.weight}
-                        />
-                    </div>
+                        <div className="unique-sweet-field">
+                            <label htmlFor={`quantity-${index}`}>Enter Quantity:</label>
+                            <input
+                                type="number"
+                                id={`quantity-${index}`}
+                                className="unique-form-control"
+                                value={selection.quantity}
+                                onChange={(e) => handleQuantityChange(index, e)}
+                                min="0"
+                                disabled={!selection.weight}
+                            />
+                        </div>
 
-                     <FontAwesomeIcon
+                        <FontAwesomeIcon
                             icon={faTrashAlt}
                             style={{ cursor: 'pointer', color: '#333', marginTop: '34px', marginRight: '15px' }}
                             data-tooltip-id="delete-item-tooltip"
                             data-tooltip-content="Delete"
                             onClick={() => deleteSelection(index)}
                         />
-                        <Tooltip id="delete-item-tooltip" place="top" type="dark" effect="solid" />
-                      
+                    </div>
+                ))}
 
+                <FontAwesomeIcon
+                    icon={faPlus}
+                    className="unique-add-button"
+                    style={{ cursor: 'pointer', color: '#333', marginLeft: '919px', fontSize: '25px' }}
+                    data-tooltip-id="add-tooltip"
+                    data-tooltip-content="Add"
+                    onClick={addSelection}
+                />
+                <div className="button-group">
+                    <button type="submit" onClick={handleSubmit}>Submit Order</button>
                 </div>
-            ))}
-           {/* <button type="button"  onClick={addSelection} className="unique-add-button">Add</button> */}
-               
-           <FontAwesomeIcon
-                                                icon={faPlus}
-                                                className="unique-add-button"
-                                                style={{ cursor: 'pointer', color: '#333' ,marginLeft:'919px',fontSize:'25px'}}
-                                                data-tooltip-id="add-tooltip"
-                                                data-tooltip-content="Add"
-                                                onClick={addSelection}
-                                            />
-                                            <Tooltip id="add-tooltip" place="top" type="dark" effect="solid" />
-               <div className="button-group">
-                 <button type="submit" onClick={handleSubmit}>Submit Order</button>
-                 <button type="button" onClick={handlereset} className="reset-button"><b>Reset</b></button>
-               </div>
-               <button onClick={closeModal}>Close</button>
-        </Modal>
+            </Modal>
 
             <ToastContainer />
         </div>
