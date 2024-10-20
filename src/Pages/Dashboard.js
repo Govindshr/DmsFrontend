@@ -40,7 +40,7 @@ const Dashboard = () => {
 
     const fetchBoxData = async () => {
       try {
-        const response = await fetch('http://localhost:2025/get_sweets_aggregation');
+        const response = await fetch('https://dms-backend-seven.vercel.app/get_sweets_aggregation');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
@@ -56,7 +56,7 @@ const Dashboard = () => {
 
     const fetchPackedBoxData = async () => {
       try {
-        const response = await fetch('http://localhost:2025/get_packed_sweets_aggregation');
+        const response = await fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
@@ -167,10 +167,12 @@ const Dashboard = () => {
           }
         });
       };
-
+if(sweet.totalOtherWeight){
       addOtherObjectFields(sweet.totalOtherWeight);
+    }
+    if(sweet.totalOtherWeight2){
       addOtherObjectFields(sweet.totalOtherWeight2);
-
+    }
       setPackedWeightobject(weightObject);
     }
   };

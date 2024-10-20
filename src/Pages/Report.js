@@ -45,7 +45,7 @@ const Report = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://localhost:2025/get_all_orders');
+      const response = await fetch('https://dms-backend-seven.vercel.app/get_all_orders');
       if (response.ok) {
         const result = await response.json();
         setAllOrders(result.data);
@@ -59,7 +59,7 @@ const Report = () => {
 
   const fetchExpenses = async () => {
     try {
-      const response = await fetch('http://localhost:2025/getExpence');
+      const response = await fetch('https://dms-backend-seven.vercel.app/getExpence');
       if (response.ok) {
         const data = await response.json();
         setAllExpense(data.result);

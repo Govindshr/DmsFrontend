@@ -31,7 +31,7 @@ const EditOrder = () => {
 
   const getEditedData = async (id) => {
     try {
-      const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_id: id }),
@@ -117,7 +117,7 @@ const EditOrder = () => {
     };
 console.log("finalOrder",finalOrder)
     try {
-      const response = await fetch('http://localhost:2025/update_sweet_order', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

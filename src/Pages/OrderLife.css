@@ -307,3 +307,8 @@
   background-color: #e41f1f;
 }
 
+.modalformitem{
+
+  display: flex;
+}
+
