@@ -8,21 +8,25 @@ import { useNavigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 
 const EditOrder = () => {
-  const { id } = useParams(); // Get the dynamic id from the URL
+  const { id } = useParams(); 
   const [name, setName] = useState('');
   const navigate = useNavigate();
   const [number, setNumber] = useState('');
   const [orderData, setOrderData] = useState({
-    Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-    Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-    Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
-    Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-    Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
-    Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-    Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-  });
+    Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
+      Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
+      Sangam_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 900 },
+      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 850 },
+      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 800 },
+      Makhan_Bada: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
+      Nainwa_Ka_Petha: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
+      Bundi_Ke_Laddu_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Giri_Pak: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Namkeen: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
+      Papdi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
+});
 
-  // Fetch order details based on the id from the route
   useEffect(() => {
     if (id) {
       getEditedData(id);
@@ -31,7 +35,7 @@ const EditOrder = () => {
 
   const getEditedData = async (id) => {
     try {
-      const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_id: id }),
@@ -39,8 +43,6 @@ const EditOrder = () => {
 
       if (response.ok) {
         const data = await response.json();
-        console.log("data",data)
-        // Set the fetched order data to state
         setOrderData(data.data[0].sweets);
         setName(data.data[0].name);
         setNumber(data.data[0].number);
@@ -115,9 +117,9 @@ const EditOrder = () => {
       sweets: updatedOrderData,
       summary: calculateSummary,
     };
-console.log("finalOrder",finalOrder)
+
     try {
-      const response = await fetch('http://localhost:2025/update_sweet_order', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,7 +130,6 @@ console.log("finalOrder",finalOrder)
       if (response.ok) {
         navigate('/order-life'); 
         toast.success('Order updated successfully!');
-       
       } else {
         toast.error('Failed to update order!');
       }
@@ -141,15 +142,22 @@ console.log("finalOrder",finalOrder)
     setName('');
     setNumber('');
     setOrderData({
-      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 700 },
-      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 300 },
-      Ras_Gulla: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-      Laddoo_Milk: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 350 },
-      Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
-      Ladoo_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 400 },
+      Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
+      Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
+      Sangam_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 900 },
+      Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 850 },
+      Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 800 },
+      Makhan_Bada: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
+      Nainwa_Ka_Petha: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
+      Bundi_Ke_Laddu_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Giri_Pak: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Gulab_Jamun: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
+      Namkeen: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
+      Papdi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
+
     });
   };
+
   return (
     <>
       <div className="add-order-container">
@@ -164,8 +172,6 @@ console.log("finalOrder",finalOrder)
                     type="text"
                     id="name"
                     value={name}
-                    // size={100}
-                    // style={{width:'50%'}}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter customer name"
                     required
@@ -177,8 +183,14 @@ console.log("finalOrder",finalOrder)
                     type="text"
                     id="number"
                     value={number}
-                    // style={{width:'50%'}}
-                    onChange={(e) => setNumber(e.target.value)}
+                 
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Allow only numbers and limit to 10 digits
+                      if (/^\d*$/.test(value) && value.length <= 10) {
+                        setNumber(value);
+                      }
+                    }}
                     placeholder="Enter customer number"
                     required
                   />
@@ -195,6 +207,7 @@ console.log("finalOrder",finalOrder)
                     <th>1/4Kg Packing</th>
                     <th>Other<br></br> (weight x Quant)</th>
                     <th>Other2<br></br> (weight x Quant)</th>
+                    <th>Total Weight (Kg)</th> {/* New column for total weight */}
                   </tr>
                 </thead>
                 <tbody>
@@ -208,18 +221,17 @@ console.log("finalOrder",finalOrder)
                           type="number"
                           value={orderData[sweet].oneKg}
                           onChange={(e) => handleChange(sweet, 'oneKg', e.target.value)}
-                          onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                          onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
                         />
-
                       </td>
                       <td>
                         <input
                           type="number"
                           value={orderData[sweet].halfKg}
                           onChange={(e) => handleChange(sweet, 'halfKg', e.target.value)}
-                          onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                          onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
                         />
@@ -229,7 +241,7 @@ console.log("finalOrder",finalOrder)
                           type="number"
                           value={orderData[sweet].quarterKg}
                           onChange={(e) => handleChange(sweet, 'quarterKg', e.target.value)}
-                          onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                          onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
                         />
@@ -241,7 +253,7 @@ console.log("finalOrder",finalOrder)
                             value={orderData[sweet].otherWeight}
                             onChange={(e) => handleChange(sweet, 'otherWeight', e.target.value)}
                             min="0"
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()} 
                             placeholder="Weight (g)"
                             className="custom-packing-weight"
                           />
@@ -251,7 +263,7 @@ console.log("finalOrder",finalOrder)
                             value={orderData[sweet].otherPackings}
                             onChange={(e) => handleChange(sweet, 'otherPackings', e.target.value)}
                             min="0"
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()} 
                             placeholder="No. of packs"
                             className="custom-packing-quantity"
                           />
@@ -264,7 +276,7 @@ console.log("finalOrder",finalOrder)
                             value={orderData[sweet].otherWeight2}
                             onChange={(e) => handleChange(sweet, 'otherWeight2', e.target.value)}
                             min="0"
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()} 
                             placeholder="Weight (g)"
                             className="custom-packing-weight"
                           />
@@ -274,11 +286,20 @@ console.log("finalOrder",finalOrder)
                             value={orderData[sweet].otherPackings2}
                             onChange={(e) => handleChange(sweet, 'otherPackings2', e.target.value)}
                             min="0"
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()} 
                             placeholder="No. of packs"
                             className="custom-packing-quantity"
                           />
                         </div>
+                      </td>
+                      <td>
+                        <b>{(
+                          orderData[sweet].oneKg * 1 +
+                          orderData[sweet].halfKg * 0.5 +
+                          orderData[sweet].quarterKg * 0.25 +
+                          (orderData[sweet].otherWeight / 1000) * orderData[sweet].otherPackings +
+                          (orderData[sweet].otherWeight2 / 1000) * orderData[sweet].otherPackings2
+                        ).toFixed(2)} Kg</b> {/* Display calculated total weight */}
                       </td>
                     </tr>
                   ))}
@@ -291,36 +312,22 @@ console.log("finalOrder",finalOrder)
                     <th>Total Price </th>
                     <th>Total Weight</th>
                     <th>Total Boxes</th>
-
                   </tr>
                 </thead>
                 <tbody>
-
                   <tr>
                     <td><b>₹{calculateSummary.totalPrice.toFixed(2)}</b></td>
                     <td><b> {calculateSummary.totalWeight.toFixed(2)} Kg</b></td>
                     <td><b>{calculateSummary.totalBoxes}</b></td>
-
                   </tr>
-
                 </tbody>
               </table>
 
               <div className="button-group">
                 <button type="submit">Submit Order</button>
-                
               </div>
             </form>
           </div>
-
-          {/* <div className="order-summary">
-            <div style={{ marginTop: '60%' }}>
-              <h2>Order Summary</h2>
-              <p><b>Total Price : ₹{calculateSummary.totalPrice.toFixed(2)}</b></p>
-              <p><b>Total Weight : {calculateSummary.totalWeight.toFixed(2)} Kg</b></p>
-              <p><b>Total Boxes : {calculateSummary.totalBoxes}</b></p>
-            </div>
-          </div> */}
         </div>
       </div>
       <ToastContainer />
