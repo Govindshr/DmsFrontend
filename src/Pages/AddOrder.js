@@ -84,7 +84,7 @@ const AddOrder = () => {
     };
 
     try {
-      const response = await fetch('https://dms-backend-seven.vercel.app/sweet_order_details', {
+      const response = await fetch('http://localhost:2025/sweet_order_details', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

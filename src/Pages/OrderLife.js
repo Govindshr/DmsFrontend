@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye,faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { Tooltip } from 'react-tooltip';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
+import { faFileInvoice } from '@fortawesome/free-solid-svg-icons/faFileInvoice';
 import { faX } from '@fortawesome/free-solid-svg-icons/faX';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';  
+import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
+import GenerateBill from '../Components/Generatebill';
 import './OrderLife.css';
 
 Modal.setAppElement('#root');
@@ -21,7 +23,7 @@ const OrderLife = () => {
     const [items, setItems] = useState([]);
     const navigate = useNavigate();
     const [selectedItem, setSelectedItem] = useState(null);
-    const [sweetsfordropdown,setSweetsfordropdown] = useState([])
+    const [sweetsfordropdown, setSweetsfordropdown] = useState([])
     const [orderData, setOrderData] = useState(null);
     const [remainingOrder, setRemainingOrder] = useState(null);
     const [raw_id, setId] = useState('');
@@ -30,30 +32,36 @@ const OrderLife = () => {
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [issweetsModalOpen, setIsSweetsModalOpen] = useState(false);
     const [modelonhover, setModelOnHover] = useState(false);
+    const [billmodel, setBillmodel] = useState(false);
+    const [billData, setBillData] = useState(null);
+    const [billData2, setBillData2] = useState(null);
     const [receivedMoney, setReceivedMoney] = useState('');
+    const [paymentMode, setPaymentMode] = useState('');
     const [sweetSelections, setSweetSelections] = useState([
         { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
     ]);
-   
+
     useEffect(() => {
         if (activeTab === "initial") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
         } else if (activeTab === "all") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+        } else if (activeTab === "partial_packed") {
+            fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
         }
         else if (activeTab === "packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
         } else if (activeTab === "delivered") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
         } else if (activeTab === "paid") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
         }
         if (remainingOrder) {
-            
+
             const initialSelections = [];
 
             Object.keys(remainingOrder).forEach((sweetName) => {
-                const sweetData = remainingOrder[sweetName]; 
+                const sweetData = remainingOrder[sweetName];
                 const sweet = showsweetsinmodel.sweets[sweetName] || {};
                 const weights = [];
 
@@ -210,12 +218,12 @@ const OrderLife = () => {
         }, {});
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_remaining_order', {
+            const response = await fetch('http://localhost:2025/update_remaining_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ order_id: raw_id, remaining_order: payload }),
+                body: JSON.stringify({ order_id: raw_id, remaining_order: payload, is_half_packed: 1 }),
             });
 
             if (response.ok) {
@@ -229,7 +237,7 @@ const OrderLife = () => {
         }
     };
 
-    const handlereset =()=>{
+    const handlereset = () => {
         setSweetSelections([
             { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
         ]);
@@ -237,19 +245,19 @@ const OrderLife = () => {
     useEffect(() => {
         if (remainingOrder && showsweetsinmodel) {
             const initialSelections = [];
-    
+
             Object.keys(remainingOrder).forEach((sweetName) => {
                 const sweetData = remainingOrder[sweetName]; // This is the object with weights and quantities
                 const sweet = showsweetsinmodel.sweets[sweetName] || {};
                 const weights = [];
-    
+
                 // Gather available weights
                 if (sweet.oneKg > 0) weights.push('1 Kg');
                 if (sweet.halfKg > 0) weights.push('1/2 Kg');
                 if (sweet.quarterKg > 0) weights.push('1/4 Kg');
                 if (sweet.otherPackings > 0) weights.push(`${sweet.otherWeight}g`);
                 if (sweet.otherPackings2 > 0) weights.push(`${sweet.otherWeight2}g`);
-    
+
                 // Add the data into initialSelections for each weight
                 if (sweetData.oneKg > 0) {
                     initialSelections.push({
@@ -292,22 +300,22 @@ const OrderLife = () => {
                     });
                 }
             });
-    
+
             // Set the pre-filled selections
             setSweetSelections(initialSelections);
         }
     }, [remainingOrder, showsweetsinmodel]);
-    
- 
 
-   
-    
- 
-    
 
-   
 
-  
+
+
+
+
+
+
+
+
     const fetchItemsFromAPI = async (url) => {
         setItems([])
         try {
@@ -335,7 +343,7 @@ const OrderLife = () => {
 
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_name', {
+            const response = await fetch('http://localhost:2025/get_order_based_on_name', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -349,19 +357,19 @@ const OrderLife = () => {
 
                 // Process the search results as needed
             } else {
-               
+
             }
         } catch (error) {
-           
+
         }
     };
 
     const handleViewClick = (item) => {
-        
-        
+
+
         postViewAPI(item._id, '');
     };
-    const handleTableRowClick = (item) =>{
+    const handleTableRowClick = (item) => {
         setModelOnHover(true)
         postViewAPI(item._id, '');
     }
@@ -369,7 +377,7 @@ const OrderLife = () => {
     const postViewAPI = async (id, type) => {
         const data = { order_id: id };
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
+            const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -378,7 +386,7 @@ const OrderLife = () => {
                 const data = await response.json();
 
                 if (type === "model") {
-                    
+
                     getSweetsWithPositiveWeight(data.data[0].sweets)
                     setShowSweetsInModel(data.data[0])
                     setId(id);
@@ -387,7 +395,7 @@ const OrderLife = () => {
                 } else {
                     setSelectedItem(data.data[0]);
                     setOrderData(data.data[0]);
-                    
+
                 }
             } else {
 
@@ -396,31 +404,37 @@ const OrderLife = () => {
 
         }
     };
-const getSweetsWithPositiveWeight = (sweets) => {
-  const sweetNames = [];
-  
-  Object.keys(sweets).forEach(sweetName => {
-    if (sweets[sweetName].totalWeight > 0) {
-      sweetNames.push(sweetName);
-    }
-  });
-  setSweetsfordropdown(sweetNames)
+    const getSweetsWithPositiveWeight = (sweets) => {
+        const sweetNames = [];
 
-  return sweetNames;
-};
+        Object.keys(sweets).forEach(sweetName => {
+            if (sweets[sweetName].totalWeight > 0) {
+                sweetNames.push(sweetName);
+            }
+        });
+        setSweetsfordropdown(sweetNames)
 
-
+        return sweetNames;
+    };
 
 
+
+    const handlegenereatebill = (item,data) => {
+        setBillData(item);
+        setBillData2(data)
+        setBillmodel(true);
+    };
 
     const closeModal = () => {
-        
+
         setIsPaymentModalOpen(false);
         setIsSweetsModalOpen(false)
         setSelectedItem(null);
         setOrderData(null);
         setReceivedMoney('');
+        setPaymentMode('')
         setModelOnHover(false)
+        setBillmodel(false)
     };
 
     const handlePackedClick = (itemId, obj) => {
@@ -461,7 +475,7 @@ const getSweetsWithPositiveWeight = (sweets) => {
 
     const callPackedAPI = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_packed', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_packed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: itemId }),
@@ -469,16 +483,18 @@ const getSweetsWithPositiveWeight = (sweets) => {
             if (response.ok) {
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+                } else if (activeTab === "partial_packed") {
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -521,7 +537,7 @@ const getSweetsWithPositiveWeight = (sweets) => {
 
     const CallDeliveredAPI = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_delivered', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_delivered', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -529,19 +545,21 @@ const getSweetsWithPositiveWeight = (sweets) => {
                 body: JSON.stringify({ orderId: itemId }),
             });
             if (response.ok) {
-                
+
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+                } else if (activeTab === "partial_packed") {
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -550,9 +568,10 @@ const getSweetsWithPositiveWeight = (sweets) => {
             Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
         }
     };
+
     const callDeleteApi = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/delete_order', {
+            const response = await fetch('http://localhost:2025/delete_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -560,19 +579,21 @@ const getSweetsWithPositiveWeight = (sweets) => {
                 body: JSON.stringify({ order_id: itemId._id }),
             });
             if (response.ok) {
-                
+
                 Swal.fire('Success!', 'The order has been Deleted.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+                } else if (activeTab === "partial_packed") {
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -600,26 +621,28 @@ const getSweetsWithPositiveWeight = (sweets) => {
         }
 
         try {
-          
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_paid', {
+
+            const response = await fetch('http://localhost:2025/update_sweet_order_paid', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney }),
+                body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney ,payment_mode:paymentMode }),
             });
             if (response.ok) {
                 Swal.fire('Success!', 'Payment has been successfully recorded.', 'success');
                 closeModal();
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
+                } else if (activeTab === "partial_packed") {
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to submit payment.', 'error');
@@ -628,12 +651,12 @@ const getSweetsWithPositiveWeight = (sweets) => {
             Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
         }
     };
-    const handleEditClick = (route,id) => {
-        navigate(`${route}/${id}`);  
-      };
-    
-  
-    
+    const handleEditClick = (route, id) => {
+        navigate(`${route}/${id}`);
+    };
+
+
+
 
     return (
         <div className="order-life-container">
@@ -645,31 +668,37 @@ const getSweetsWithPositiveWeight = (sweets) => {
                         <div className="tabs">
                             <button
                                 className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders'); }}
+                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('http://localhost:2025/get_all_orders'); }}
                             >
                                 All
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'initial' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details'); }}
+                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details'); }}
                             >
                                 Initial
                             </button>
                             <button
+                                className={`tab-button ${activeTab === 'partial_packed' ? 'active' : ''}`}
+                                onClick={() => { handleTabClick('partial_packed'); fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders'); }}
+                            >
+                                Partial Packed
+                            </button>
+                            <button
                                 className={`tab-button ${activeTab === 'packed' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders'); }}
+                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('http://localhost:2025/get_packed_orders'); }}
                             >
                                 Packed
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'delivered' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders'); }}
+                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('http://localhost:2025/get_delivered_orders'); }}
                             >
                                 Delivered
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'paid' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders'); }}
+                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('http://localhost:2025/get_paid_orders'); }}
                             >
                                 Completed
                             </button>
@@ -686,120 +715,136 @@ const getSweetsWithPositiveWeight = (sweets) => {
                         </div>
                     </div></>}
 
-              
-                    
-                        <h2>{activeTab} Orders</h2>
-                        <table className="order-table">
-                            <thead>
-                                <tr>
-                                    <th><b>S.No.</b></th>
-                                    <th><b>Name</b></th>
-                                    <th><b>Price</b></th>
-                                    {activeTab === 'all' && <th><b>Amount Received</b></th>}
-                                    {activeTab === 'all' && <th><b>Difference Amount</b></th>}
-                                    <th><b>Date & Time</b></th>
-                                    <th><b>Action</b></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {items.map((item, index) => (
-                                <tr
+
+
+                <h2>
+                    {activeTab.replace(/_/g, ' ').charAt(0).toUpperCase() + activeTab.replace(/_/g, ' ').slice(1)} Orders
+                </h2>
+
+                <table className="order-table">
+                    <thead>
+                        <tr>
+                            <th><b>S.No.</b></th>
+                            <th><b>Name</b></th>
+                            <th><b>Price</b></th>
+                            {activeTab === 'all' && <th><b>Amount Received</b></th>}
+                            {activeTab === 'all' && <th><b>Difference Amount</b></th>}
+                            <th><b>Date & Time</b></th>
+                            <th><b>Action</b></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.map((item, index) => (
+                            <tr
                                 key={item._id}
-                               
+
                             >
-                                       
-                                        <td><b>{index + 1}</b></td>
-                                        <td><b>{item.name}</b></td>
-                                        <td><b>₹{item?.summary?.totalPrice}</b></td>
-                                        {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount:" NA"}</b></td>}
-                                         {activeTab === 'all' && <td  className={
+
+                                <td><b>{index + 1}</b></td>
+                                <td><b>{item.name}</b></td>
+                                <td><b>₹{item?.summary?.totalPrice}</b></td>
+                                {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount : " NA"}</b></td>}
+                                {activeTab === 'all' && <td className={
                                     activeTab === 'all' &&
-                                    item.received_amount !== null &&
-                                    typeof item.received_amount === 'number' &&
-                                    item.summary &&
-                                    item.summary.totalPrice !== undefined &&
-                                    item.received_amount < item.summary.totalPrice
+                                        item.received_amount !== null &&
+                                        typeof item.received_amount === 'number' &&
+                                        item.summary &&
+                                        item.summary.totalPrice !== undefined &&
+                                        item.received_amount < item.summary.totalPrice
                                         ? 'highlight-row'
                                         : ''
-                                }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice-item.received_amount.toFixed(2):" NA"}</b></td>}
-                                        <td><b>{item.created}</b></td>
-                                        <td>
+                                }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice - item.received_amount.toFixed(2) : " NA"}</b></td>}
+                                <td><b>{item.created}</b></td>
+                                <td>
+                                    <FontAwesomeIcon
+                                        icon={faEye}
+                                        style={{ cursor: 'pointer', color: '#333' }}
+                                        data-tooltip-id="view-tooltip"
+                                        data-tooltip-content="View"
+                                        onClick={() => handleTableRowClick(item)}
+                                    />
+                                    <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
+                                    {activeTab === "initial" && (
+                                        <>
                                             <FontAwesomeIcon
-                                                icon={faEye}
-                                                style={{ cursor: 'pointer', color: '#333' }}
-                                                data-tooltip-id="view-tooltip"
-                                                data-tooltip-content="View"
-                                                onClick={() => handleTableRowClick(item)}
+                                                icon={faBox}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="packed-tooltip"
+                                                data-tooltip-content="Order Packed"
+                                                onClick={() => handlePackedClick(item._id, item)}
                                             />
-                                            <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
-                                            {activeTab === "initial" && (
-                                                <>
-                                                    <FontAwesomeIcon
-                                                        icon={faBox}
-                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                        data-tooltip-id="packed-tooltip"
-                                                        data-tooltip-content="Order Packed"
-                                                        onClick={() => handlePackedClick(item._id, item)}
-                                                    />
-                                                    <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
-                                                </>
-                                            )}
-                                            {activeTab === "packed" && (
-                                                <>
-                                                    <FontAwesomeIcon
-                                                        icon={faShippingFast}
-                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                        data-tooltip-id="Deliver-tooltip"
-                                                        data-tooltip-content="Order Delivered"
-                                                        onClick={() => handleDeliveredClick(item._id)}
-                                                    />
-                                                    <Tooltip id="Deliver-tooltip" place="top" type="dark" effect="solid" />
-                                                </>
-                                            )}
-                                           
-                                            {activeTab !== "paid" && activeTab !== "all" && (
-                                                <>
-                                                    <FontAwesomeIcon
-                                                        icon={faThumbsUp}
-                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                        data-tooltip-id="complete-tooltip"
-                                                        data-tooltip-content="Payment Done"
-                                                        onClick={() => handleThumbsUpClick(item)}
-                                                    />
-                                                    <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
-                                                </>
-                                            )}
-                                             {activeTab === "initial" && (
-                                                <>
-                                                    <FontAwesomeIcon
-                                                        icon={faEdit}
-                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                        data-tooltip-id="edit-tooltip"
-                                                        data-tooltip-content="Edit Order"
-                                                        onClick={() => handleEditClick('/edit-order',item._id)}
-                                                    />
-                                                    <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
-                                                </>
-                                            )}
-                                            {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
-                                                <>
-                                                    <FontAwesomeIcon
-                                                        icon={faTrashAlt}
-                                                        style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                        data-tooltip-id="delete-tooltip"
-                                                        data-tooltip-content="Delete"
-                                                        onClick={() => hadleDeleteData(item)}
-                                                    />
-                                                    <Tooltip id="delete-tooltip" place="top" type="dark" effect="solid" />
-                                                </>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                   
-              
+                                            <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+                                    {(activeTab === "packed" || activeTab === "partial_packed") && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faShippingFast}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="Deliver-tooltip"
+                                                data-tooltip-content="Order Delivered"
+                                                onClick={() => handleDeliveredClick(item._id)}
+                                            />
+                                            <Tooltip id="Deliver-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+
+
+                                    {activeTab !== "paid" && activeTab !== "all" && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faThumbsUp}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="complete-tooltip"
+                                                data-tooltip-content="Payment Done"
+                                                onClick={() => handleThumbsUpClick(item)}
+                                            />
+                                            <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+                                    {activeTab !== "paid" && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faFileInvoice}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="complete-tooltip"
+                                                data-tooltip-content="Generate Bill"
+                                                onClick={() => handlegenereatebill(item.sweets,item)}
+                                            />
+                                            <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+                                    {activeTab === "initial" && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faEdit}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="edit-tooltip"
+                                                data-tooltip-content="Edit Order"
+                                                onClick={() => handleEditClick('/edit-order', item._id)}
+                                            />
+                                            <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+                                    {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faTrashAlt}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="delete-tooltip"
+                                                data-tooltip-content="Delete"
+                                                onClick={() => hadleDeleteData(item)}
+                                            />
+                                            <Tooltip id="delete-tooltip" place="top" type="dark" effect="solid" />
+                                        </>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+
             </div>
 
             <Modal
@@ -824,6 +869,23 @@ const getSweetsWithPositiveWeight = (sweets) => {
                                 placeholder="Enter received money"
                                 required
                             />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="paymentmode"><b>Payment Mode:</b></label>
+                          
+                               <select
+                            id="paymentmode"
+                            name="Paymentmode"
+                            value={paymentMode}
+                            onChange={(e) => setPaymentMode(e.target.value)}
+                            // style={{width:'100%'}}
+                          
+                        >
+                            <option value="" disabled>Select type*</option>
+                            <option value="online">Online</option>
+                            <option value="cash">Cash</option>
+                          
+                        </select>
                         </div>
                         <button type='submit' onClick={handlePaymentSubmit}>Submit </button>
                     </div>
@@ -859,7 +921,7 @@ const getSweetsWithPositiveWeight = (sweets) => {
 
                         <div className="unique-sweet-field">
                             <label htmlFor={`weight-${index}`}>Select Weight:</label>
-                            
+
                             <select
                                 id={`weight-${index}`}
                                 className="unique-form-control"
@@ -919,130 +981,140 @@ const getSweetsWithPositiveWeight = (sweets) => {
                 overlayClassName="custom-sweets-overlay"
             >
                 <div>
-                        <div className="order-details">
-                            <h2>Order Details</h2>
-                            <button style={{ marginRight: '100px' }} onClick={handleBackClick} className="back-button">
-                                <FontAwesomeIcon icon={faArrowLeft} style={{ cursor: 'pointer', color: 'white', marginRight: '5px' }} />
-                                Back</button>
-                            <div style={{ display: 'flex' }}>
-                                <div >
-                                    <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Name:</b> {selectedItem?.name}</p>
-                                    <p style={{ marginRight: '100px', fontSize: 'larger' }} ><b>Price:</b> ₹{selectedItem?.summary.totalPrice}</p>
-                                    <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Date & Time:</b> {selectedItem?.created}</p>
-                                </div>
-                                <div>
-                                    <p style={{ fontSize: 'larger' }}>
-                                        
-                                        {selectedItem?.is_packed === 1 ? (
-                                            <FontAwesomeIcon
-                                                icon={faCheck}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faX}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
-                                            />
-                                        )}
-                                        <b>Packing</b>
-                                    </p>
-                                    <p style={{ fontSize: 'larger' }}>
-                                      
-                                        {selectedItem?.is_delivered === 1 ? (
-                                            <FontAwesomeIcon
-                                                icon={faCheck}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faX}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
-                                            />
-                                        )}
-                                          <b>Delivery</b>
-                                    </p>
-                                    <p style={{ fontSize: 'larger' }}>
-                                        
-                                        {selectedItem?.is_paid === 1 ? (
-                                            <FontAwesomeIcon
-                                                icon={faCheck}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
-                                            />
-                                        ) : (
-                                            <FontAwesomeIcon
-                                                icon={faX}
-                                                style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
-                                            />
-                                        )}
-                                        <b>Payment</b>
-                                    </p>
-                                </div>
+                    <div className="order-details">
+                        <h2>Order Details</h2>
+
+                        <div style={{ display: 'flex' }}>
+                            <div >
+                                <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Name:</b> {selectedItem?.name}</p>
+                                <p style={{ marginRight: '100px', fontSize: 'larger' }} ><b>Price:</b> ₹{selectedItem?.summary.totalPrice}</p>
+                                <p style={{ marginRight: '100px', fontSize: 'larger' }}><b>Date & Time:</b> {selectedItem?.created}</p>
                             </div>
+                            <div>
+                                <p style={{ fontSize: 'larger' }}>
 
-                            {orderData && (
-                                <div className="sweet-details-container">
-                                    {Object.keys(orderData.sweets).map((sweetName, index) => {
-                                        const sweet = orderData.sweets[sweetName];
+                                    {selectedItem?.is_packed === 1 ? (
+                                        <FontAwesomeIcon
+                                            icon={faCheck}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
+                                        />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            icon={faX}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
+                                        />
+                                    )}
+                                    <b>Packing</b>
+                                </p>
+                                <p style={{ fontSize: 'larger' }}>
 
-                                        // Check if any of the box values are greater than 0
-                                        const hasBoxes = sweet.oneKg > 0 || sweet.halfKg > 0 || sweet.quarterKg > 0 || sweet.otherPackings > 0 || sweet.otherPackings2 > 0;
+                                    {selectedItem?.is_delivered === 1 ? (
+                                        <FontAwesomeIcon
+                                            icon={faCheck}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
+                                        />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            icon={faX}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
+                                        />
+                                    )}
+                                    <b>Delivery</b>
+                                </p>
+                                <p style={{ fontSize: 'larger' }}>
 
-                                        if (!hasBoxes) {
-                                            return null; // Skip this sweet if no boxes are present
-                                        }
-
-                                        return (
-                                            <div key={index} className="sweet-details">
-                                                <h3> {sweetName.replace(/_/g, ' ')}</h3>
-                                                <table className="order-table">
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Weight</th>
-                                                            <th>Boxes</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {sweet.oneKg > 0 && (
-                                                            <tr>
-                                                                <td>1 Kg</td>
-                                                                <td>{sweet.oneKg}</td>
-                                                            </tr>
-                                                        )}
-                                                        {sweet.halfKg > 0 && (
-                                                            <tr>
-                                                                <td>1/2 Kg</td>
-                                                                <td>{sweet.halfKg}</td>
-                                                            </tr>
-                                                        )}
-                                                        {sweet.quarterKg > 0 && (
-                                                            <tr>
-                                                                <td>1/4 Kg</td>
-                                                                <td>{sweet.quarterKg}</td>
-                                                            </tr>
-                                                        )}
-                                                        {sweet.otherPackings > 0 && (
-                                                            <tr>
-                                                                <td>{sweet.otherWeight}g</td>
-                                                                <td>{sweet.otherPackings}</td>
-                                                            </tr>
-                                                        )}
-                                                        {sweet.otherPackings2 > 0 && (
-                                                            <tr>
-                                                                <td>{sweet.otherWeight2}g</td>
-                                                                <td>{sweet.otherPackings2}</td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                                    {selectedItem?.is_paid === 1 ? (
+                                        <FontAwesomeIcon
+                                            icon={faCheck}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: '#28a745' }}
+                                        />
+                                    ) : (
+                                        <FontAwesomeIcon
+                                            icon={faX}
+                                            style={{ cursor: 'pointer', marginRight: '10px', color: 'red' }}
+                                        />
+                                    )}
+                                    <b>Payment</b>
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-           
+                        {orderData && (
+                            <div className="sweet-details-container">
+                                {Object.keys(orderData.sweets).map((sweetName, index) => {
+                                    const sweet = orderData.sweets[sweetName];
+
+                                    // Check if any of the box values are greater than 0
+                                    const hasBoxes = sweet.oneKg > 0 || sweet.halfKg > 0 || sweet.quarterKg > 0 || sweet.otherPackings > 0 || sweet.otherPackings2 > 0;
+
+                                    if (!hasBoxes) {
+                                        return null; // Skip this sweet if no boxes are present
+                                    }
+
+                                    return (
+                                        <div key={index} className="sweet-details">
+                                            <h3> {sweetName.replace(/_/g, ' ')}</h3>
+                                            <table className="order-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Weight</th>
+                                                        <th>Boxes</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {sweet.oneKg > 0 && (
+                                                        <tr>
+                                                            <td>1 Kg</td>
+                                                            <td>{sweet.oneKg}</td>
+                                                        </tr>
+                                                    )}
+                                                    {sweet.halfKg > 0 && (
+                                                        <tr>
+                                                            <td>1/2 Kg</td>
+                                                            <td>{sweet.halfKg}</td>
+                                                        </tr>
+                                                    )}
+                                                    {sweet.quarterKg > 0 && (
+                                                        <tr>
+                                                            <td>1/4 Kg</td>
+                                                            <td>{sweet.quarterKg}</td>
+                                                        </tr>
+                                                    )}
+                                                    {sweet.otherPackings > 0 && (
+                                                        <tr>
+                                                            <td>{sweet.otherWeight}g</td>
+                                                            <td>{sweet.otherPackings}</td>
+                                                        </tr>
+                                                    )}
+                                                    {sweet.otherPackings2 > 0 && (
+                                                        <tr>
+                                                            <td>{sweet.otherWeight2}g</td>
+                                                            <td>{sweet.otherPackings2}</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+
+            </Modal>
+
+            <Modal
+                isOpen={billmodel}
+                onRequestClose={closeModal}
+                contentLabel="Pack Sweets Modal"
+                className="custom-sweets-modal"
+                overlayClassName="custom-sweets-overlay"
+            >
+
+                <GenerateBill sweets={billData} data={billData2} />
+
             </Modal>
 
             <ToastContainer />

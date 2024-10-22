@@ -28,6 +28,7 @@ const AddItems = () => {
   // Function to send data to the API
   const sendItemToAPI = async (newItem) => {
     try {
+      // http://localhost:2025/
       const response = await fetch('https://dms-backend-seven.vercel.app/order_details', { 
         method: 'POST',
         headers: {
