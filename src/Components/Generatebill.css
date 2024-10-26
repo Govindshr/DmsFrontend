@@ -1,40 +1,65 @@
 .invoice-container {
-    font-family: 'Arial', sans-serif;
-    max-width: 600px;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #ddd;
-    box-shadow: 0px 0px 10px #ccc;
-  }
-  
-  .invoice-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .logo {
-    width: 100px;
-  }
-  
-  .invoice-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  
-  .invoice-table th, .invoice-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-  }
-  
-  .invoice-table tfoot {
-    font-weight: bold;
-  }
-  
-  footer {
-    text-align: center;
-    margin-top: 20px;
-  }
-  
+  font-family: 'Arial', sans-serif;
+  max-width: 700px;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  box-shadow: 0px 0px 10px #ccc;
+  background-color: #fff;
+}
+
+.invoice-header, .bill-to {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.header-left, .header-right {
+  width: 48%;
+}
+
+.invoice-header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.invoice-header h2 {
+  margin: 0;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.invoice-table th, .invoice-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.invoice-table th {
+  background-color: #f8f8f8;
+  font-weight: bold;
+}
+
+.invoice-table tfoot td {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
+
+.invoice-footer {
+  text-align: left;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.payment-details {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-weight: bold;
+}

@@ -8,12 +8,15 @@ import 'react-toastify/dist/ReactToastify.css';
 const AddOrder = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [isRetailOrder, setIsRetailOrder] = useState(false); // New state for Retail Order checkbox
   const [orderData, setOrderData] = useState({
     Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
-    Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
+    Dry_Fruit_Kaju_Patisa: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
     Sangam_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 900 },
     Kaju_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 850 },
+    Kaju_Katli_Bina_Work: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 850 },
     Badam_Katli: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 800 },
+    Badam_Katli_Bina_Work: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 800 },
     Makhan_Bada: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
     Nainwa_Ka_Petha: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 500 },
     Bundi_Ke_Laddu_Kesar: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 450 },
@@ -44,8 +47,8 @@ const AddOrder = () => {
       const oneKgWeight = sweetData.oneKg * 1;
       const halfKgWeight = sweetData.halfKg * 0.5;
       const quarterKgWeight = sweetData.quarterKg * 0.25;
-      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings; // Convert grams to kilograms
-      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2; // Convert grams to kilograms
+      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
+      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
 
       const sweetTotalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
       const sweetTotalPrice = sweetTotalWeight * sweetPrice;
@@ -73,8 +76,8 @@ const AddOrder = () => {
       const oneKgWeight = sweetData.oneKg * 1;
       const halfKgWeight = sweetData.halfKg * 0.5;
       const quarterKgWeight = sweetData.quarterKg * 0.25;
-      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings; // Convert grams to kilograms
-      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2; // Convert grams to kilograms
+      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
+      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
 
       const totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
 
@@ -83,11 +86,12 @@ const AddOrder = () => {
 
     const finalOrder = {
       name,
-      number,
+      number, // Include the retail order field
       sweets: updatedOrderData,
       summary: calculateSummary,
+      retail_order:isRetailOrder,
     };
-
+console.log(finalOrder)
     try {
       const response = await fetch('https://dms-backend-seven.vercel.app/sweet_order_details', {
         method: 'POST',
@@ -108,10 +112,10 @@ const AddOrder = () => {
     }
   };
 
-
   const handleReset = () => {
     setName('');
     setNumber('');
+    setIsRetailOrder(false); // Reset the checkbox
     setOrderData({
       Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
       Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
@@ -155,7 +159,6 @@ const AddOrder = () => {
                     value={number}
                     onChange={(e) => {
                       const value = e.target.value;
-                      // Allow only numbers and limit to 10 digits
                       if (/^\d*$/.test(value) && value.length <= 10) {
                         setNumber(value);
                       }
@@ -164,8 +167,17 @@ const AddOrder = () => {
                     required
                   />
                 </div>
-
+                <div className="form-group"> {/* New checkbox */}
+                  <label htmlFor="isRetailOrder"><b>Retail Order</b>:</label>
+                  <input
+                    type="checkbox"
+                    id="isRetailOrder"
+                    checked={isRetailOrder}
+                    onChange={(e) => setIsRetailOrder(e.target.checked)}
+                  />
+                </div>
               </div>
+
               <table className="order-table">
                 <thead>
                   <tr>
@@ -200,7 +212,7 @@ const AddOrder = () => {
                             type="number"
                             value={orderData[sweet].oneKg}
                             onChange={(e) => handleChange(sweet, 'oneKg', e.target.value)}
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()}
                             min="0"
                             placeholder="Enter quantity"
                           />
@@ -210,7 +222,7 @@ const AddOrder = () => {
                             type="number"
                             value={orderData[sweet].halfKg}
                             onChange={(e) => handleChange(sweet, 'halfKg', e.target.value)}
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()}
                             min="0"
                             placeholder="Enter quantity"
                           />
@@ -220,7 +232,7 @@ const AddOrder = () => {
                             type="number"
                             value={orderData[sweet].quarterKg}
                             onChange={(e) => handleChange(sweet, 'quarterKg', e.target.value)}
-                            onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                            onWheel={(e) => e.target.blur()}
                             min="0"
                             placeholder="Enter quantity"
                           />
@@ -232,7 +244,7 @@ const AddOrder = () => {
                               value={orderData[sweet].otherWeight}
                               onChange={(e) => handleChange(sweet, 'otherWeight', e.target.value)}
                               min="0"
-                              onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                              onWheel={(e) => e.target.blur()}
                               placeholder="Weight (g)"
                               className="custom-packing-weight"
                             />
@@ -242,7 +254,7 @@ const AddOrder = () => {
                               value={orderData[sweet].otherPackings}
                               onChange={(e) => handleChange(sweet, 'otherPackings', e.target.value)}
                               min="0"
-                              onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                              onWheel={(e) => e.target.blur()}
                               placeholder="No. of packs"
                               className="custom-packing-quantity"
                             />
@@ -255,7 +267,7 @@ const AddOrder = () => {
                               value={orderData[sweet].otherWeight2}
                               onChange={(e) => handleChange(sweet, 'otherWeight2', e.target.value)}
                               min="0"
-                              onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                              onWheel={(e) => e.target.blur()}
                               placeholder="Weight (g)"
                               className="custom-packing-weight"
                             />
@@ -265,7 +277,7 @@ const AddOrder = () => {
                               value={orderData[sweet].otherPackings2}
                               onChange={(e) => handleChange(sweet, 'otherPackings2', e.target.value)}
                               min="0"
-                              onWheel={(e) => e.target.blur()} // Prevent scroll interaction
+                              onWheel={(e) => e.target.blur()}
                               placeholder="No. of packs"
                               className="custom-packing-quantity"
                             />

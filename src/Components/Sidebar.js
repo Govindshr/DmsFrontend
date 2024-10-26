@@ -52,7 +52,7 @@ console.log(location)
           <li className={window.location.pathname.includes("/extra-sweets") ? 'active' : ''}>
             <Link to="/extra-sweets" onClick={() => handleItemClick('/extra-sweets')}>
               <FontAwesomeIcon icon={faUpload} className="fa-icon" />
-              Extra
+              Stock
             </Link>
           </li>
           <li className={window.location.pathname.includes("/expense") ? 'active' : ''}>

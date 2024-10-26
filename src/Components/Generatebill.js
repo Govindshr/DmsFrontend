@@ -6,15 +6,14 @@ import './Generatebill.css';
 const GenerateBill = ({ sweets, data }) => {
   const [includeDelivery, setIncludeDelivery] = useState(false);
   const [showDownloadButton, setShowDownloadButton] = useState(true);
-  const deliveryCost = 25.0;
   const invoiceRef = useRef(null);
 
-  // Get the current date
   const today = new Date();
-  const formattedDate = today.toLocaleDateString('en-GB'); // e.g., "22/10/2024"
+  const formattedDate = today.toLocaleDateString('en-GB');
+  const formattedTime = today.toLocaleTimeString('en-GB');
 
   let grandTotalPrice = 0;
-  let grandTotalWeight = 0;
+  let grandTotalWeight = 0;  // To store the total quantity of sweets
   const billDetails = [];
 
   Object.keys(sweets).forEach(sweetKey => {
@@ -23,10 +22,12 @@ const GenerateBill = ({ sweets, data }) => {
     const otherWeight2Kg = otherWeight2 / 1000;
     const totalPrice = (oneKg * price) + (halfKg * price * 0.5) + (quarterKg * price * 0.25) +
                        (otherWeightKg * otherPackings * price) + (otherWeight2Kg * otherPackings2 * price);
-                       const totalWeight = oneKg + (halfKg * 0.5) + (quarterKg * 0.25) +
-                       (otherWeightKg * otherPackings) + (otherWeight2Kg * otherPackings2);
+    const totalWeight = oneKg + (halfKg * 0.5) + (quarterKg * 0.25) +
+                        (otherWeightKg * otherPackings) + (otherWeight2Kg * otherPackings2);
+    
     if (totalPrice > 0) {
       grandTotalPrice += totalPrice;
+      grandTotalWeight += totalWeight;  // Accumulate the total quantity
       billDetails.push({
         name: sweetKey.replace('_', ' '),
         qty: totalWeight.toFixed(2),
@@ -36,6 +37,16 @@ const GenerateBill = ({ sweets, data }) => {
     }
   });
 
+  // Function to calculate delivery cost based on weight
+  const calculateDeliveryCost = (weight) => {
+    if (weight >= 1 && weight <= 3) return 25;
+    if (weight >= 4 && weight <= 6) return 50;
+    if (weight >= 7 && weight <= 15) return 100;
+    if (weight > 15) return 150;
+    return 0; // In case weight is less than 1 kg or zero
+  };
+
+  const deliveryCost = calculateDeliveryCost(grandTotalWeight);
   const finalTotalPrice = includeDelivery ? grandTotalPrice + deliveryCost : grandTotalPrice;
 
   const handleDownloadPdf = async () => {
@@ -52,68 +63,89 @@ const GenerateBill = ({ sweets, data }) => {
     setShowDownloadButton(true);
   };
 
-  return (<>
-    <div className="invoice-container" ref={invoiceRef}>
-      <header className="invoice-header">
-        <img src='./images/logo.jpg' height={100} width={200} style={{ backgroundColor: "#5e5e5e" }} alt="Logo" />
-        <div>
-          <h1>Invoice</h1>
-          <p>Date: {formattedDate}</p>  {/* Current date is displayed here */}
-          <p>Bill to: {data?.name}</p>
-          <p>Prajapati Colony, Nainwa Road Bundi</p>
-          <p>Phone No.: 9694487748</p>
-        </div>
-      </header>
-      <table className="invoice-table">
-        <thead>
-          <tr>
-            <th>Item Name </th>
-            <th>Qty (kg)</th>
-            <th>Unit Price (₹)</th>
-            <th>Price (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {billDetails.map((item, index) => (
-            <tr key={index}>
-              <td>{item.name}</td>
-              <td>{item.qty}</td>
-              <td>{item.unitPrice}</td>
-              <td>{item.price}</td>
+  return (
+    <>
+      <div className="invoice-container" ref={invoiceRef}>
+        <header className="invoice-header">
+          <div className="header-left">
+            <h2>Shringi Food Services</h2>
+            <p>Prajapat Colony, Near Algoja Resort, Nainwa Road, Bundi</p>
+            <p>Phone: 9694487748</p>
+            <p>Email: shekharshringi@gmail.com</p>
+          </div>
+          <div className="header-right">
+            <h1>Tax Invoice</h1>
+            <p><strong>Order No:</strong> {data?.order_no}</p>
+            <p><strong>Date:</strong> {formattedDate}</p>
+            <p><strong>Time:</strong> {formattedTime}</p>
+          </div>
+        </header>
+
+        <section className="bill-to">
+          <p><strong>Bill To:</strong> {data?.name}</p>
+          <p><strong>Contact No:</strong> {data?.number}</p>
+        </section>
+
+        <table className="invoice-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Item Name</th>
+              <th>HSN/SAC</th>
+              <th>Quantity (Kg)</th>
+              <th>Unit Price (₹)</th>
+              <th>Amount (₹)</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan="3">Subtotal</td>
-            <td>₹{grandTotalPrice.toFixed(2)}</td>
-          </tr>
-          <tr>
-            <td colSpan="3">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={includeDelivery}
-                  onChange={(e) => setIncludeDelivery(e.target.checked)}
-                /> Add Delivery Cost (₹25)
-              </label>
-            </td>
-            <td>₹{includeDelivery ? deliveryCost.toFixed(2) : "0.00"}</td>
-          </tr>
-          <tr>
-            <td colSpan="3">Total</td>
-            <td>₹{finalTotalPrice.toFixed(2)}</td>
-          </tr>
-        </tfoot>
-      </table>
-      
-      <footer>
-        <p>Please make all checks payable to Sweet Shop</p>
-        <p>Email: shekharshringi@gmail.com</p>
-      </footer>
-    </div>
-    <button onClick={handleDownloadPdf}>Download Invoice</button></>
+          </thead>
+          <tbody>
+            {billDetails.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.name.replace(/_/g, ' ')}</td>
+                <td></td>
+                <td>{item.qty}</td>
+                <td>{item.unitPrice}</td>
+                <td>{item.price}</td>
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan="5">Total Quantity</td>
+              <td>{grandTotalWeight.toFixed(2)} Kg</td>
+            </tr>
+            <tr>
+              <td colSpan="5">Subtotal</td>
+              <td>₹{grandTotalPrice.toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td colSpan="5">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={includeDelivery}
+                    onChange={(e) => setIncludeDelivery(e.target.checked)}
+                  /> Add Delivery Cost (₹{deliveryCost.toFixed(2)})
+                </label>
+              </td>
+              <td>₹{includeDelivery ? deliveryCost.toFixed(2) : "0.00"}</td>
+            </tr>
+            <tr>
+              <td colSpan="5" style={{ fontWeight: 'bold' }}>Total</td>
+              <td style={{ fontWeight: 'bold' }}>₹{finalTotalPrice.toFixed(2)}</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <footer className="invoice-footer">
+          <p><strong>Payment Mode:</strong> Cash</p>
+        </footer>
+      </div>
+      <div>
+        {showDownloadButton && <button onClick={handleDownloadPdf}>Download Invoice</button>}
+      </div>
+    </>
   );
-}
+};
 
 export default GenerateBill;

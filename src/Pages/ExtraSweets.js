@@ -11,7 +11,7 @@ Modal.setAppElement('#root'); // Required for accessibility
 const ExtraSweets = () => {
     const [sweets, setSweets] = useState([]);
     const [showForm, setShowForm] = useState(false);
-    const[editid,setEditId]=useState('')
+    const [editid, setEditId] = useState('')
     const [newSweet, setNewSweet] = useState({
         sweet_name: '',
         price: '',
@@ -41,7 +41,7 @@ const ExtraSweets = () => {
 
     // Handle delete action
     const handleDelete = async (id) => {
-           try {
+        try {
             const response = await fetch('https://dms-backend-seven.vercel.app/delete_extra_sweets', {
                 method: 'POST',
                 headers: {
@@ -49,7 +49,7 @@ const ExtraSweets = () => {
                 },
                 body: JSON.stringify({ extra_id: id }),
             });
-           
+
             if (response.ok) {
                 const updatedSweets = sweets.filter(sweet => sweet.id !== id);
                 setSweets(updatedSweets);
@@ -106,8 +106,8 @@ const ExtraSweets = () => {
     // Handle form submission for the edited sweet
     const handleEditSubmit = async (e) => {
         e.preventDefault();
-        editSweet.extra_id=editid
-        
+        editSweet.extra_id = editid
+
 
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_extra_sweets', {
@@ -141,7 +141,7 @@ const ExtraSweets = () => {
         <>
             <div className="extra-sweets-container">
                 <div className="extra-sweets-header-box">
-                    <h1>Extra Sweets</h1>
+                    <h1>Stock </h1>
                     <button className="add-sweet-button" onClick={() => setShowForm(!showForm)}>
                         <FontAwesomeIcon icon={faPlus} style={{ marginRight: '5px' }} />
                         {showForm ? 'Back to List' : 'Add Sweet'}
@@ -150,17 +150,33 @@ const ExtraSweets = () => {
                 <div className="extra-sweets-box">
                     {showForm ? (
                         <form onSubmit={handleSubmit} className="sweet-form">
+
                             <div className="form-group">
-                                <label htmlFor="sweet_name">Sweet Name</label>
-                                <input
-                                    type="text"
+                                <label htmlFor="type">Sweet Name*</label>
+                                <select
                                     id="sweet_name"
                                     name="sweet_name"
                                     value={newSweet.sweet_name}
                                     onChange={handleInputChange}
-                                    placeholder="Enter sweet name"
+                                    style={{ width: '70%' }}
                                     required
-                                />
+                                >
+                                    <option value="" disabled>Select type*</option>
+                                    <option value="Dry_Fruit_Barfi">Dry Fruit Barfi</option>
+                                    <option value="Dry_Fruit_Kaju_Patisa">Dry Fruit Kaju Patisa</option>
+                                    <option value="Sangam_Barfi">Sangam Barfi</option>
+                                    <option value="Kaju_Katli">Kaju Katli</option>
+                                    <option value="Kaju_Katli_Bina_Work">Kaju Katli(Bina Work)</option>
+                                    <option value="Badam_Katli">Badam Katli</option>
+                                    <option value="Badam_Katli_Bina_Work">Badam Katli(Bina Work)</option>
+                                    <option value="Makhan_Bada">Makhan Bada</option>
+                                    <option value="Nainwa_Ka_Petha">Nainwa Ka Petha</option>
+                                    <option value="Bundi_Ke_Laddu_Kesar">Bundi Ke Laddu Kesar</option>
+                                    <option value="Giri_Pak">Giri Pak</option>
+                                    <option value="Gulab_Jamun">Gulab Jamun</option>
+                                    <option value="Namkeen">Namkeen</option>
+                                    <option value="Papdi">Papdi</option>
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label htmlFor="price">Price</label>
@@ -175,7 +191,7 @@ const ExtraSweets = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="amount">Quantity</label>
+                                <label htmlFor="amount">Quantity (In KG)</label>
                                 <input
                                     type="number"
                                     id="amount"
@@ -197,6 +213,7 @@ const ExtraSweets = () => {
                         <table className="extra-sweets-table">
                             <thead>
                                 <tr>
+                                <th>#</th>
                                     <th>Name</th>
                                     <th>Price</th>
                                     <th>Quantity</th>
@@ -204,11 +221,12 @@ const ExtraSweets = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {sweets.map((sweet) => (
-                                    <tr key={sweet._id}>
-                                        <td>{sweet.sweet_name}</td>
-                                        <td>₹{sweet.price}</td>
-                                        <td>{sweet.amount}</td>
+                                {sweets.map((sweet,index) => (
+                                    <tr key={sweet?._id}>
+                                        <td>{index + 1}</td>
+                                        <td>{sweet?.sweet_name?.replace(/_/g, ' ')}</td>
+                                        <td>₹{sweet.price} / Kg</td>
+                                        <td>{sweet.amount} Kg</td>
                                         <td>
                                             <FontAwesomeIcon
                                                 icon={faEdit}
@@ -236,22 +254,42 @@ const ExtraSweets = () => {
                     isOpen={isEditModalOpen}
                     onRequestClose={() => setIsEditModalOpen(false)}
                     contentLabel="Payment Modal"
-                className="Modal"
-                overlayClassName="Overlay"
+                    className="Modal"
+                    overlayClassName="Overlay"
                 >
                     <h2>Edit Sweet</h2>
                     <form onSubmit={handleEditSubmit} className="edit-sweet-form">
                         <div className="form-group">
                             <label htmlFor="edit_sweet_name">Sweet Name</label>
-                            <input
-                                type="text"
-                                id="edit_sweet_name"
-                                name="sweet_name"
-                                value={editSweet.sweet_name}
-                                onChange={handleEditInputChange}
-                                required
-                            />
-                        </div>
+                           
+                       
+                        <select
+                               
+                                  id="edit_sweet_name"
+                                  name="sweet_name"
+                                  value={editSweet.sweet_name}
+                                  onChange={handleEditInputChange}
+                                  required
+                                    style={{ width: '70%' }}
+                                    
+                                >
+                                    <option value="" disabled>Select type*</option>
+                                    <option value="Dry_Fruit_Barfi">Dry Fruit Barfi</option>
+                                    <option value="Dry_Fruit_Kaju_Patisa">Dry Fruit Kaju Patisa</option>
+                                    <option value="Sangam_Barfi">Sangam Barfi</option>
+                                    <option value="Kaju_Katli">Kaju Katli</option>
+                                    <option value="Kaju_Katli_Bina_Work">Kaju Katli(Bina Work)</option>
+                                    <option value="Badam_Katli">Badam Katli</option>
+                                    <option value="Badam_Katli_Bina_Work">Badam Katli(Bina Work)</option>
+                                    <option value="Makhan_Bada">Makhan Bada</option>
+                                    <option value="Nainwa_Ka_Petha">Nainwa Ka Petha</option>
+                                    <option value="Bundi_Ke_Laddu_Kesar">Bundi Ke Laddu Kesar</option>
+                                    <option value="Giri_Pak">Giri Pak</option>
+                                    <option value="Gulab_Jamun">Gulab Jamun</option>
+                                    <option value="Namkeen">Namkeen</option>
+                                    <option value="Papdi">Papdi</option>
+                                </select>
+                                </div>
                         <div className="form-group">
                             <label htmlFor="edit_price">Price</label>
                             <input
@@ -277,7 +315,7 @@ const ExtraSweets = () => {
                         <div className="button-group">
                             <button type="submit">Update</button>
                             <button type="button" className='reset-button' onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                        </div> 
+                        </div>
                     </form>
                 </Modal>
             )}

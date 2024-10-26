@@ -21,6 +21,7 @@ const OrderLife = () => {
     const [activeTab, setActiveTab] = useState('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [items, setItems] = useState([]);
+    const [selectedValues, setSelectedValues] = useState({});
     const navigate = useNavigate();
     const [selectedItem, setSelectedItem] = useState(null);
     const [sweetsfordropdown, setSweetsfordropdown] = useState([])
@@ -236,6 +237,42 @@ const OrderLife = () => {
             toast.error('An error occurred!');
         }
     };
+    const handleSelectChange = (sweetName, weightType, value) => {
+        setSelectedValues((prevSelected) => ({
+            ...prevSelected,
+            [sweetName]: {
+                ...prevSelected[sweetName],
+                [weightType]: value,
+            },
+        }));
+    };
+    const handlePack = async (sweetName, weightType, id) => {
+        const selectedValue = selectedValues[sweetName]?.[weightType] || 0;
+        console.log(`Packing ${selectedValue} boxes of ${weightType} for ${sweetName}`);
+
+
+
+
+        try {
+            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_id: id, count: selectedValue, sweet_name: sweetName, box: weightType }),
+            });
+
+            if (response.ok) {
+
+                toast.success('Operation was successful!');
+                // Process the search results as needed
+            } else {
+
+            }
+        } catch (error) {
+
+        }
+    };
 
     const handlereset = () => {
         setSweetSelections([
@@ -364,6 +401,33 @@ const OrderLife = () => {
         }
     };
 
+    const handleorderinput = async (event) => {
+        // const query = event.target.value;
+        // setSearchQuery(query);
+
+
+        try {
+            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_order_no', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ order_no: event.target.value, type: activeTab }),
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                setItems(result.data);
+
+                // Process the search results as needed
+            } else {
+
+            }
+        } catch (error) {
+
+        }
+    };
+
     const handleViewClick = (item) => {
 
 
@@ -371,6 +435,7 @@ const OrderLife = () => {
     };
     const handleTableRowClick = (item) => {
         setModelOnHover(true)
+        setSelectedValues({})
         postViewAPI(item._id, '');
     }
 
@@ -419,7 +484,7 @@ const OrderLife = () => {
 
 
 
-    const handlegenereatebill = (item,data) => {
+    const handlegenereatebill = (item, data) => {
         setBillData(item);
         setBillData2(data)
         setBillmodel(true);
@@ -453,8 +518,7 @@ const OrderLife = () => {
             if (result.isConfirmed) {
                 callPackedAPI(itemId);
             } else if (result.dismiss === Swal.DismissReason.cancel) {
-                setIsSweetsModalOpen(true);
-                postViewAPI(itemId, "model");
+               
             }
         });
 
@@ -625,7 +689,7 @@ const OrderLife = () => {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_paid', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney ,payment_mode:paymentMode }),
+                body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney, payment_mode: paymentMode }),
             });
             if (response.ok) {
                 Swal.fire('Success!', 'Payment has been successfully recorded.', 'success');
@@ -700,9 +764,10 @@ const OrderLife = () => {
                                 className={`tab-button ${activeTab === 'paid' ? 'active' : ''}`}
                                 onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders'); }}
                             >
-                                Completed
+                                Completed 
                             </button>
                         </div>
+                        <div>
                         <div className="search-container">
                             <input
                                 type="text"
@@ -712,6 +777,18 @@ const OrderLife = () => {
                                 onChange={handleSearchInputChange}
                             />
                             <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                        </div>
+
+                        <div className="search-container">
+                            <input
+                                type="number"
+                                placeholder="Order Number"
+                                className="search-input"
+                               
+                                onChange={handleorderinput}
+                            />
+                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                        </div>
                         </div>
                     </div></>}
 
@@ -724,7 +801,7 @@ const OrderLife = () => {
                 <table className="order-table">
                     <thead>
                         <tr>
-                            <th><b>S.No.</b></th>
+                            <th><b>Order.No.</b></th>
                             <th><b>Name</b></th>
                             <th><b>Price</b></th>
                             {activeTab === 'all' && <th><b>Amount Received</b></th>}
@@ -740,8 +817,8 @@ const OrderLife = () => {
 
                             >
 
-                                <td><b>{index + 1}</b></td>
-                                <td><b>{item.name}</b></td>
+                                <td><b>{item?.order_no}</b></td>
+                                <td><b>{item?.name}</b></td>
                                 <td><b>₹{item?.summary?.totalPrice}</b></td>
                                 {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount : " NA"}</b></td>}
                                 {activeTab === 'all' && <td className={
@@ -764,18 +841,18 @@ const OrderLife = () => {
                                         onClick={() => handleTableRowClick(item)}
                                     />
                                     <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
-                                    {activeTab === "initial" && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faBox}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="packed-tooltip"
-                                                data-tooltip-content="Order Packed"
-                                                onClick={() => handlePackedClick(item._id, item)}
-                                            />
-                                            <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
+                                    {(activeTab === "packed") && (
+                                    <>
+                                        <FontAwesomeIcon
+                                            icon={faBox}
+                                            style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                            data-tooltip-id="packed-tooltip"
+                                            data-tooltip-content="Order Packed"
+                                            onClick={() => handlePackedClick(item._id, item)}
+                                        />
+                                        <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
+                                    </>)}
+
                                     {(activeTab === "packed" || activeTab === "partial_packed") && (
                                         <>
                                             <FontAwesomeIcon
@@ -809,7 +886,7 @@ const OrderLife = () => {
                                                 style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
                                                 data-tooltip-id="complete-tooltip"
                                                 data-tooltip-content="Generate Bill"
-                                                onClick={() => handlegenereatebill(item.sweets,item)}
+                                                onClick={() => handlegenereatebill(item.sweets, item)}
                                             />
                                             <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
                                         </>
@@ -872,20 +949,20 @@ const OrderLife = () => {
                         </div>
                         <div className="form-group">
                             <label htmlFor="paymentmode"><b>Payment Mode:</b></label>
-                          
-                               <select
-                            id="paymentmode"
-                            name="Paymentmode"
-                            value={paymentMode}
-                            onChange={(e) => setPaymentMode(e.target.value)}
+
+                            <select
+                                id="paymentmode"
+                                name="Paymentmode"
+                                value={paymentMode}
+                                onChange={(e) => setPaymentMode(e.target.value)}
                             // style={{width:'100%'}}
-                          
-                        >
-                            <option value="" disabled>Select type*</option>
-                            <option value="online">Online</option>
-                            <option value="cash">Cash</option>
-                          
-                        </select>
+
+                            >
+                                <option value="" disabled>Select type*</option>
+                                <option value="online">Online</option>
+                                <option value="cash">Cash</option>
+
+                            </select>
                         </div>
                         <button type='submit' onClick={handlePaymentSubmit}>Submit </button>
                     </div>
@@ -1043,53 +1120,159 @@ const OrderLife = () => {
                             <div className="sweet-details-container">
                                 {Object.keys(orderData.sweets).map((sweetName, index) => {
                                     const sweet = orderData.sweets[sweetName];
+                                    const remainingSweet = orderData.remaining_order[sweetName] || {};
 
-                                    // Check if any of the box values are greater than 0
                                     const hasBoxes = sweet.oneKg > 0 || sweet.halfKg > 0 || sweet.quarterKg > 0 || sweet.otherPackings > 0 || sweet.otherPackings2 > 0;
 
                                     if (!hasBoxes) {
-                                        return null; // Skip this sweet if no boxes are present
+                                        return null;
                                     }
 
                                     return (
                                         <div key={index} className="sweet-details">
-                                            <h3> {sweetName.replace(/_/g, ' ')}</h3>
+                                            <h3>{sweetName.replace(/_/g, ' ')}</h3>
                                             <table className="order-table">
                                                 <thead>
                                                     <tr>
                                                         <th>Weight</th>
-                                                        <th>Boxes</th>
+                                                        <th>Total Boxes</th>
+                                                        <th>Remaining</th>
+                                                        <th>Packed</th>
+                                                        <th>Select Quantity</th>
+                                                        <th>Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {sweet.oneKg > 0 && (
-                                                        <tr>
+                                                        <tr
+                                                            style={{
+                                                                backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                            }}
+                                                        >
                                                             <td>1 Kg</td>
                                                             <td>{sweet.oneKg}</td>
+                                                            <td>{remainingSweet.oneKg || 0}</td>
+                                                            <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>
+                                                            <td> {remainingSweet.oneKg > 0 &&
+                                                                <div className="form-group">
+                                                                    <select
+                                                                        value={selectedValues[sweetName]?.oneKg || 0}
+                                                                        onChange={(e) => handleSelectChange(sweetName, "oneKg", parseInt(e.target.value))}
+                                                                    >
+                                                                        {[...Array(remainingSweet.oneKg + 1 || 1).keys()].map((n) => (
+                                                                            <option key={n} value={n}>{n}</option>
+                                                                        ))}
+                                                                    </select></div>
+                                                            }</td>
+                                                            <td> {remainingSweet.oneKg > 0 &&
+                                                                <button onClick={() => handlePack(sweetName, "oneKg", orderData._id)}>Packed</button>
+                                                            } </td>
                                                         </tr>
                                                     )}
                                                     {sweet.halfKg > 0 && (
-                                                        <tr>
+                                                        <tr style={{
+                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                        }}>
                                                             <td>1/2 Kg</td>
                                                             <td>{sweet.halfKg}</td>
+                                                            <td>{remainingSweet.halfKg || 0}</td>
+                                                            <td>{sweet.halfKg - (remainingSweet.halfKg || 0)}</td>
+                                                            <td>
+                                                                {remainingSweet.halfKg > 0 &&
+                                                                    <div className="form-group">
+                                                                        <select
+                                                                            value={selectedValues[sweetName]?.halfKg || 0}
+                                                                            onChange={(e) => handleSelectChange(sweetName, "halfKg", parseInt(e.target.value))}
+                                                                        >
+                                                                            {[...Array(remainingSweet.halfKg + 1 || 1).keys()].map((n) => (
+                                                                                <option key={n} value={n}>{n}</option>
+                                                                            ))}
+                                                                        </select></div>
+                                                                } </td>
+                                                            <td>
+                                                                {remainingSweet.halfKg > 0 &&
+                                                                    <button onClick={() => handlePack(sweetName, "halfKg", orderData._id)}>Packed</button>
+                                                                }</td>
                                                         </tr>
                                                     )}
                                                     {sweet.quarterKg > 0 && (
-                                                        <tr>
+                                                        <tr style={{
+                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                        }}>
                                                             <td>1/4 Kg</td>
                                                             <td>{sweet.quarterKg}</td>
+                                                            <td>{remainingSweet.quarterKg || 0}</td>
+                                                            <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>
+                                                            <td>
+                                                                {remainingSweet.quarterKg > 0 &&
+                                                                    <div className="form-group">
+                                                                        <select
+                                                                            value={selectedValues[sweetName]?.quarterKg || 0}
+                                                                            onChange={(e) => handleSelectChange(sweetName, "quarterKg", parseInt(e.target.value))}
+                                                                        >
+                                                                            {[...Array(remainingSweet.quarterKg + 1 || 1).keys()].map((n) => (
+                                                                                <option key={n} value={n}>{n}</option>
+                                                                            ))}
+                                                                        </select></div>
+                                                                } </td>
+                                                            <td>
+                                                                {remainingSweet.quarterKg > 0 &&
+                                                                    <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
+                                                                } </td>
                                                         </tr>
                                                     )}
                                                     {sweet.otherPackings > 0 && (
-                                                        <tr>
+                                                        <tr style={{
+                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                        }}>
                                                             <td>{sweet.otherWeight}g</td>
                                                             <td>{sweet.otherPackings}</td>
+                                                            <td>{remainingSweet.otherPackings || 0}</td>
+                                                            <td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>
+                                                            <td>
+                                                                {remainingSweet.otherPackings > 0 &&
+                                                                    <div className="form-group">
+                                                                        <select
+                                                                            value={selectedValues[sweetName]?.otherPackings || 0}
+                                                                            onChange={(e) => handleSelectChange(sweetName, "otherPackings", parseInt(e.target.value))}
+                                                                        >
+                                                                            {[...Array(remainingSweet.otherPackings + 1 || 1).keys()].map((n) => (
+                                                                                <option key={n} value={n}>{n}</option>
+                                                                            ))}
+                                                                        </select></div>
+                                                                } </td>
+                                                            <td>
+                                                                {remainingSweet.otherPackings > 0 &&
+                                                                    <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
+                                                                }
+                                                            </td>
                                                         </tr>
                                                     )}
                                                     {sweet.otherPackings2 > 0 && (
-                                                        <tr>
+                                                        <tr style={{
+                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                        }}>
                                                             <td>{sweet.otherWeight2}g</td>
                                                             <td>{sweet.otherPackings2}</td>
+                                                            <td>{remainingSweet.otherPackings2 || 0}</td>
+                                                            <td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>
+                                                            <td>
+                                                                {remainingSweet.otherPackings2 > 0 &&
+                                                                    <div className="form-group">
+                                                                        <select
+                                                                            value={selectedValues[sweetName]?.otherPackings2 || 0}
+                                                                            onChange={(e) => handleSelectChange(sweetName, "otherPackings2", parseInt(e.target.value))}
+                                                                        >
+                                                                            {[...Array(remainingSweet.otherPackings2 + 1 || 1).keys()].map((n) => (
+                                                                                <option key={n} value={n}>{n}</option>
+                                                                            ))}
+                                                                        </select></div>
+                                                                }</td>
+                                                            <td>
+                                                                {remainingSweet.otherPackings2 > 0 &&
+                                                                    <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
+                                                                }
+                                                            </td>
                                                         </tr>
                                                     )}
                                                 </tbody>
@@ -1099,6 +1282,8 @@ const OrderLife = () => {
                                 })}
                             </div>
                         )}
+
+
                     </div>
                 </div>
 
