@@ -22,7 +22,7 @@ const Dashboard = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_all_orders');
+        const response = await fetch('http://localhost:2025/get_all_orders');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
@@ -40,7 +40,7 @@ const Dashboard = () => {
 
     const fetchBoxData = async () => {
       try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_sweets_aggregation');
+        const response = await fetch('http://localhost:2025/get_sweets_aggregation');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
@@ -56,7 +56,7 @@ const Dashboard = () => {
 
     const fetchPackedBoxData = async () => {
       try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation');
+        const response = await fetch('http://localhost:2025/get_packed_sweets_aggregation');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {

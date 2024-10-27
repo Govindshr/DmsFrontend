@@ -43,7 +43,7 @@ const Expense = () => {
         formData.append('image', newExpense.bill);
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/addExpence', {
+            const response = await fetch('http://localhost:2025/addExpence', {
                 method: 'POST',
                 body: formData,
             });
@@ -69,7 +69,7 @@ const Expense = () => {
 
     const fetchExpenses = async () => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/getExpence'); // Replace with your API URL
+            const response = await fetch('http://localhost:2025/getExpence'); // Replace with your API URL
             if (response.ok) {
                 const data = await response.json();
                 console.log("expense Data ", data)
@@ -88,7 +88,7 @@ const Expense = () => {
     const handleDelete = async (id) => {
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/delete_expence', {
+            const response = await fetch('http://localhost:2025/delete_expence', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

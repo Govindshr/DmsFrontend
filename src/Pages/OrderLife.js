@@ -44,18 +44,18 @@ const OrderLife = () => {
 
     useEffect(() => {
         if (activeTab === "initial") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
         } else if (activeTab === "all") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
         } else if (activeTab === "partial_packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
         }
         else if (activeTab === "packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
         } else if (activeTab === "delivered") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
         } else if (activeTab === "paid") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
         }
         if (remainingOrder) {
 
@@ -219,7 +219,7 @@ const OrderLife = () => {
         }, {});
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_remaining_order', {
+            const response = await fetch('http://localhost:2025/update_remaining_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -254,7 +254,7 @@ const OrderLife = () => {
 
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweets', {
+            const response = await fetch('http://localhost:2025/update_sweets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -380,7 +380,7 @@ const OrderLife = () => {
 
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_name', {
+            const response = await fetch('http://localhost:2025/get_order_based_on_name', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -407,7 +407,7 @@ const OrderLife = () => {
 
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_order_no', {
+            const response = await fetch('http://localhost:2025/get_order_based_on_order_no', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -442,7 +442,7 @@ const OrderLife = () => {
     const postViewAPI = async (id, type) => {
         const data = { order_id: id };
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
+            const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -504,7 +504,7 @@ const OrderLife = () => {
 
     const handlePackedClick = (itemId, obj) => {
 
-
+        console.log(obj)
         Swal.fire({
             title: 'Are you sure?',
             text: "Is This Order Cmpletely Packed Or Any Item is Remaining?",
@@ -516,9 +516,9 @@ const OrderLife = () => {
             confirmButtonText: 'Yes, mark as packed!'
         }).then((result) => {
             if (result.isConfirmed) {
-                callPackedAPI(itemId);
+                callPackedAPI(itemId,obj.sweets);
             } else if (result.dismiss === Swal.DismissReason.cancel) {
-               
+
             }
         });
 
@@ -536,10 +536,9 @@ const OrderLife = () => {
         //     }
         // });
     };
-
-    const callPackedAPI = async (itemId) => {
+    const updateispacked = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_packed', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_packed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: itemId }),
@@ -547,19 +546,39 @@ const OrderLife = () => {
             if (response.ok) {
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
+            } else {
+                Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
+        }
+    };
+    const callPackedAPI = async (itemId,sweets) => {
+        console.log("Sweets",sweets)
+        let order_data={
+            sweets:sweets,
+        }
+        try {
+            const response = await fetch('http://localhost:2025/update_stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_data: order_data}),
+            });
+            if (response.ok) {
+                updateispacked(itemId)
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
             }
@@ -601,7 +620,7 @@ const OrderLife = () => {
 
     const CallDeliveredAPI = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_delivered', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_delivered', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -612,18 +631,18 @@ const OrderLife = () => {
 
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -635,7 +654,7 @@ const OrderLife = () => {
 
     const callDeleteApi = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/delete_order', {
+            const response = await fetch('http://localhost:2025/delete_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -646,18 +665,18 @@ const OrderLife = () => {
 
                 Swal.fire('Success!', 'The order has been Deleted.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -686,7 +705,7 @@ const OrderLife = () => {
 
         try {
 
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_paid', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_paid', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney, payment_mode: paymentMode }),
@@ -695,18 +714,18 @@ const OrderLife = () => {
                 Swal.fire('Success!', 'Payment has been successfully recorded.', 'success');
                 closeModal();
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to submit payment.', 'error');
@@ -732,63 +751,63 @@ const OrderLife = () => {
                         <div className="tabs">
                             <button
                                 className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders'); }}
+                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('http://localhost:2025/get_all_orders'); }}
                             >
                                 All
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'initial' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details'); }}
+                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details'); }}
                             >
                                 Initial
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'partial_packed' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('partial_packed'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders'); }}
+                                onClick={() => { handleTabClick('partial_packed'); fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders'); }}
                             >
                                 Partial Packed
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'packed' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders'); }}
+                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('http://localhost:2025/get_packed_orders'); }}
                             >
                                 Packed
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'delivered' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders'); }}
+                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('http://localhost:2025/get_delivered_orders'); }}
                             >
                                 Delivered
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'paid' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders'); }}
+                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('http://localhost:2025/get_paid_orders'); }}
                             >
-                                Completed 
+                                Completed
                             </button>
                         </div>
                         <div>
-                        <div className="search-container">
-                            <input
-                                type="text"
-                                placeholder="Search Orders..."
-                                className="search-input"
-                                value={searchQuery}
-                                onChange={handleSearchInputChange}
-                            />
-                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                        </div>
+                            <div className="search-container">
+                                <input
+                                    type="text"
+                                    placeholder="Search Orders..."
+                                    className="search-input"
+                                    value={searchQuery}
+                                    onChange={handleSearchInputChange}
+                                />
+                                <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                            </div>
 
-                        <div className="search-container">
-                            <input
-                                type="number"
-                                placeholder="Order Number"
-                                className="search-input"
-                               
-                                onChange={handleorderinput}
-                            />
-                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                        </div>
+                            <div className="search-container">
+                                <input
+                                    type="number"
+                                    placeholder="Order Number"
+                                    className="search-input"
+
+                                    onChange={handleorderinput}
+                                />
+                                <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                            </div>
                         </div>
                     </div></>}
 
@@ -814,7 +833,9 @@ const OrderLife = () => {
                         {items.map((item, index) => (
                             <tr
                                 key={item._id}
-
+                                style={{
+                                    backgroundColor: item?.is_delivered==1 && item?.is_packed==1 && item.is_paid==1 ? "#99f79994" : "inherit",
+                                }}
                             >
 
                                 <td><b>{item?.order_no}</b></td>
@@ -833,25 +854,28 @@ const OrderLife = () => {
                                 }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice - item.received_amount.toFixed(2) : " NA"}</b></td>}
                                 <td><b>{item.created}</b></td>
                                 <td>
-                                    <FontAwesomeIcon
-                                        icon={faEye}
-                                        style={{ cursor: 'pointer', color: '#333' }}
-                                        data-tooltip-id="view-tooltip"
-                                        data-tooltip-content="View"
-                                        onClick={() => handleTableRowClick(item)}
-                                    />
-                                    <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
-                                    {(activeTab === "packed") && (
-                                    <>
-                                        <FontAwesomeIcon
-                                            icon={faBox}
-                                            style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                            data-tooltip-id="packed-tooltip"
-                                            data-tooltip-content="Order Packed"
-                                            onClick={() => handlePackedClick(item._id, item)}
-                                        />
-                                        <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
-                                    </>)}
+                                    {(activeTab === "packed" || activeTab === "partial_packed" || activeTab === "all" || activeTab === "initial") && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faEye}
+                                                style={{ cursor: 'pointer', color: '#333' }}
+                                                data-tooltip-id="view-tooltip"
+                                                data-tooltip-content="View"
+                                                onClick={() => handleTableRowClick(item)}
+                                            />
+                                            <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
+                                        </>)}
+                                    {(activeTab === "initial" || activeTab === "packed" || activeTab === "partial_packed") && (
+                                        <>
+                                            <FontAwesomeIcon
+                                                icon={faBox}
+                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                data-tooltip-id="packed-tooltip"
+                                                data-tooltip-content="Order Packed"
+                                                onClick={() => handlePackedClick(item._id, item)}
+                                            />
+                                            <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
+                                        </>)}
 
                                     {(activeTab === "packed" || activeTab === "partial_packed") && (
                                         <>
@@ -1116,6 +1140,7 @@ const OrderLife = () => {
                             </div>
                         </div>
 
+                        {console.log("order Data", orderData)}
                         {orderData && (
                             <div className="sweet-details-container">
                                 {Object.keys(orderData.sweets).map((sweetName, index) => {
@@ -1153,7 +1178,7 @@ const OrderLife = () => {
                                                             <td>{sweet.oneKg}</td>
                                                             <td>{remainingSweet.oneKg || 0}</td>
                                                             <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>
-                                                            <td> {remainingSweet.oneKg > 0 &&
+                                                            <td> {remainingSweet.oneKg > 0  || activeTab!=="all"&&
                                                                 <div className="form-group">
                                                                     <select
                                                                         value={selectedValues[sweetName]?.oneKg || 0}
@@ -1164,7 +1189,7 @@ const OrderLife = () => {
                                                                         ))}
                                                                     </select></div>
                                                             }</td>
-                                                            <td> {remainingSweet.oneKg > 0 &&
+                                                            <td> {remainingSweet.oneKg > 0  || activeTab!=="all"&&
                                                                 <button onClick={() => handlePack(sweetName, "oneKg", orderData._id)}>Packed</button>
                                                             } </td>
                                                         </tr>
@@ -1178,7 +1203,7 @@ const OrderLife = () => {
                                                             <td>{remainingSweet.halfKg || 0}</td>
                                                             <td>{sweet.halfKg - (remainingSweet.halfKg || 0)}</td>
                                                             <td>
-                                                                {remainingSweet.halfKg > 0 &&
+                                                                {remainingSweet.halfKg > 0 || activeTab!=="all" && 
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.halfKg || 0}
@@ -1190,7 +1215,7 @@ const OrderLife = () => {
                                                                         </select></div>
                                                                 } </td>
                                                             <td>
-                                                                {remainingSweet.halfKg > 0 &&
+                                                                {remainingSweet.halfKg > 0 || activeTab!=="all" &&
                                                                     <button onClick={() => handlePack(sweetName, "halfKg", orderData._id)}>Packed</button>
                                                                 }</td>
                                                         </tr>
@@ -1204,7 +1229,7 @@ const OrderLife = () => {
                                                             <td>{remainingSweet.quarterKg || 0}</td>
                                                             <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>
                                                             <td>
-                                                                {remainingSweet.quarterKg > 0 &&
+                                                                {remainingSweet.quarterKg > 0 || activeTab!=="all" &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.quarterKg || 0}
@@ -1216,7 +1241,7 @@ const OrderLife = () => {
                                                                         </select></div>
                                                                 } </td>
                                                             <td>
-                                                                {remainingSweet.quarterKg > 0 &&
+                                                                {remainingSweet.quarterKg > 0  || activeTab!=="all"&&
                                                                     <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
                                                                 } </td>
                                                         </tr>
@@ -1230,7 +1255,7 @@ const OrderLife = () => {
                                                             <td>{remainingSweet.otherPackings || 0}</td>
                                                             <td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>
                                                             <td>
-                                                                {remainingSweet.otherPackings > 0 &&
+                                                                {remainingSweet.otherPackings > 0 || activeTab!=="all" &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.otherPackings || 0}
@@ -1242,7 +1267,7 @@ const OrderLife = () => {
                                                                         </select></div>
                                                                 } </td>
                                                             <td>
-                                                                {remainingSweet.otherPackings > 0 &&
+                                                                {remainingSweet.otherPackings > 0 || activeTab!=="all" &&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
                                                                 }
                                                             </td>
@@ -1257,7 +1282,7 @@ const OrderLife = () => {
                                                             <td>{remainingSweet.otherPackings2 || 0}</td>
                                                             <td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>
                                                             <td>
-                                                                {remainingSweet.otherPackings2 > 0 &&
+                                                                {remainingSweet.otherPackings2 > 0 || activeTab!=="all" &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.otherPackings2 || 0}
@@ -1269,7 +1294,7 @@ const OrderLife = () => {
                                                                         </select></div>
                                                                 }</td>
                                                             <td>
-                                                                {remainingSweet.otherPackings2 > 0 &&
+                                                                {remainingSweet.otherPackings2 > 0  || activeTab!=="all"&&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
                                                                 }
                                                             </td>
