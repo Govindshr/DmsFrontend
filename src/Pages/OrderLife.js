@@ -1161,10 +1161,10 @@ const OrderLife = () => {
                                                     <tr>
                                                         <th>Weight</th>
                                                         <th>Total Boxes</th>
-                                                        <th>Remaining</th>
-                                                        <th>Packed</th>
-                                                        <th>Select Quantity</th>
-                                                        <th>Action</th>
+                                                        {activeTab!=="all"&&   <th>Remaining</th>}
+                                                        {activeTab!=="all"&&  <th>Packed</th>}
+                                                        {activeTab!=="all"&& <th>Select Quantity</th>}
+                                                        {activeTab!=="all"&& <th>Action</th>}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1176,9 +1176,9 @@ const OrderLife = () => {
                                                         >
                                                             <td>1 Kg</td>
                                                             <td>{sweet.oneKg}</td>
-                                                            <td>{remainingSweet.oneKg || 0}</td>
-                                                            <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>
-                                                            <td> {remainingSweet.oneKg > 0  || activeTab!=="all"&&
+                                                            {activeTab!=="all"&& <td>{remainingSweet.oneKg || 0}</td>}
+                                                           {activeTab!=="all"&&  <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>}
+                                                            {activeTab!=="all"&&<td> {remainingSweet.oneKg > 0 &&
                                                                 <div className="form-group">
                                                                     <select
                                                                         value={selectedValues[sweetName]?.oneKg || 0}
@@ -1188,10 +1188,10 @@ const OrderLife = () => {
                                                                             <option key={n} value={n}>{n}</option>
                                                                         ))}
                                                                     </select></div>
-                                                            }</td>
-                                                            <td> {remainingSweet.oneKg > 0  || activeTab!=="all"&&
+                                                            }</td>}
+                                                            {activeTab!=="all"&& <td> {remainingSweet.oneKg > 0 &&
                                                                 <button onClick={() => handlePack(sweetName, "oneKg", orderData._id)}>Packed</button>
-                                                            } </td>
+                                                            } </td>}
                                                         </tr>
                                                     )}
                                                     {sweet.halfKg > 0 && (
@@ -1202,8 +1202,8 @@ const OrderLife = () => {
                                                             <td>{sweet.halfKg}</td>
                                                             <td>{remainingSweet.halfKg || 0}</td>
                                                             <td>{sweet.halfKg - (remainingSweet.halfKg || 0)}</td>
-                                                            <td>
-                                                                {remainingSweet.halfKg > 0 || activeTab!=="all" && 
+                                                            {activeTab!=="all"&& <td>
+                                                                {remainingSweet.halfKg > 0  && 
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.halfKg || 0}
@@ -1213,11 +1213,11 @@ const OrderLife = () => {
                                                                                 <option key={n} value={n}>{n}</option>
                                                                             ))}
                                                                         </select></div>
-                                                                } </td>
-                                                            <td>
-                                                                {remainingSweet.halfKg > 0 || activeTab!=="all" &&
+                                                                } </td>}
+                                                            {activeTab!=="all"&& <td>
+                                                                {remainingSweet.halfKg > 0  &&
                                                                     <button onClick={() => handlePack(sweetName, "halfKg", orderData._id)}>Packed</button>
-                                                                }</td>
+                                                                }</td>}
                                                         </tr>
                                                     )}
                                                     {sweet.quarterKg > 0 && (
@@ -1226,10 +1226,10 @@ const OrderLife = () => {
                                                         }}>
                                                             <td>1/4 Kg</td>
                                                             <td>{sweet.quarterKg}</td>
-                                                            <td>{remainingSweet.quarterKg || 0}</td>
-                                                            <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>
-                                                            <td>
-                                                                {remainingSweet.quarterKg > 0 || activeTab!=="all" &&
+                                                            {activeTab!=="all"&&    <td>{remainingSweet.quarterKg || 0}</td>}
+                                                            {activeTab!=="all"&&   <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>}
+                                                            {activeTab!=="all"&&  <td>
+                                                                {remainingSweet.quarterKg > 0  &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.quarterKg || 0}
@@ -1239,11 +1239,11 @@ const OrderLife = () => {
                                                                                 <option key={n} value={n}>{n}</option>
                                                                             ))}
                                                                         </select></div>
-                                                                } </td>
-                                                            <td>
-                                                                {remainingSweet.quarterKg > 0  || activeTab!=="all"&&
+                                                                } </td>}
+                                                          {activeTab!=="all"&&   <td>
+                                                                {remainingSweet.quarterKg > 0&&
                                                                     <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
-                                                                } </td>
+                                                                } </td>}
                                                         </tr>
                                                     )}
                                                     {sweet.otherPackings > 0 && (
@@ -1252,10 +1252,10 @@ const OrderLife = () => {
                                                         }}>
                                                             <td>{sweet.otherWeight}g</td>
                                                             <td>{sweet.otherPackings}</td>
-                                                            <td>{remainingSweet.otherPackings || 0}</td>
-                                                            <td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>
-                                                            <td>
-                                                                {remainingSweet.otherPackings > 0 || activeTab!=="all" &&
+                                                            {activeTab!=="all"&&  <td>{remainingSweet.otherPackings || 0}</td>}
+                                                           {activeTab!=="all"&&  <td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>}
+                                                            {activeTab!=="all"&& <td>
+                                                                {remainingSweet.otherPackings > 0 &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.otherPackings || 0}
@@ -1265,12 +1265,12 @@ const OrderLife = () => {
                                                                                 <option key={n} value={n}>{n}</option>
                                                                             ))}
                                                                         </select></div>
-                                                                } </td>
-                                                            <td>
-                                                                {remainingSweet.otherPackings > 0 || activeTab!=="all" &&
+                                                                } </td>}
+                                                           {activeTab!=="all"&&  <td>
+                                                                {remainingSweet.otherPackings > 0  &&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
                                                                 }
-                                                            </td>
+                                                            </td>}
                                                         </tr>
                                                     )}
                                                     {sweet.otherPackings2 > 0 && (
@@ -1279,10 +1279,10 @@ const OrderLife = () => {
                                                         }}>
                                                             <td>{sweet.otherWeight2}g</td>
                                                             <td>{sweet.otherPackings2}</td>
-                                                            <td>{remainingSweet.otherPackings2 || 0}</td>
-                                                            <td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>
-                                                            <td>
-                                                                {remainingSweet.otherPackings2 > 0 || activeTab!=="all" &&
+                                                            {activeTab!=="all"&&  <td>{remainingSweet.otherPackings2 || 0}</td>}
+                                                            {activeTab!=="all"&&   <td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>}
+                                                            {activeTab!=="all"&&  <td>
+                                                                {remainingSweet.otherPackings2 > 0 &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.otherPackings2 || 0}
@@ -1292,12 +1292,12 @@ const OrderLife = () => {
                                                                                 <option key={n} value={n}>{n}</option>
                                                                             ))}
                                                                         </select></div>
-                                                                }</td>
-                                                            <td>
-                                                                {remainingSweet.otherPackings2 > 0  || activeTab!=="all"&&
+                                                                }</td>}
+                                                             {activeTab!=="all"&&<td>
+                                                                {remainingSweet.otherPackings2 > 0 &&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
                                                                 }
-                                                            </td>
+                                                            </td>}
                                                         </tr>
                                                     )}
                                                 </tbody>
