@@ -45,7 +45,7 @@ const Report = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch('http://13.49.223.219:2025/get_all_orders');
+      const response = await fetch('https://dms-backend-seven.vercel.app/get_all_orders');
       if (response.ok) {
         const result = await response.json();
         setAllOrders(result.data);
