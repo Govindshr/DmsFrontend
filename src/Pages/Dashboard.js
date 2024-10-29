@@ -185,7 +185,7 @@ if(sweet.totalOtherWeight){
     <>
       <div className="dashboard-container">
         <div className="dashboard">
-          <h1>Dashboard </h1>
+          <h1>Dashboard</h1>
 
           {!selectedSweet ? (
             <div className="card-container">
