@@ -14,7 +14,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
 
   // Calculate visible pages dynamically (similar to ngFor in Angular)
   const calculateVisiblePages = (currentPage, total) => {
-    const visiblePageCount = 25; // Adjust for more/less page numbers displayed
+    const visiblePageCount = 30; // Adjust for more/less page numbers displayed
     const startPage = Math.max(1, currentPage - Math.floor(visiblePageCount / 2));
     const endPage = Math.min(total, startPage + visiblePageCount - 1);
 
@@ -23,6 +23,7 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
 
   // Handler functions for pagination actions
   const goToPage = (pageNumber) => {
+    console.log(pageNumber)
     setPage(pageNumber);
     onPageChange(pageNumber); // Callback to parent to update page
   };
@@ -38,13 +39,13 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
 
   return (
     <div className="custom-pagination-controls">
-    <button 
+    {/* <button 
       onClick={previousPage} 
       disabled={page === 1} 
       className={`custom-pagination-btn ${page === 1 ? 'custom-pagination-btn-disabled' : ''}`}
     >
       Previous
-    </button>
+    </button> */}
   
     {/* <button 
       onClick={() => goToPage(1)} 
@@ -72,13 +73,13 @@ const Pagination = ({ totalPages, currentPage, onPageChange }) => {
       Last
     </button> */}
   
-    <button 
+    {/* <button 
       onClick={nextPage} 
       disabled={page === totalPages} 
       className={`custom-pagination-btn ${page === totalPages ? 'custom-pagination-btn-disabled' : ''}`}
     >
       Next
-    </button>
+    </button> */}
   </div>
   
 

@@ -3,10 +3,13 @@ import './AddOrder.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
+import Loader from '../Components/Loader';
 import 'react-toastify/dist/ReactToastify.css';
+
 
 const AddOrder = () => {
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(true);
   const [number, setNumber] = useState('');
   const [isRetailOrder, setIsRetailOrder] = useState(false); // New state for Retail Order checkbox
   const [orderData, setOrderData] = useState({
@@ -92,6 +95,7 @@ const AddOrder = () => {
       retail_order:isRetailOrder,
     };
 console.log(finalOrder)
+setLoading(true)
     try {
       const response = await fetch('https://dms-backend-seven.vercel.app/sweet_order_details', {
         method: 'POST',
@@ -104,8 +108,10 @@ console.log(finalOrder)
       if (response.ok) {
         toast.success('Operation was successful!');
         handleReset();
+        setLoading(false)
       } else {
         toast.error('Operation Failed!');
+        setLoading(false)
       }
     } catch (error) {
       toast.error('An error occurred!');
@@ -319,6 +325,7 @@ console.log(finalOrder)
         </div>
       </div>
       <ToastContainer />
+      <Loader loading={loading} />
     </>
   );
 };

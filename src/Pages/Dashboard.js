@@ -53,7 +53,28 @@ const Dashboard = () => {
         toast.error('An error occurred while fetching data!');
       }
     };
+    const fetchItemsFromAPI = async () => {
+    
+      try {
+          const response = await fetch('https://dms-backend-seven.vercel.app/get_data_by_Sweetname' ,{
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ sweetname: "Badam_Katli" }),
+          });
 
+          if (response.ok) {
+              const data = await response.json();
+
+              
+          } else {
+
+          }
+      } catch (error) {
+
+      }
+  };
     const fetchPackedBoxData = async () => {
       try {
         const response = await fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation');
@@ -73,6 +94,7 @@ const Dashboard = () => {
     fetchData();
     fetchBoxData();
     fetchPackedBoxData();
+    // fetchItemsFromAPI()
     return () => {
       isMounted = false;
     };

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye, faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faEye, faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft, faL } from '@fortawesome/free-solid-svg-icons';
 import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { Tooltip } from 'react-tooltip';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
@@ -15,11 +15,13 @@ import Swal from 'sweetalert2';
 import GenerateBill from '../Components/Generatebill';
 import './OrderLife.css';
 import Pagination from '../Components/Pagination';
+import Loader from '../Components/Loader';
 
 Modal.setAppElement('#root');
 
 const OrderLife = () => {
     const [activeTab, setActiveTab] = useState('all');
+    const [loading, setLoading] = useState();
     const [searchQuery, setSearchQuery] = useState('');
     const [items, setItems] = useState([]);
     const [selectedValues, setSelectedValues] = useState({});
@@ -37,7 +39,7 @@ const OrderLife = () => {
     const [billmodel, setBillmodel] = useState(false);
     const [billData, setBillData] = useState(null);
     const [billData2, setBillData2] = useState(null);
-   
+
 
 
     const [receivedMoney, setReceivedMoney] = useState('');
@@ -45,28 +47,29 @@ const OrderLife = () => {
     const [sweetSelections, setSweetSelections] = useState([
         { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
     ]);
-    const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 10; // Example total pages
+    // const [currentPage, setCurrentPage] = useState(1);
+    let currentPage = 1
+    const totalPages = 10; // Example total pages
 
-  const handlePageChange = (pageNumber) => {
-   
-    setCurrentPage(pageNumber);
-    if (activeTab === "initial") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
-    } else if (activeTab === "all") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
-    } else if (activeTab === "partial_packed") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
-    }
-    else if (activeTab === "packed") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
-    } else if (activeTab === "delivered") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
-    } else if (activeTab === "paid") {
-        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
-    }
-    // Fetch new data based on `pageNumber` if needed
-  };
+    const handlePageChange = (pageNumber) => {
+// console.log("hanfle page change ",pageNumber)
+    currentPage=pageNumber;
+        if (activeTab === "initial") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+        } else if (activeTab === "all") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+        } else if (activeTab === "partial_packed") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+        }
+        else if (activeTab === "packed") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+        } else if (activeTab === "delivered") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+        } else if (activeTab === "paid") {
+            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+        }
+        // Fetch new data based on `pageNumber` if needed
+    };
 
     useEffect(() => {
         if (activeTab === "initial") {
@@ -243,7 +246,7 @@ const OrderLife = () => {
             }
             return acc;
         }, {});
-
+        setLoading(true)
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_remaining_order', {
                 method: 'POST',
@@ -256,8 +259,10 @@ const OrderLife = () => {
             if (response.ok) {
                 toast.success('Operation was successful!');
                 setIsSweetsModalOpen(false);
+                setLoading(false)
             } else {
                 toast.error('Operation Failed!');
+                setLoading(false)
             }
         } catch (error) {
             toast.error('An error occurred!');
@@ -277,7 +282,7 @@ const OrderLife = () => {
         console.log(`Packing ${selectedValue} boxes of ${weightType} for ${sweetName}`);
 
 
-
+        setLoading(true)
 
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_sweets', {
@@ -289,11 +294,11 @@ const OrderLife = () => {
             });
 
             if (response.ok) {
-
+                setLoading(false)
                 toast.success('Operation was successful!');
                 // Process the search results as needed
             } else {
-
+                setLoading(false)
             }
         } catch (error) {
 
@@ -381,8 +386,10 @@ const OrderLife = () => {
 
     const fetchItemsFromAPI = async (url) => {
         setItems([])
+        console.log("api ke just pehle ",currentPage)
+        setLoading(true)
         try {
-            const response = await fetch(url ,{
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -391,10 +398,12 @@ const OrderLife = () => {
             });
 
             if (response.ok) {
+                setLoading(false)
                 const data = await response.json();
 
                 setItems(data);
             } else {
+                setLoading(false)
 
             }
         } catch (error) {
@@ -410,23 +419,25 @@ const OrderLife = () => {
         const query = event.target.value;
         setSearchQuery(query);
 
-
+        setLoading(true)
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_name', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: query, type: activeTab,page:currentPage }),
+                body: JSON.stringify({ name: query, type: activeTab, page: currentPage }),
             });
 
             if (response.ok) {
+
                 const result = await response.json();
                 setItems(result);
+                setLoading(false)
 
                 // Process the search results as needed
             } else {
-
+                setLoading(false)
             }
         } catch (error) {
 
@@ -436,7 +447,7 @@ const OrderLife = () => {
     const handleorderinput = async (event) => {
         // const query = event.target.value;
         // setSearchQuery(query);
-
+        setLoading(true)
 
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_order_no', {
@@ -444,22 +455,49 @@ const OrderLife = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ order_no: event.target.value, type: activeTab ,page:currentPage}),
+                body: JSON.stringify({ order_no: event.target.value, type: activeTab, page: currentPage }),
             });
 
             if (response.ok) {
                 const result = await response.json();
                 setItems(result);
+                setLoading(false)
 
                 // Process the search results as needed
             } else {
-
+                setLoading(false)
             }
         } catch (error) {
 
         }
     };
+    const handlesweetnamesearch = async (event) => {
+        // const query = event.target.value;
+        // setSearchQuery(query);
+        // console.log("chal rah ahe ")
+        setLoading(true)
+        try {
+            const response = await fetch('https://dms-backend-seven.vercel.app/get_data_by_Sweetname', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ sweetname: event.target.value }),
+            });
 
+            if (response.ok) {
+                const result = await response.json();
+                setItems(result);
+                setLoading(false)
+
+                // Process the search results as needed
+            } else {
+                setLoading(false)
+            }
+        } catch (error) {
+
+        }
+    };
     const handleViewClick = (item) => {
 
 
@@ -473,6 +511,7 @@ const OrderLife = () => {
 
     const postViewAPI = async (id, type) => {
         const data = { order_id: id };
+        setLoading(false)
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
                 method: 'POST',
@@ -494,8 +533,9 @@ const OrderLife = () => {
                     setOrderData(data.data[0]);
 
                 }
+                setLoading(false)
             } else {
-
+                setLoading(false)
             }
         } catch (error) {
 
@@ -548,7 +588,7 @@ const OrderLife = () => {
             confirmButtonText: 'Yes, mark as packed!'
         }).then((result) => {
             if (result.isConfirmed) {
-                callPackedAPI(itemId,obj.sweets);
+                callPackedAPI(itemId, obj.sweets);
             } else if (result.dismiss === Swal.DismissReason.cancel) {
 
             }
@@ -569,6 +609,7 @@ const OrderLife = () => {
         // });
     };
     const updateispacked = async (itemId) => {
+        
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_packed', {
                 method: 'POST',
@@ -598,16 +639,17 @@ const OrderLife = () => {
             Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
         }
     };
-    const callPackedAPI = async (itemId,sweets) => {
-        console.log("Sweets",sweets)
-        let order_data={
-            sweets:sweets,
+    const callPackedAPI = async (itemId, sweets) => {
+        console.log("Sweets", sweets)
+        let order_data = {
+            sweets: sweets,
         }
+        
         try {
             const response = await fetch('https://dms-backend-seven.vercel.app/update_stock', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_data: order_data}),
+                body: JSON.stringify({ order_data: order_data }),
             });
             if (response.ok) {
                 updateispacked(itemId)
@@ -659,7 +701,6 @@ const OrderLife = () => {
                 },
                 body: JSON.stringify({ orderId: itemId }),
             });
-            
             if (response.ok) {
 
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
@@ -819,28 +860,59 @@ const OrderLife = () => {
                                 Completed
                             </button>
                         </div>
-                        <div>
-                            <div className="search-container">
-                                <input
-                                    type="text"
-                                    placeholder="Search Orders..."
-                                    className="search-input"
-                                    value={searchQuery}
-                                    onChange={handleSearchInputChange}
-                                />
-                                <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                            </div>
 
-                            <div className="search-container">
-                                <input
-                                    type="number"
-                                    placeholder="Order Number"
-                                    className="search-input"
+                    </div>
+                    <div>
+                        <div className="search-container" style={{marginRight:"10px"}}>
+                            <input
+                                type="text"
+                                placeholder="Customer Name"
+                                className="search-input"
+                                value={searchQuery}
+                                onChange={handleSearchInputChange}
+                            />
+                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                        </div>
 
-                                    onChange={handleorderinput}
-                                />
-                                <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                        <div className="search-container" style={{marginRight:"10px"}}>
+                            <input
+                                type="number"
+                                placeholder="Order Number"
+                                className="search-input"
+
+                                onChange={handleorderinput}
+                            />
+                            <FontAwesomeIcon icon={faSearch} className="search-icon" />
+                        </div>
+
+                        <div className="search-container">
+                            <div className="form-group ml-3">
+                                <select
+                                    id="sweet_name"
+                                    name="sweet_name"
+
+                                    onChange={handlesweetnamesearch}
+                                    style={{ width: '70%' }}
+
+                                >
+                                    <option value="" >Select Sweet*</option>
+                                    <option value="Dry_Fruit_Barfi">Dry Fruit Barfi</option>
+                                    <option value="Dry_Fruit_Kaju_Patisa">Dry Fruit Kaju Patisa</option>
+                                    <option value="Sangam_Barfi">Sangam Barfi</option>
+                                    <option value="Kaju_Katli">Kaju Katli</option>
+                                    <option value="Kaju_Katli_Bina_Work">Kaju Katli(Bina Work)</option>
+                                    <option value="Badam_Katli">Badam Katli</option>
+                                    <option value="Badam_Katli_Bina_Work">Badam Katli(Bina Work)</option>
+                                    <option value="Makhan_Bada">Makhan Bada</option>
+                                    <option value="Nainwa_Ka_Petha">Nainwa Ka Petha</option>
+                                    <option value="Bundi_Ke_Laddu_Kesar">Bundi Ke Laddu Kesar</option>
+                                    <option value="Giri_Pak">Giri Pak</option>
+                                    <option value="Gulab_Jamun">Gulab Jamun</option>
+                                    <option value="Namkeen">Namkeen</option>
+                                    <option value="Papdi">Papdi</option>
+                                </select>
                             </div>
+                            {/* <FontAwesomeIcon icon={faSearch} className="search-icon" /> */}
                         </div>
                     </div></>}
 
@@ -849,139 +921,140 @@ const OrderLife = () => {
                 <h2>
                     {activeTab.replace(/_/g, ' ').charAt(0).toUpperCase() + activeTab.replace(/_/g, ' ').slice(1)} Orders
                 </h2>
-<div>
-                <table className="order-table">
-                    <thead>
-                        <tr>
-                            <th><b>Order.No.</b></th>
-                            <th><b>Name</b></th>
-                            <th><b>Price</b></th>
-                            {activeTab === 'all' && <th><b>Amount Received</b></th>}
-                            {activeTab === 'all' && <th><b>Difference Amount</b></th>}
-                            <th><b>Date & Time</b></th>
-                            <th><b>Action</b></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items?.data?.map((item, index) => (
-                            <tr
-                                key={item._id}
-                                style={{
-                                    backgroundColor: item?.is_delivered==1 && item?.is_packed==1 && item.is_paid==1 ? "#99f79994" : "inherit",
-                                }}
-                            >
-
-                                <td><b>{item?.order_no}</b></td>
-                                <td><b>{item?.name}</b></td>
-                                <td><b>₹{item?.summary?.totalPrice}</b></td>
-                                {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount : " NA"}</b></td>}
-                                {activeTab === 'all' && <td className={
-                                    activeTab === 'all' &&
-                                        item.received_amount !== null &&
-                                        typeof item.received_amount === 'number' &&
-                                        item.summary &&
-                                        item.summary.totalPrice !== undefined &&
-                                        item.received_amount < item.summary.totalPrice
-                                        ? 'highlight-row'
-                                        : ''
-                                }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice - item.received_amount.toFixed(2) : " NA"}</b></td>}
-                                <td><b>{item.created}</b></td>
-                                <td>
-                                    {(activeTab === "packed" || activeTab === "partial_packed" || activeTab === "all" || activeTab === "initial") && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faEye}
-                                                style={{ cursor: 'pointer', color: '#333' }}
-                                                data-tooltip-id="view-tooltip"
-                                                data-tooltip-content="View"
-                                                onClick={() => handleTableRowClick(item)}
-                                            />
-                                            <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
-                                        </>)}
-                                    {(activeTab === "initial" || activeTab === "packed" || activeTab === "partial_packed") && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faBox}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="packed-tooltip"
-                                                data-tooltip-content="Order Packed"
-                                                onClick={() => handlePackedClick(item._id, item)}
-                                            />
-                                            <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
-                                        </>)}
-
-                                    {(activeTab === "packed" || activeTab === "partial_packed") && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faShippingFast}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="Deliver-tooltip"
-                                                data-tooltip-content="Order Delivered"
-                                                onClick={() => handleDeliveredClick(item._id)}
-                                            />
-                                            <Tooltip id="Deliver-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
-
-
-                                    {activeTab !== "paid" && activeTab !== "all" && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faThumbsUp}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="complete-tooltip"
-                                                data-tooltip-content="Payment Done"
-                                                onClick={() => handleThumbsUpClick(item)}
-                                            />
-                                            <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
-                                    {activeTab !== "paid" && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faFileInvoice}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="complete-tooltip"
-                                                data-tooltip-content="Generate Bill"
-                                                onClick={() => handlegenereatebill(item.sweets, item)}
-                                            />
-                                            <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
-                                    {activeTab === "initial" && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faEdit}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="edit-tooltip"
-                                                data-tooltip-content="Edit Order"
-                                                onClick={() => handleEditClick('/edit-order', item._id)}
-                                            />
-                                            <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
-                                    {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
-                                        <>
-                                            <FontAwesomeIcon
-                                                icon={faTrashAlt}
-                                                style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                data-tooltip-id="delete-tooltip"
-                                                data-tooltip-content="Delete"
-                                                onClick={() => hadleDeleteData(item)}
-                                            />
-                                            <Tooltip id="delete-tooltip" place="top" type="dark" effect="solid" />
-                                        </>
-                                    )}
-                                </td>
+                <div>
+                    <table className="order-table">
+                        <thead>
+                            <tr>
+                                {/* <th><b>Serial.No.</b></th> */}
+                                <th><b>Order.No.</b></th>
+                                <th><b>Name</b></th>
+                                <th><b>Price</b></th>
+                                {activeTab === 'all' && <th><b>Amount Received</b></th>}
+                                {activeTab === 'all' && <th><b>Difference Amount</b></th>}
+                                <th><b>Date & Time</b></th>
+                                <th><b>Action</b></th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
- <Pagination
-        totalPages={items?.total_pages}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-      />
+                        </thead>
+                        <tbody>
+                            {items?.data?.map((item, index) => (
+                                <tr
+                                    key={item._id}
+                                    style={{
+                                        backgroundColor: item?.is_delivered == 1 && item?.is_packed == 1 && item.is_paid == 1 ? "#99f79994" : "inherit",
+                                    }}
+                                >
+                                    {/* <td><b>{index + 1}</b></td> */}
+                                    <td><b>{item?.order_no}</b></td>
+                                    <td><b>{item?.name}</b></td>
+                                    <td><b>₹{item?.summary?.totalPrice}</b></td>
+                                    {activeTab === 'all' && <td><b>₹{item.received_amount ? item.received_amount : " NA"}</b></td>}
+                                    {activeTab === 'all' && <td className={
+                                        activeTab === 'all' &&
+                                            item.received_amount !== null &&
+                                            typeof item.received_amount === 'number' &&
+                                            item.summary &&
+                                            item.summary.totalPrice !== undefined &&
+                                            item.received_amount < item.summary.totalPrice
+                                            ? 'highlight-row'
+                                            : ''
+                                    }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice - item.received_amount.toFixed(2) : " NA"}</b></td>}
+                                    <td><b>{item.created}</b></td>
+                                    <td>
+                                        {(activeTab === "packed" || activeTab === "partial_packed" || activeTab === "all" || activeTab === "initial") && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faEye}
+                                                    style={{ cursor: 'pointer', color: '#333' }}
+                                                    data-tooltip-id="view-tooltip"
+                                                    data-tooltip-content="View"
+                                                    onClick={() => handleTableRowClick(item)}
+                                                />
+                                                <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
+                                            </>)}
+                                        {(activeTab === "initial" || activeTab === "packed" || activeTab === "partial_packed") && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faBox}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="packed-tooltip"
+                                                    data-tooltip-content="Order Packed"
+                                                    onClick={() => handlePackedClick(item._id, item)}
+                                                />
+                                                <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
+                                            </>)}
+
+                                        {(activeTab === "packed" || activeTab === "partial_packed") && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faShippingFast}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="Deliver-tooltip"
+                                                    data-tooltip-content="Order Delivered"
+                                                    onClick={() => handleDeliveredClick(item._id)}
+                                                />
+                                                <Tooltip id="Deliver-tooltip" place="top" type="dark" effect="solid" />
+                                            </>
+                                        )}
+
+
+                                        {activeTab !== "paid" && activeTab !== "all" && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faThumbsUp}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="complete-tooltip"
+                                                    data-tooltip-content="Payment Done"
+                                                    onClick={() => handleThumbsUpClick(item)}
+                                                />
+                                                <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
+                                            </>
+                                        )}
+                                        {activeTab !== "paid" && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faFileInvoice}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="complete-tooltip"
+                                                    data-tooltip-content="Generate Bill"
+                                                    onClick={() => handlegenereatebill(item.sweets, item)}
+                                                />
+                                                <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
+                                            </>
+                                        )}
+                                        {activeTab === "initial" && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faEdit}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="edit-tooltip"
+                                                    data-tooltip-content="Edit Order"
+                                                    onClick={() => handleEditClick('/edit-order', item._id)}
+                                                />
+                                                <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
+                                            </>
+                                        )}
+                                        {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
+                                            <>
+                                                <FontAwesomeIcon
+                                                    icon={faTrashAlt}
+                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
+                                                    data-tooltip-id="delete-tooltip"
+                                                    data-tooltip-content="Delete"
+                                                    onClick={() => hadleDeleteData(item)}
+                                                />
+                                                <Tooltip id="delete-tooltip" place="top" type="dark" effect="solid" />
+                                            </>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <Pagination
+                        totalPages={items?.total_pages}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
             </div>
 
@@ -1198,10 +1271,10 @@ const OrderLife = () => {
                                                     <tr>
                                                         <th>Weight</th>
                                                         <th>Total Boxes</th>
-                                                        {activeTab!=="all"&&   <th>Remaining</th>}
-                                                        {activeTab!=="all"&&  <th>Packed</th>}
-                                                        {activeTab!=="all"&& <th>Select Quantity</th>}
-                                                        {activeTab!=="all"&& <th>Action</th>}
+                                                           <th>Remaining</th>
+                                                         <th>Packed</th>
+                                                        {activeTab !== "all" && <th>Select Quantity</th>}
+                                                        {activeTab !== "all" && <th>Action</th>}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -1213,9 +1286,9 @@ const OrderLife = () => {
                                                         >
                                                             <td>1 Kg</td>
                                                             <td>{sweet.oneKg}</td>
-                                                            {activeTab!=="all"&& <td>{remainingSweet.oneKg || 0}</td>}
-                                                           {activeTab!=="all"&&  <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>}
-                                                            {activeTab!=="all"&&<td> {remainingSweet.oneKg > 0 &&
+                                                            { <td>{remainingSweet.oneKg || 0}</td>}
+                                                            { <td>{sweet.oneKg - (remainingSweet.oneKg || 0)}</td>}
+                                                            {activeTab !== "all" && <td> {remainingSweet.oneKg > 0 &&
                                                                 <div className="form-group">
                                                                     <select
                                                                         value={selectedValues[sweetName]?.oneKg || 0}
@@ -1226,21 +1299,22 @@ const OrderLife = () => {
                                                                         ))}
                                                                     </select></div>
                                                             }</td>}
-                                                            {activeTab!=="all"&& <td> {remainingSweet.oneKg > 0 &&
+                                                            {activeTab !== "all" &&
+                                                             <td> {remainingSweet.oneKg > 0 &&
                                                                 <button onClick={() => handlePack(sweetName, "oneKg", orderData._id)}>Packed</button>
                                                             } </td>}
                                                         </tr>
                                                     )}
                                                     {sweet.halfKg > 0 && (
                                                         <tr style={{
-                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                            backgroundColor: sweet.halfKg === (sweet.halfKg - (remainingSweet.halfKg || 0)) ? "#99f79994" : "inherit",
                                                         }}>
                                                             <td>1/2 Kg</td>
                                                             <td>{sweet.halfKg}</td>
-                                                            <td>{remainingSweet.halfKg || 0}</td>
-                                                            <td>{sweet.halfKg - (remainingSweet.halfKg || 0)}</td>
-                                                            {activeTab!=="all"&& <td>
-                                                                {remainingSweet.halfKg > 0  && 
+                                                            {<td>{remainingSweet.halfKg || 0}</td>}
+                                                            {<td>{sweet.halfKg - (remainingSweet.halfKg || 0)}</td>}
+                                                            {activeTab !== "all" && <td>
+                                                                {remainingSweet.halfKg > 0 &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.halfKg || 0}
@@ -1251,22 +1325,22 @@ const OrderLife = () => {
                                                                             ))}
                                                                         </select></div>
                                                                 } </td>}
-                                                            {activeTab!=="all"&& <td>
-                                                                {remainingSweet.halfKg > 0  &&
+                                                            {activeTab !== "all" && <td>
+                                                                {remainingSweet.halfKg > 0 &&
                                                                     <button onClick={() => handlePack(sweetName, "halfKg", orderData._id)}>Packed</button>
                                                                 }</td>}
                                                         </tr>
                                                     )}
                                                     {sweet.quarterKg > 0 && (
                                                         <tr style={{
-                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                            backgroundColor: sweet.quarterKg === (sweet.quarterKg - (remainingSweet.quarterKg || 0)) ? "#99f79994" : "inherit",
                                                         }}>
                                                             <td>1/4 Kg</td>
                                                             <td>{sweet.quarterKg}</td>
-                                                            {activeTab!=="all"&&    <td>{remainingSweet.quarterKg || 0}</td>}
-                                                            {activeTab!=="all"&&   <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>}
-                                                            {activeTab!=="all"&&  <td>
-                                                                {remainingSweet.quarterKg > 0  &&
+                                                            { <td>{remainingSweet.quarterKg || 0}</td>}
+                                                            { <td>{sweet.quarterKg - (remainingSweet.quarterKg || 0)}</td>}
+                                                            {activeTab !== "all" && <td>
+                                                                {remainingSweet.quarterKg > 0 &&
                                                                     <div className="form-group">
                                                                         <select
                                                                             value={selectedValues[sweetName]?.quarterKg || 0}
@@ -1277,21 +1351,21 @@ const OrderLife = () => {
                                                                             ))}
                                                                         </select></div>
                                                                 } </td>}
-                                                          {activeTab!=="all"&&   <td>
-                                                                {remainingSweet.quarterKg > 0&&
+                                                            {activeTab !== "all" && <td>
+                                                                {remainingSweet.quarterKg > 0 &&
                                                                     <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
                                                                 } </td>}
                                                         </tr>
                                                     )}
                                                     {sweet.otherPackings > 0 && (
                                                         <tr style={{
-                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                            backgroundColor: sweet.otherPackings === (sweet.otherPackings - (remainingSweet.otherPackings || 0)) ? "#99f79994" : "inherit",
                                                         }}>
                                                             <td>{sweet.otherWeight}g</td>
                                                             <td>{sweet.otherPackings}</td>
-                                                            {activeTab!=="all"&&  <td>{remainingSweet.otherPackings || 0}</td>}
-                                                           {activeTab!=="all"&&  <td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>}
-                                                            {activeTab!=="all"&& <td>
+                                                            {<td>{remainingSweet.otherPackings || 0}</td>}
+                                                            {<td>{sweet.otherPackings - (remainingSweet.otherPackings || 0)}</td>}
+                                                            {activeTab !== "all" && <td>
                                                                 {remainingSweet.otherPackings > 0 &&
                                                                     <div className="form-group">
                                                                         <select
@@ -1303,8 +1377,8 @@ const OrderLife = () => {
                                                                             ))}
                                                                         </select></div>
                                                                 } </td>}
-                                                           {activeTab!=="all"&&  <td>
-                                                                {remainingSweet.otherPackings > 0  &&
+                                                            {activeTab !== "all" && <td>
+                                                                {remainingSweet.otherPackings > 0 &&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
                                                                 }
                                                             </td>}
@@ -1312,13 +1386,13 @@ const OrderLife = () => {
                                                     )}
                                                     {sweet.otherPackings2 > 0 && (
                                                         <tr style={{
-                                                            backgroundColor: sweet.oneKg === (sweet.oneKg - (remainingSweet.oneKg || 0)) ? "#99f79994" : "inherit",
+                                                            backgroundColor: sweet.otherPackings2 === (sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)) ? "#99f79994" : "inherit",
                                                         }}>
                                                             <td>{sweet.otherWeight2}g</td>
                                                             <td>{sweet.otherPackings2}</td>
-                                                            {activeTab!=="all"&&  <td>{remainingSweet.otherPackings2 || 0}</td>}
-                                                            {activeTab!=="all"&&   <td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>}
-                                                            {activeTab!=="all"&&  <td>
+                                                            {<td>{remainingSweet.otherPackings2 || 0}</td>}
+                                                            {<td>{sweet.otherPackings2 - (remainingSweet.otherPackings2 || 0)}</td>}
+                                                            {activeTab !== "all" && <td>
                                                                 {remainingSweet.otherPackings2 > 0 &&
                                                                     <div className="form-group">
                                                                         <select
@@ -1330,7 +1404,7 @@ const OrderLife = () => {
                                                                             ))}
                                                                         </select></div>
                                                                 }</td>}
-                                                             {activeTab!=="all"&&<td>
+                                                            {activeTab !== "all" && <td>
                                                                 {remainingSweet.otherPackings2 > 0 &&
                                                                     <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
                                                                 }
@@ -1365,6 +1439,7 @@ const OrderLife = () => {
             </Modal>
 
             <ToastContainer />
+            <Loader loading={loading} />
         </div>
     );
 };
