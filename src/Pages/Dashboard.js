@@ -22,13 +22,7 @@ const Dashboard = () => {
 
     const fetchData = async () => {
       try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_dashboard',{
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ page: currentPage }),
-      });
+        const response = await fetch('https://dms-backend-seven.vercel.app/get_dashboard');
         if (response.ok) {
           const result = await response.json();
           if (isMounted) {
