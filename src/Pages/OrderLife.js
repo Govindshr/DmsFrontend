@@ -14,6 +14,7 @@ import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import GenerateBill from '../Components/Generatebill';
 import './OrderLife.css';
+import Pagination from '../Components/Pagination';
 
 Modal.setAppElement('#root');
 
@@ -36,11 +37,36 @@ const OrderLife = () => {
     const [billmodel, setBillmodel] = useState(false);
     const [billData, setBillData] = useState(null);
     const [billData2, setBillData2] = useState(null);
+   
+
+
     const [receivedMoney, setReceivedMoney] = useState('');
     const [paymentMode, setPaymentMode] = useState('');
     const [sweetSelections, setSweetSelections] = useState([
         { sweetName: '', weight: '', quantity: 0, availableWeights: [] },
     ]);
+    const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 10; // Example total pages
+
+  const handlePageChange = (pageNumber) => {
+   
+    setCurrentPage(pageNumber);
+    if (activeTab === "initial") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+    } else if (activeTab === "all") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+    } else if (activeTab === "partial_packed") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+    }
+    else if (activeTab === "packed") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+    } else if (activeTab === "delivered") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+    } else if (activeTab === "paid") {
+        fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+    }
+    // Fetch new data based on `pageNumber` if needed
+  };
 
     useEffect(() => {
         if (activeTab === "initial") {
@@ -356,12 +382,18 @@ const OrderLife = () => {
     const fetchItemsFromAPI = async (url) => {
         setItems([])
         try {
-            const response = await fetch(url);
+            const response = await fetch(url ,{
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ page: currentPage }),
+            });
 
             if (response.ok) {
                 const data = await response.json();
 
-                setItems(data.data);
+                setItems(data);
             } else {
 
             }
@@ -385,12 +417,12 @@ const OrderLife = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name: query, type: activeTab }),
+                body: JSON.stringify({ name: query, type: activeTab,page:currentPage }),
             });
 
             if (response.ok) {
                 const result = await response.json();
-                setItems(result.data);
+                setItems(result);
 
                 // Process the search results as needed
             } else {
@@ -412,12 +444,12 @@ const OrderLife = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ order_no: event.target.value, type: activeTab }),
+                body: JSON.stringify({ order_no: event.target.value, type: activeTab ,page:currentPage}),
             });
 
             if (response.ok) {
                 const result = await response.json();
-                setItems(result.data);
+                setItems(result);
 
                 // Process the search results as needed
             } else {
@@ -816,7 +848,7 @@ const OrderLife = () => {
                 <h2>
                     {activeTab.replace(/_/g, ' ').charAt(0).toUpperCase() + activeTab.replace(/_/g, ' ').slice(1)} Orders
                 </h2>
-
+<div>
                 <table className="order-table">
                     <thead>
                         <tr>
@@ -830,7 +862,7 @@ const OrderLife = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {items.map((item, index) => (
+                        {items?.data?.map((item, index) => (
                             <tr
                                 key={item._id}
                                 style={{
@@ -944,8 +976,12 @@ const OrderLife = () => {
                         ))}
                     </tbody>
                 </table>
-
-
+ <Pagination
+        totalPages={items?.total_pages}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
+      />
+                </div>
             </div>
 
             <Modal

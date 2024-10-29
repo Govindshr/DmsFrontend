@@ -1,0 +1,29 @@
+.custom-pagination-controls {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .custom-pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    background-color: white;
+    cursor: pointer;
+    color: black;
+  }
+  .custom-pagination-btn:hover {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+  .custom-pagination-btn-active {
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+  }
+  
+  .custom-pagination-btn-disabled {
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+  }
+  
