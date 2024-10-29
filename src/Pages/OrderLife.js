@@ -659,6 +659,7 @@ const OrderLife = () => {
                 },
                 body: JSON.stringify({ orderId: itemId }),
             });
+            
             if (response.ok) {
 
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
