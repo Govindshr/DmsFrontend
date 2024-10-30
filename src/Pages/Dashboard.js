@@ -164,12 +164,13 @@ const Dashboard = () => {
   const handlePackedBoxNumber = (sweetName) => {
     if (packedboxnumber.length) {
       const filteredSweets = packedboxnumber.filter(sweet => sweet.sweetName === sweetName);
-
+      
       if (filteredSweets.length === 0) {
         console.log('No sweets found with that name.');
         return null;
       }
-
+      
+      console.log("swertname", filteredSweets[0])
       const sweet = filteredSweets[0]; // Assuming you only want the first match
 
       const weightObject = {
@@ -189,6 +190,7 @@ const Dashboard = () => {
           }
         });
       };
+      console.log("datatattat",sweet.totalOtherWeight)
 if(sweet.totalOtherWeight){
       addOtherObjectFields(sweet.totalOtherWeight);
     }
