@@ -940,8 +940,16 @@ const OrderLife = () => {
                                 <tr
                                     key={item._id}
                                     style={{
-                                        backgroundColor: item?.is_delivered == 1 && item?.is_packed == 1 && item.is_paid == 1 ? "#99f79994" : "inherit",
+                                        backgroundColor: item?.is_delivered == 1 && item?.is_packed == 1 && item?.is_paid == 1 
+                                            ? "#99f79994" // Green color if all conditions are met
+                                            : item?.is_packed == 1 && item?.is_delivered == 0
+                                            ? "#e7e7abe8"    // Yellow color if only is_packed is 1
+                                            : item?.is_packed == 1 && item?.is_delivered == 1
+                                             ?
+                                            "#45d4dc8a"
+                                            :"inherit",  // Default color
                                     }}
+                                    
                                 >
                                     {/* <td><b>{index + 1}</b></td> */}
                                     <td><b>{item?.order_no}</b></td>
@@ -1021,7 +1029,7 @@ const OrderLife = () => {
                                                 <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
                                             </>
                                         )}
-                                        {activeTab === "initial" && (
+                                        {/* {activeTab === "initial" && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faEdit}
@@ -1032,7 +1040,7 @@ const OrderLife = () => {
                                                 />
                                                 <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
                                             </>
-                                        )}
+                                        )} */}
                                         {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
                                             <>
                                                 <FontAwesomeIcon

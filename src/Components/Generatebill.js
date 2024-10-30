@@ -51,17 +51,27 @@ const GenerateBill = ({ sweets, data }) => {
 
   const handleDownloadPdf = async () => {
     setShowDownloadButton(false);
-    const canvas = await html2canvas(invoiceRef.current);
-    const dataImg = canvas.toDataURL('image/jpeg');
-    const pdf = new jsPDF({
-      orientation: "p",
-      unit: "px",
-      format: [canvas.width, canvas.height]
+    
+    const canvas = await html2canvas(invoiceRef.current, {
+      scale: 2, // Increase scale to improve quality
     });
-    pdf.addImage(dataImg, 'JPEG', 0, 0, canvas.width, canvas.height);
+    const dataImg = canvas.toDataURL('image/jpeg');
+  
+    const pdfWidth = 595.28; // Width for an A4 PDF in pixels at 72 DPI
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+  
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "px",
+      format: [pdfWidth, pdfHeight]
+    });
+  
+    pdf.addImage(dataImg, 'JPEG', 0, 0, pdfWidth, pdfHeight);
     pdf.save(`Invoice-${data?.name || 'Customer'}-${data?.phone || ''}.pdf`);
+  
     setShowDownloadButton(true);
   };
+  
 
   return (
     <>

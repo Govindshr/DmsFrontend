@@ -11,6 +11,8 @@ const AddOrder = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [number, setNumber] = useState('');
+  const [receivedMoney, setReceivedMoney] = useState('');
+  const [paymentMode, setPaymentMode] = useState('');
   const [isRetailOrder, setIsRetailOrder] = useState(false); // New state for Retail Order checkbox
   const [orderData, setOrderData] = useState({
     Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
@@ -92,6 +94,8 @@ const AddOrder = () => {
       number, // Include the retail order field
       sweets: updatedOrderData,
       summary: calculateSummary,
+      received_amount:receivedMoney,
+      payment_mode:paymentMode,
       retail_order:isRetailOrder,
     };
 console.log(finalOrder)
@@ -121,6 +125,8 @@ setLoading(true)
   const handleReset = () => {
     setName('');
     setNumber('');
+    setPaymentMode('');
+    setReceivedMoney('')
     setIsRetailOrder(false); // Reset the checkbox
     setOrderData({
       Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
@@ -140,7 +146,16 @@ setLoading(true)
   
     });
   };
+  const handlecheckboxChange = (e) => {
+   
 
+    setIsRetailOrder(e.target.checked);
+    if(e.target.checked===false){
+      setPaymentMode('')
+      setReceivedMoney('')
+    }
+    // setBackgroundColor(getBackgroundColor(item?.is_packed, item?.is_delivered, item?.is_paid));
+};
   return (
     <>
       <div className="add-order-container">
@@ -182,9 +197,38 @@ setLoading(true)
                     type="checkbox"
                     id="isRetailOrder"
                     checked={isRetailOrder}
-                    onChange={(e) => setIsRetailOrder(e.target.checked)}
+                    onChange={handlecheckboxChange}
                   />
                 </div>
+                {isRetailOrder===true && (<>
+                <div className="form-group">
+                            <label htmlFor="receivedMoney"><b>Received Money:</b></label>
+                            <input
+                                type="number"
+                                id="receivedMoney"
+                                value={receivedMoney}
+                                onChange={(e) => setReceivedMoney(e.target.value)}
+                                placeholder="Enter received money"
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="paymentmode"><b>Payment Mode:</b></label>
+
+                            <select
+                                id="paymentmode"
+                                name="Paymentmode"
+                                value={paymentMode}
+                                onChange={(e) => setPaymentMode(e.target.value)}
+                            // style={{width:'100%'}}
+
+                            >
+                                <option value="" disabled>Select type*</option>
+                                <option value="online">Online</option>
+                                <option value="cash">Cash</option>
+
+                            </select>
+                        </div></>)}
               </div>
 
               <table className="order-table">
@@ -325,7 +369,7 @@ setLoading(true)
         </div>
       </div>
       <ToastContainer />
-      <Loader loading={loading} />
+      {/* <Loader loading={loading} /> */}
     </>
   );
 };

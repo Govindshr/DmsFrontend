@@ -255,6 +255,8 @@ if(sweet.totalOtherWeight){
                   </tr>
                 </thead>
                 <tbody>
+                  {console.log("objects",Weightobjects)}
+                  {console.log("objects2",PackedWeightobject)}
                   {Object.keys(Weightobjects)
                     .filter(packing => packing !== '0gm')
                     .map((packing, index) => {
