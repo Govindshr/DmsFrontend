@@ -51,27 +51,17 @@ const GenerateBill = ({ sweets, data }) => {
 
   const handleDownloadPdf = async () => {
     setShowDownloadButton(false);
-    
-    const canvas = await html2canvas(invoiceRef.current, {
-      scale: 2, // Increase scale to improve quality
-    });
+    const canvas = await html2canvas(invoiceRef.current);
     const dataImg = canvas.toDataURL('image/jpeg');
-  
-    const pdfWidth = 595.28; // Width for an A4 PDF in pixels at 72 DPI
-    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-  
     const pdf = new jsPDF({
-      orientation: "portrait",
+      orientation: "p",
       unit: "px",
-      format: [pdfWidth, pdfHeight]
+      format: [canvas.width, canvas.height]
     });
-  
-    pdf.addImage(dataImg, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    pdf.addImage(dataImg, 'JPEG', 0, 0, canvas.width, canvas.height);
     pdf.save(`Invoice-${data?.name || 'Customer'}-${data?.phone || ''}.pdf`);
-  
     setShowDownloadButton(true);
   };
-  
 
   return (
     <>
@@ -101,7 +91,7 @@ const GenerateBill = ({ sweets, data }) => {
             <tr>
               <th>#</th>
               <th>Item Name</th>
-              <th>HSN/SAC</th>
+              {/* <th>HSN/SAC</th> */}
               <th>Quantity (Kg)</th>
               <th>Unit Price (₹)</th>
               <th>Amount (₹)</th>
@@ -112,7 +102,7 @@ const GenerateBill = ({ sweets, data }) => {
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{item.name.replace(/_/g, ' ')}</td>
-                <td></td>
+                {/* <td></td> */}
                 <td>{item.qty}</td>
                 <td>{item.unitPrice}</td>
                 <td>{item.price}</td>
@@ -121,15 +111,15 @@ const GenerateBill = ({ sweets, data }) => {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="5">Total Quantity</td>
+              <td colSpan="4">Total Quantity</td>
               <td>{grandTotalWeight.toFixed(2)} Kg</td>
             </tr>
             <tr>
-              <td colSpan="5">Subtotal</td>
+              <td colSpan="4">Subtotal</td>
               <td>₹{grandTotalPrice.toFixed(2)}</td>
             </tr>
             <tr>
-              <td colSpan="5">
+              <td colSpan="4">
                 <label>
                   <input
                     type="checkbox"
@@ -141,7 +131,7 @@ const GenerateBill = ({ sweets, data }) => {
               <td>₹{includeDelivery ? deliveryCost.toFixed(2) : "0.00"}</td>
             </tr>
             <tr>
-              <td colSpan="5" style={{ fontWeight: 'bold' }}>Total</td>
+              <td colSpan="4" style={{ fontWeight: 'bold' }}>Total</td>
               <td style={{ fontWeight: 'bold' }}>₹{finalTotalPrice.toFixed(2)}</td>
             </tr>
           </tfoot>
