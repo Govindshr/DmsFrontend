@@ -17,8 +17,29 @@ const ExtraSweets = () => {
         price: '',
         amount: ''
     });
+    const [selectedSweet, setSelectedSweet] = useState('');
+const [price, setPrice] = useState(0);
+const [quantity, setQuantity] = useState(0);
+
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editSweet, setEditSweet] = useState(null); // State to hold the sweet being edited
+
+    const SWEET_PRICES = {
+  Dry_Fruit_Barfi: 1000,
+  Dry_Fruit_Kaju_Patisa: 1000,
+  Sangam_Barfi: 900,
+  Kaju_Katli: 850,
+  Kaju_Katli_Bina_Work: 850,
+  Badam_Katli: 800,
+  Badam_Katli_Bina_Work: 800,
+  Makhan_Bada: 500,
+  Nainwa_Ka_Petha: 500,
+  Bundi_Ke_Laddu_Kesar: 450,
+  Giri_Pak: 450,
+  Gulab_Jamun: 450,
+  Namkeen: 250,
+  Papdi: 250,
+};
 
     // Fetch the existing sweets from the API
     useEffect(() => {
@@ -27,7 +48,7 @@ const ExtraSweets = () => {
 
     const fetchData = async () => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_extra_sweets');
+            const response = await fetch('http://localhost:2025/get_extra_sweets');
             if (response.ok) {
                 const result = await response.json();
                 setSweets(result.result);
@@ -42,7 +63,7 @@ const ExtraSweets = () => {
     // Handle delete action
     const handleDelete = async (id) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/delete_extra_sweets', {
+            const response = await fetch('http://localhost:2025/delete_extra_sweets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -69,32 +90,63 @@ const ExtraSweets = () => {
     };
 
     // Handle form submit to send data to the API
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+   // Handle form submit to send data to the API
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-        try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/add_extra_sweets', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newSweet),
-            });
+  // Validate input before submitting
+  if (!selectedSweet) {
+    toast.error('Please select a sweet!');
+    return;
+  }
 
-            if (response.ok) {
-                const addedSweet = await response.json();
-                setSweets([...sweets, addedSweet]);
-                setNewSweet({ sweet_name: '', price: '', amount: '' });
-                setShowForm(false);
-                fetchData();
-                toast.success('Sweet added successfully!');
-            } else {
-                toast.error('Failed to add sweet!');
-            }
-        } catch (error) {
-            toast.error('An error occurred while adding the sweet!');
-        }
-    };
+  if (!price || price <= 0) {
+    toast.error('Invalid sweet price!');
+    return;
+  }
+
+  if (!newSweet.amount || newSweet.amount <= 0) {
+    toast.error('Quantity must be greater than 0!');
+    return;
+  }
+
+  // Check if sweet already exists in DB (prevent duplicates)
+  const duplicateSweet = sweets.find(
+    (s) => s.sweet_name === selectedSweet
+  );
+  if (duplicateSweet) {
+    toast.error('This sweet already exists in stock!');
+    return;
+  }
+
+  const stockData = {
+    sweet_name: selectedSweet,
+    price: price,
+    amount: Number(newSweet.amount),
+  };
+
+  try {
+    const response = await fetch('http://localhost:2025/add_extra_sweets', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(stockData),
+    });
+
+    if (response.ok) {
+      toast.success('Sweet added successfully!');
+      setNewSweet({ sweet_name: '', price: '', amount: '' });
+      setSelectedSweet('');
+      setPrice(0);
+      setShowForm(false);
+      fetchData();
+    } else {
+      toast.error('Failed to add sweet!');
+    }
+  } catch (error) {
+    toast.error('Error adding sweet!');
+  }
+};
+
 
     // Handle Edit Sweet action, open modal and prefill values
     const handleEdit = (sweet) => {
@@ -110,7 +162,7 @@ const ExtraSweets = () => {
 
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_extra_sweets', {
+            const response = await fetch('http://localhost:2025/update_extra_sweets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -153,42 +205,33 @@ const ExtraSweets = () => {
 
                             <div className="form-group">
                                 <label htmlFor="type">Sweet Name*</label>
-                                <select
-                                    id="sweet_name"
-                                    name="sweet_name"
-                                    value={newSweet.sweet_name}
-                                    onChange={handleInputChange}
-                                    style={{ width: '70%' }}
-                                    required
-                                >
-                                    <option value="" disabled>Select type*</option>
-                                    <option value="Dry_Fruit_Barfi">Dry Fruit Barfi</option>
-                                    <option value="Dry_Fruit_Kaju_Patisa">Dry Fruit Kaju Patisa</option>
-                                    <option value="Sangam_Barfi">Sangam Barfi</option>
-                                    <option value="Kaju_Katli">Kaju Katli</option>
-                                    <option value="Kaju_Katli_Bina_Work">Kaju Katli(Bina Work)</option>
-                                    <option value="Badam_Katli">Badam Katli</option>
-                                    <option value="Badam_Katli_Bina_Work">Badam Katli(Bina Work)</option>
-                                    <option value="Makhan_Bada">Makhan Bada</option>
-                                    <option value="Nainwa_Ka_Petha">Nainwa Ka Petha</option>
-                                    <option value="Bundi_Ke_Laddu_Kesar">Bundi Ke Laddu Kesar</option>
-                                    <option value="Giri_Pak">Giri Pak</option>
-                                    <option value="Gulab_Jamun">Gulab Jamun</option>
-                                    <option value="Namkeen">Namkeen</option>
-                                    <option value="Papdi">Papdi</option>
-                                </select>
+                              <select
+  value={selectedSweet}
+  onChange={(e) => {
+    const sweet = e.target.value;
+    setSelectedSweet(sweet);
+    setPrice(SWEET_PRICES[sweet] || 0);
+  }}
+  required
+>
+  <option value="" disabled>Select Sweet</option>
+  {Object.keys(SWEET_PRICES).map((sweet) => (
+    <option key={sweet} value={sweet}>
+      {sweet.replace(/_/g, ' ')}
+    </option>
+  ))}
+</select>
+
                             </div>
                             <div className="form-group">
                                 <label htmlFor="price">Price</label>
                                 <input
-                                    type="number"
-                                    id="price"
-                                    name="price"
-                                    value={newSweet.price}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter price"
-                                    required
-                                />
+  type="number"
+  value={price}
+  readOnly
+  placeholder="Auto-filled price"
+/>
+
                             </div>
                             <div className="form-group">
                                 <label htmlFor="amount">Quantity (In KG)</label>
@@ -292,14 +335,15 @@ const ExtraSweets = () => {
                                 </div>
                         <div className="form-group">
                             <label htmlFor="edit_price">Price</label>
-                            <input
-                                type="number"
-                                id="edit_price"
-                                name="price"
-                                value={editSweet.price}
-                                onChange={handleEditInputChange}
-                                required
-                            />
+                           <input
+  type="number"
+  id="edit_price"
+  name="price"
+  value={editSweet.price}
+  readOnly
+  style={{ backgroundColor: '#f3f3f3', cursor: 'not-allowed' }}
+/>
+
                         </div>
                         <div className="form-group">
                             <label htmlFor="edit_amount">Quantity</label>

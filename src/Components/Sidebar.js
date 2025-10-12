@@ -37,34 +37,42 @@ console.log(location)
               Dashboard
             </Link>
           </li>
+           <li className={window.location.pathname.includes("/add-order") ? 'active' : ''}>
+            <Link to="/add-order" onClick={() => handleItemClick('/add-order')}>
+              <FontAwesomeIcon icon={faTag} className="fa-icon" />
+              Add New Order
+            </Link>
+          </li>
+           <li className={window.location.pathname.includes("/add-order") ? 'active' : ''}>
+            <Link to="/add-order" onClick={() => handleItemClick('/add-order')}>
+              <FontAwesomeIcon icon={faTag} className="fa-icon" />
+              Retail Order
+            </Link>
+          </li>
           <li className={ window.location.pathname.includes("/order-life") ? 'active' : ''}>
             <Link to="/order-life" onClick={() => handleItemClick('/order-life')}>
               <FontAwesomeIcon icon={faList} className="fa-icon" />
               Order Status
             </Link>
           </li>
-          <li className={window.location.pathname.includes("/add-order") ? 'active' : ''}>
-            <Link to="/add-order" onClick={() => handleItemClick('/add-order')}>
-              <FontAwesomeIcon icon={faTag} className="fa-icon" />
-              Add New Order
-            </Link>
-          </li>
+         
           <li className={window.location.pathname.includes("/extra-sweets") ? 'active' : ''}>
             <Link to="/extra-sweets" onClick={() => handleItemClick('/extra-sweets')}>
               <FontAwesomeIcon icon={faUpload} className="fa-icon" />
               Stock
             </Link>
           </li>
-          <li className={window.location.pathname.includes("/expense") ? 'active' : ''}>
-            <Link to="/expense" onClick={() => handleItemClick('/expense')}>
-              <FontAwesomeIcon icon={faMoneyBill} className="fa-icon" />
-              Expense
-            </Link>
-          </li>
+        
           <li className={window.location.pathname.includes("/report") ? 'active' : ''}>
             <Link to="/report" onClick={() => handleItemClick('/report')}>
               <FontAwesomeIcon icon={faBook} className="fa-icon" />
               Reports
+            </Link>
+          </li>
+            <li className={window.location.pathname.includes("/expense") ? 'active' : ''}>
+            <Link to="/expense" onClick={() => handleItemClick('/expense')}>
+              <FontAwesomeIcon icon={faMoneyBill} className="fa-icon" />
+              Expense
             </Link>
           </li>
         </ul>

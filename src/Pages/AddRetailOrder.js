@@ -7,7 +7,7 @@ import Loader from '../Components/Loader';
 import 'react-toastify/dist/ReactToastify.css';
 
 
-const AddOrder = () => {
+const AddRetailOrders = () => {
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [number, setNumber] = useState('');
@@ -337,4 +337,4 @@ setLoading(true)
   );
 };
 
-export default AddOrder;
+export default AddRetailOrders;
