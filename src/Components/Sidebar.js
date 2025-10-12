@@ -43,8 +43,8 @@ console.log(location)
               Add New Order
             </Link>
           </li>
-           <li className={window.location.pathname.includes("/add-order") ? 'active' : ''}>
-            <Link to="/add-order" onClick={() => handleItemClick('/add-order')}>
+           <li className={window.location.pathname.includes("/retail-order") ? 'active' : ''}>
+            <Link to="/retail-order" onClick={() => handleItemClick('/retail-order')}>
               <FontAwesomeIcon icon={faTag} className="fa-icon" />
               Retail Order
             </Link>

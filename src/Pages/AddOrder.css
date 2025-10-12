@@ -147,6 +147,133 @@ button.reset-button:hover {
     flex-wrap: wrap;
 }
 
+/* --- PAYMENT MODAL STYLING --- */
+.Modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 12px;
+  width: 420px;
+  max-width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 1001;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeInOverlay 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translate(-50%, -46%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Title */
+.Modal h2 {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 8px;
+}
+
+/* Form groups */
+.Modal .form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.Modal label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+/* Input and select fields */
+.Modal input,
+.Modal select {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.Modal input:focus,
+.Modal select:focus {
+  outline: none;
+  border-color: #e63946;
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.1);
+}
+
+/* Total amount section */
+.Modal .total-amount {
+  background: #f6f8fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: #333;
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Buttons */
+.Modal button {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Modal button[type="button"] {
+  background-color: #e63946;
+  color: #fff;
+}
+
+.Modal button[type="button"]:hover {
+  background-color: #d62839;
+}
+
+.Modal .cancel-btn {
+  background-color: #ccc;
+  color: #000;
+}
+
+.Modal .cancel-btn:hover {
+  background-color: #bbb;
+}
+
+/* Pay Later Row */
+.paylater-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 10px 0 15px 0;
+}
+
+
 @media (max-width: 768px) {
     .order-table th, .order-table td {
         font-size: 14px;

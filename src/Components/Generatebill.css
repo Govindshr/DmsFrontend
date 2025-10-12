@@ -1,65 +1,189 @@
+/* ====== INVOICE CONTAINER ====== */
 .invoice-container {
-  font-family: 'Arial', sans-serif;
-  max-width: 700px;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #ddd;
-  box-shadow: 0px 0px 10px #ccc;
-  background-color: #fff;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 750px;
+  margin: 40px auto;
+  padding: 36px 40px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  color: #222;
 }
 
-.invoice-header, .bill-to {
+/* ====== HEADER ====== */
+.invoice-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 10px;
+  align-items: flex-start;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 12px;
+  margin-bottom: 18px;
 }
 
-.header-left, .header-right {
-  width: 48%;
+.header-left {
+  flex: 1;
+  padding-right: 20px;
 }
 
-.invoice-header h1 {
+.header-right {
+  flex: 0 0 250px;
+  text-align: right;
+}
+
+.header-left h2 {
+  color: #e63946;
+  margin-bottom: 6px;
+  font-size: 22px;
+}
+
+.header-left p {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.header-right h1 {
   font-size: 24px;
-  margin: 0;
+  color: #111;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
 }
 
-.invoice-header h2 {
-  margin: 0;
+.header-right p {
+  font-size: 13px;
+  margin: 2px 0;
+  color: #444;
 }
 
+/* ====== BILL TO SECTION ====== */
+.bill-to {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  font-size: 15px;
+}
+
+.bill-to p {
+  margin: 2px 0;
+  font-weight: 500;
+}
+
+.bill-to strong {
+  font-weight: 600;
+  color: #111;
+}
+
+/* ====== TABLE STYLING ====== */
 .invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.invoice-table th, .invoice-table td {
-  border: 1px solid #ddd;
-  padding: 10px;
-  text-align: center;
+  margin-bottom: 25px;
+  font-size: 14px;
+  table-layout: fixed;
 }
 
 .invoice-table th {
-  background-color: #f8f8f8;
-  font-weight: bold;
+  background: #f7f7f7;
+  color: #222;
+  border-bottom: 2px solid #ddd;
+  text-align: center;
+  padding: 10px 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.invoice-table td {
+  border-bottom: 1px solid #eee;
+  padding: 8px 6px;
+  text-align: center;
+  vertical-align: middle;
+  word-wrap: break-word;
+}
+
+.invoice-table tbody tr:hover {
+  background: #fafafa;
 }
 
 .invoice-table tfoot td {
-  font-weight: bold;
-  background-color: #f0f0f0;
+  background: #f9f9f9;
+  font-weight: 600;
+  text-align: right;
+  padding: 10px;
+  color: #222;
+  border-top: 2px solid #e5e5e5;
 }
 
+/* ====== FOOTER ====== */
 .invoice-footer {
-  text-align: left;
-  margin-top: 20px;
+  border-top: 2px solid #eee;
+  padding-top: 10px;
+  margin-top: 8px;
   font-size: 14px;
-}
-
-.payment-details {
   display: flex;
   justify-content: space-between;
-  margin-top: 10px;
-  font-weight: bold;
+  align-items: center;
+}
+
+.invoice-footer p {
+  margin: 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.invoice-footer strong {
+  color: #111;
+}
+
+/* ====== BUTTON ====== */
+.download-btn {
+  background-color: #e63946;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 3px 8px rgba(230, 57, 70, 0.25);
+}
+
+.download-btn:hover {
+  background-color: #d62839;
+  transform: translateY(-1px);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 600px) {
+  .invoice-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .header-left,
+  .header-right {
+    width: 100%;
+    text-align: center;
+  }
+
+  .bill-to {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .invoice-table th,
+  .invoice-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+
+  .invoice-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
 }

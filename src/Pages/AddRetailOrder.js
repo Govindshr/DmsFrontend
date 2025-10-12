@@ -5,9 +5,17 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import Loader from '../Components/Loader';
 import 'react-toastify/dist/ReactToastify.css';
-
+import Modal from 'react-modal';
+import GenerateBill from '../Components/Generatebill';
+Modal.setAppElement('#root');
 
 const AddRetailOrders = () => {
+
+const [billModal, setBillModal] = useState(false);
+const [billData, setBillData] = useState(null);
+const [paymentModal, setPaymentModal] = useState(false);
+const [payLater, setPayLater] = useState(false);
+
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [number, setNumber] = useState('');
@@ -71,56 +79,34 @@ const AddRetailOrders = () => {
     };
   }, [orderData]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    const updatedOrderData = { ...orderData };
+  const updatedOrderData = { ...orderData };
+  Object.keys(updatedOrderData).forEach(sweet => {
+    const sweetData = updatedOrderData[sweet];
+    const oneKgWeight = sweetData.oneKg * 1;
+    const halfKgWeight = sweetData.halfKg * 0.5;
+    const quarterKgWeight = sweetData.quarterKg * 0.25;
+    const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
+    const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
+    const totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
+    updatedOrderData[sweet].totalWeight = totalWeight;
+  });
 
-    Object.keys(updatedOrderData).forEach(sweet => {
-      const sweetData = updatedOrderData[sweet];
-      const oneKgWeight = sweetData.oneKg * 1;
-      const halfKgWeight = sweetData.halfKg * 0.5;
-      const quarterKgWeight = sweetData.quarterKg * 0.25;
-      const otherWeightKg = (sweetData.otherWeight / 1000) * sweetData.otherPackings;
-      const otherWeightKg2 = (sweetData.otherWeight2 / 1000) * sweetData.otherPackings2;
-
-      const totalWeight = oneKgWeight + halfKgWeight + quarterKgWeight + otherWeightKg + otherWeightKg2;
-
-      updatedOrderData[sweet].totalWeight = totalWeight;
-    });
-
-    const finalOrder = {
-      name,
-      number, // Include the retail order field
-      sweets: updatedOrderData,
-      summary: calculateSummary,
-      received_amount:receivedMoney,
-      payment_mode:paymentMode,
-      
-    };
-console.log(finalOrder)
-setLoading(true)
-    try {
-      const response = await fetch('http://localhost:2025/sweet_order_details', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(finalOrder),
-      });
-
-      if (response.ok) {
-        toast.success('Operation was successful!');
-        handleReset();
-        setLoading(false)
-      } else {
-        toast.error('Operation Failed!');
-        setLoading(false)
-      }
-    } catch (error) {
-      toast.error('An error occurred!');
-    }
+  const finalOrder = {
+    name,
+    number,
+    sweets: updatedOrderData,
+    summary: calculateSummary,
+    retail_order: true,
   };
+
+  // Step 1: show bill first
+  setBillData(finalOrder);
+  setBillModal(true);
+};
+
 
   const handleReset = () => {
     setName('');
@@ -160,7 +146,7 @@ setLoading(true)
       <div className="add-order-container">
         <div className="add-order-wrapper">
           <div className="add-order">
-            <h1>Add New Order</h1>
+            <h1>Retail Order</h1>
             <form onSubmit={handleSubmit}>
               <div className='extra'>
                 <div className="form-group">
@@ -331,7 +317,145 @@ setLoading(true)
           </div>
         </div>
       </div>
+
+      {/* BILL MODAL */}
+<Modal
+  isOpen={billModal}
+  onRequestClose={() => setBillModal(false)}
+  shouldCloseOnOverlayClick={false} // 👈 add this line
+  contentLabel="Invoice Modal"
+  className="custom-sweets-modal"
+  overlayClassName="custom-sweets-overlay"
+>
+
+  {billData && (
+    <>
+      <h2>Invoice Preview</h2>
+      <GenerateBill sweets={billData.sweets} data={billData} />
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button
+          style={{ marginRight: '10px' }}
+          onClick={() => setPaymentModal(true)} // open second modal
+        >
+          Finish Order
+        </button>
+        <button onClick={() => setBillModal(false)}>Close</button>
+      </div>
+    </>
+  )}
+</Modal>
+
+{/* PAYMENT MODAL */}
+<Modal
+  isOpen={paymentModal}
+  onRequestClose={() => setPaymentModal(false)}
+  shouldCloseOnOverlayClick={true}
+  ariaHideApp={false}
+  contentLabel="Payment Modal"
+  className="Modal"
+  overlayClassName="Overlay"
+>
+  <h2>Payment Confirmation</h2>
+
+  {billData && billData.summary && (
+    <div className="total-amount">
+      Total Amount to Pay: ₹{billData.summary.totalPrice.toFixed(2)}
+    </div>
+  )}
+
+  {/* Pay Later */}
+  <div className="paylater-row">
+    <input
+      type="checkbox"
+      checked={payLater}
+      onChange={(e) => setPayLater(e.target.checked)}
+    />
+    <label><b>Pay Later</b></label>
+  </div>
+
+  {!payLater && (
+    <>
+      <div className="form-group">
+        <label htmlFor="receivedMoney">Received Money:</label>
+        <input
+          type="number"
+          id="receivedMoney"
+          value={receivedMoney}
+          onChange={(e) => setReceivedMoney(e.target.value)}
+          placeholder="Enter received money"
+          required
+        />
+      </div>
+
+      <div className="form-group">
+        <label htmlFor="paymentmode">Payment Mode:</label>
+        <select
+          id="paymentmode"
+          value={paymentMode}
+          onChange={(e) => setPaymentMode(e.target.value)}
+        >
+          <option value="" disabled>Select type*</option>
+          <option value="online">Online</option>
+          <option value="cash">Cash</option>
+        </select>
+      </div>
+    </>
+  )}
+
+  <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
+    <button
+      type="button"
+      onClick={async () => {
+        if (!payLater && (!receivedMoney || !paymentMode)) {
+          toast.error("Please fill both fields or select Pay Later");
+          return;
+        }
+
+        const finalOrder = {
+          ...billData,
+          received_amount: payLater ? 0 : receivedMoney,
+          payment_mode: payLater ? 'pay_later' : paymentMode,
+        };
+
+        try {
+          setLoading(true);
+          const response = await fetch('http://localhost:2025/sweet_order_details', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(finalOrder),
+          });
+
+          if (response.ok) {
+            toast.success(payLater ? 'Order added as Pay Later!' : 'Order saved successfully!');
+            setPaymentModal(false);
+            setBillModal(false);
+            handleReset();
+            setPayLater(false);
+          } else {
+            toast.error('Failed to save order.');
+          }
+        } catch (error) {
+          toast.error('An error occurred.');
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
+      {payLater ? 'Submit as Pay Later' : 'Submit Payment'}
+    </button>
+
+    <button className="cancel-btn" onClick={() => setPaymentModal(false)}>
+      Cancel
+    </button>
+  </div>
+</Modal>
+
+
+
       <ToastContainer />
+  
+
+
       {/* <Loader loading={loading} /> */}
     </>
   );

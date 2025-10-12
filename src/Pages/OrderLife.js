@@ -293,13 +293,17 @@ const OrderLife = () => {
                 body: JSON.stringify({ order_id: id, count: selectedValue, sweet_name: sweetName, box: weightType }),
             });
 
-            if (response.ok) {
-                setLoading(false)
-                toast.success('Operation was successful!');
-                // Process the search results as needed
-            } else {
-                setLoading(false)
-            }
+           if (response.ok) {
+  setLoading(false);
+  toast.success('Packed successfully!');
+  
+  // 🔁 Refresh modal instantly
+  await postViewAPI(id, "model");
+} else {
+  setLoading(false);
+  toast.error("Failed to update packing!");
+}
+
         } catch (error) {
 
         }
@@ -521,18 +525,20 @@ const OrderLife = () => {
             if (response.ok) {
                 const data = await response.json();
 
-                if (type === "model") {
+              if (type === "model") {
+  const updatedOrder = data.data[0];
+  getSweetsWithPositiveWeight(updatedOrder.sweets);
+  setShowSweetsInModel(updatedOrder);
+  setRemainingOrder(updatedOrder.remaining_order);
+  setOrderData(updatedOrder); // ✅ Add this line
+  setSelectedItem(updatedOrder); // ✅ Optional but keeps modal consistent
+  setId(id);
+} else {
+  const updatedOrder = data.data[0];
+  setSelectedItem(updatedOrder);
+  setOrderData(updatedOrder);
+}
 
-                    getSweetsWithPositiveWeight(data.data[0].sweets)
-                    setShowSweetsInModel(data.data[0])
-                    setId(id);
-                    setRemainingOrder(data.data[0].remaining_order)
-
-                } else {
-                    setSelectedItem(data.data[0]);
-                    setOrderData(data.data[0]);
-
-                }
                 setLoading(false)
             } else {
                 setLoading(false)
@@ -1309,7 +1315,17 @@ const OrderLife = () => {
                                                             }</td>}
                                                             {activeTab !== "all" &&
                                                              <td> {remainingSweet.oneKg > 0 &&
-                                                                <button onClick={() => handlePack(sweetName, "oneKg", orderData._id)}>Packed</button>
+                                                               <button
+  disabled={!selectedValues[sweetName]?.oneKg || selectedValues[sweetName]?.oneKg === 0}
+  onClick={() => handlePack(sweetName, "oneKg", orderData._id)}
+  style={{
+    opacity: !selectedValues[sweetName]?.oneKg || selectedValues[sweetName]?.oneKg === 0 ? 0.5 : 1,
+    cursor: !selectedValues[sweetName]?.oneKg || selectedValues[sweetName]?.oneKg === 0 ? "not-allowed" : "pointer",
+  }}
+>
+  Packed
+</button>
+
                                                             } </td>}
                                                         </tr>
                                                     )}
@@ -1335,7 +1351,17 @@ const OrderLife = () => {
                                                                 } </td>}
                                                             {activeTab !== "all" && <td>
                                                                 {remainingSweet.halfKg > 0 &&
-                                                                    <button onClick={() => handlePack(sweetName, "halfKg", orderData._id)}>Packed</button>
+                                                                   <button
+  disabled={!selectedValues[sweetName]?.halfKg || selectedValues[sweetName]?.halfKg === 0}
+  onClick={() => handlePack(sweetName, "halfKg", orderData._id)}
+  style={{
+    opacity: !selectedValues[sweetName]?.halfKg || selectedValues[sweetName]?.halfKg === 0 ? 0.5 : 1,
+    cursor: !selectedValues[sweetName]?.halfKg || selectedValues[sweetName]?.halfKg === 0 ? "not-allowed" : "pointer",
+  }}
+>
+  Packed
+</button>
+
                                                                 }</td>}
                                                         </tr>
                                                     )}
@@ -1361,7 +1387,18 @@ const OrderLife = () => {
                                                                 } </td>}
                                                             {activeTab !== "all" && <td>
                                                                 {remainingSweet.quarterKg > 0 &&
-                                                                    <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
+                                                                    // <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
+                                                                    <button
+  disabled={!selectedValues[sweetName]?.quarterKg || selectedValues[sweetName]?.quarterKg === 0}
+  onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}
+  style={{
+    opacity: !selectedValues[sweetName]?.quarterKg || selectedValues[sweetName]?.quarterKg === 0 ? 0.5 : 1,
+    cursor: !selectedValues[sweetName]?.quarterKg || selectedValues[sweetName]?.quarterKg === 0 ? "not-allowed" : "pointer",
+  }}
+>
+  Packed
+</button>
+
                                                                 } </td>}
                                                         </tr>
                                                     )}
@@ -1387,7 +1424,18 @@ const OrderLife = () => {
                                                                 } </td>}
                                                             {activeTab !== "all" && <td>
                                                                 {remainingSweet.otherPackings > 0 &&
-                                                                    <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
+                                                                    // <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
+                                                                    <button
+  disabled={!selectedValues[sweetName]?.otherPackings || selectedValues[sweetName]?.otherPackings === 0}
+  onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}
+  style={{
+    opacity: !selectedValues[sweetName]?.otherPackings || selectedValues[sweetName]?.otherPackings === 0 ? 0.5 : 1,
+    cursor: !selectedValues[sweetName]?.otherPackings || selectedValues[sweetName]?.otherPackings === 0 ? "not-allowed" : "pointer",
+  }}
+>
+  Packed
+</button>
+
                                                                 }
                                                             </td>}
                                                         </tr>
@@ -1414,7 +1462,18 @@ const OrderLife = () => {
                                                                 }</td>}
                                                             {activeTab !== "all" && <td>
                                                                 {remainingSweet.otherPackings2 > 0 &&
-                                                                    <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
+                                                                    // <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
+                                                                    <button
+  disabled={!selectedValues[sweetName]?.otherPackings2 || selectedValues[sweetName]?.otherPackings2 === 0}
+  onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}
+  style={{
+    opacity: !selectedValues[sweetName]?.otherPackings2 || selectedValues[sweetName]?.otherPackings2 === 0 ? 0.5 : 1,
+    cursor: !selectedValues[sweetName]?.otherPackings2 || selectedValues[sweetName]?.otherPackings2 === 0 ? "not-allowed" : "pointer",
+  }}
+>
+  Packed
+</button>
+
                                                                 }
                                                             </td>}
                                                         </tr>

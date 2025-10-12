@@ -13,6 +13,7 @@ import ExtraSweets from './Pages/ExtraSweets';
 import EditOrder from './Pages/EditOrder';
 import Login from './Pages/Login';
 import './App.css';
+import AddRetailOrders from './Pages/AddRetailOrder';
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -46,6 +47,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/inventory" element={<AddItems />} />
             <Route path="/add-order" element={<AddOrder />} />
+            <Route path="/retail-order" element={<AddRetailOrders/>}/>
             <Route path="/order-life" element={<OrderLife />} />
             <Route path="/expense" element={<Expense />} />
             <Route path="/extra-sweets" element={<ExtraSweets />} />

@@ -4,7 +4,6 @@ import html2canvas from 'html2canvas';
 import './Generatebill.css';
 
 const GenerateBill = ({ sweets, data }) => {
-  const [includeDelivery, setIncludeDelivery] = useState(false);
   const [showDownloadButton, setShowDownloadButton] = useState(true);
   const invoiceRef = useRef(null);
 
@@ -13,55 +12,92 @@ const GenerateBill = ({ sweets, data }) => {
   const formattedTime = today.toLocaleTimeString('en-GB');
 
   let grandTotalPrice = 0;
-  let grandTotalWeight = 0;  // To store the total quantity of sweets
+  let grandTotalWeight = 0;
   const billDetails = [];
 
-  Object.keys(sweets).forEach(sweetKey => {
-    const { price, oneKg, halfKg, quarterKg, otherWeight, otherPackings, otherWeight2, otherPackings2 } = sweets[sweetKey];
+  Object.keys(sweets).forEach((sweetKey) => {
+    const {
+      price,
+      oneKg,
+      halfKg,
+      quarterKg,
+      otherWeight,
+      otherPackings,
+      otherWeight2,
+      otherPackings2,
+    } = sweets[sweetKey];
+
     const otherWeightKg = otherWeight / 1000;
     const otherWeight2Kg = otherWeight2 / 1000;
-    const totalPrice = (oneKg * price) + (halfKg * price * 0.5) + (quarterKg * price * 0.25) +
-                       (otherWeightKg * otherPackings * price) + (otherWeight2Kg * otherPackings2 * price);
-    const totalWeight = oneKg + (halfKg * 0.5) + (quarterKg * 0.25) +
-                        (otherWeightKg * otherPackings) + (otherWeight2Kg * otherPackings2);
-    
+
+    const totalPrice =
+      oneKg * price +
+      halfKg * price * 0.5 +
+      quarterKg * price * 0.25 +
+      otherWeightKg * otherPackings * price +
+      otherWeight2Kg * otherPackings2 * price;
+
+    const totalWeight =
+      oneKg +
+      halfKg * 0.5 +
+      quarterKg * 0.25 +
+      otherWeightKg * otherPackings +
+      otherWeight2Kg * otherPackings2;
+
     if (totalPrice > 0) {
       grandTotalPrice += totalPrice;
-      grandTotalWeight += totalWeight;  // Accumulate the total quantity
+      grandTotalWeight += totalWeight;
       billDetails.push({
         name: sweetKey.replace('_', ' '),
         qty: totalWeight.toFixed(2),
         unitPrice: price.toFixed(2),
-        price: totalPrice.toFixed(2)
+        price: totalPrice.toFixed(2),
       });
     }
   });
 
-  // Function to calculate delivery cost based on weight
-  const calculateDeliveryCost = (weight) => {
-    if (weight >= 1 && weight <= 3) return 25;
-    if (weight >= 4 && weight <= 6) return 50;
-    if (weight >= 7 && weight <= 15) return 100;
-    if (weight > 15) return 150;
-    return 0; // In case weight is less than 1 kg or zero
-  };
+const handleDownloadPdf = async () => {
+  setShowDownloadButton(false);
 
-  const deliveryCost = calculateDeliveryCost(grandTotalWeight);
-  const finalTotalPrice = includeDelivery ? grandTotalPrice + deliveryCost : grandTotalPrice;
+  // Capture the invoice element at higher resolution
+  const canvas = await html2canvas(invoiceRef.current, {
+    scale: 3, // higher DPI for sharpness
+    useCORS: true,
+    backgroundColor: '#ffffff'
+  });
 
-  const handleDownloadPdf = async () => {
-    setShowDownloadButton(false);
-    const canvas = await html2canvas(invoiceRef.current);
-    const dataImg = canvas.toDataURL('image/jpeg');
-    const pdf = new jsPDF({
-      orientation: "p",
-      unit: "px",
-      format: [canvas.width, canvas.height]
-    });
-    pdf.addImage(dataImg, 'JPEG', 0, 0, canvas.width, canvas.height);
-    pdf.save(`Invoice-${data?.name || 'Customer'}-${data?.phone || ''}.pdf`);
-    setShowDownloadButton(true);
-  };
+  const imgData = canvas.toDataURL('image/jpeg', 1.0);
+  const pdf = new jsPDF('p', 'mm', 'a4');
+
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  // Get image aspect ratio and scale proportionally to A4 width
+  const imgWidth = pdfWidth - 20; // 10mm margins on each side
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let yPosition = 10; // top padding
+
+  if (imgHeight > pdfHeight - 20) {
+    // Handle multi-page invoices automatically
+    let remainingHeight = imgHeight;
+    let position = 0;
+    while (remainingHeight > 0) {
+      pdf.addImage(imgData, 'JPEG', 10, yPosition, imgWidth, imgHeight);
+      remainingHeight -= pdfHeight;
+      if (remainingHeight > 0) {
+        pdf.addPage();
+        position -= pdfHeight;
+      }
+    }
+  } else {
+    // For shorter invoices, single page
+    pdf.addImage(imgData, 'JPEG', 10, yPosition, imgWidth, imgHeight);
+  }
+
+  pdf.save(`Invoice-${data?.name || 'Customer'}.pdf`);
+  setShowDownloadButton(true);
+};
 
   return (
     <>
@@ -75,7 +111,7 @@ const GenerateBill = ({ sweets, data }) => {
           </div>
           <div className="header-right">
             <h1>Tax Invoice</h1>
-            <p><strong>Order No:</strong> {data?.order_no}</p>
+            <p><strong>Order No:</strong> {data?.order_no || 'N/A'}</p>
             <p><strong>Date:</strong> {formattedDate}</p>
             <p><strong>Time:</strong> {formattedTime}</p>
           </div>
@@ -91,7 +127,6 @@ const GenerateBill = ({ sweets, data }) => {
             <tr>
               <th>#</th>
               <th>Item Name</th>
-              {/* <th>HSN/SAC</th> */}
               <th>Quantity (Kg)</th>
               <th>Unit Price (₹)</th>
               <th>Amount (₹)</th>
@@ -102,7 +137,6 @@ const GenerateBill = ({ sweets, data }) => {
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{item.name.replace(/_/g, ' ')}</td>
-                {/* <td></td> */}
                 <td>{item.qty}</td>
                 <td>{item.unitPrice}</td>
                 <td>{item.price}</td>
@@ -115,24 +149,8 @@ const GenerateBill = ({ sweets, data }) => {
               <td>{grandTotalWeight.toFixed(2)} Kg</td>
             </tr>
             <tr>
-              <td colSpan="4">Subtotal</td>
-              <td>₹{grandTotalPrice.toFixed(2)}</td>
-            </tr>
-            <tr>
-              <td colSpan="4">
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={includeDelivery}
-                    onChange={(e) => setIncludeDelivery(e.target.checked)}
-                  /> Add Delivery Cost (₹{deliveryCost.toFixed(2)})
-                </label>
-              </td>
-              <td>₹{includeDelivery ? deliveryCost.toFixed(2) : "0.00"}</td>
-            </tr>
-            <tr>
-              <td colSpan="4" style={{ fontWeight: 'bold' }}>Total</td>
-              <td style={{ fontWeight: 'bold' }}>₹{finalTotalPrice.toFixed(2)}</td>
+              <td colSpan="4" style={{ fontWeight: 'bold' }}>Total Amount</td>
+              <td style={{ fontWeight: 'bold' }}>₹{grandTotalPrice.toFixed(2)}</td>
             </tr>
           </tfoot>
         </table>
@@ -141,8 +159,13 @@ const GenerateBill = ({ sweets, data }) => {
           <p><strong>Payment Mode:</strong> Cash</p>
         </footer>
       </div>
-      <div>
-        {showDownloadButton && <button onClick={handleDownloadPdf}>Download Invoice</button>}
+
+      <div style={{ textAlign: 'center', marginTop: '15px' }}>
+        {showDownloadButton && (
+          <button onClick={handleDownloadPdf} className="download-btn">
+            Download Invoice
+          </button>
+        )}
       </div>
     </>
   );
