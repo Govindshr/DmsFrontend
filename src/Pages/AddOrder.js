@@ -5,9 +5,11 @@ import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import Loader from '../Components/Loader';
 import 'react-toastify/dist/ReactToastify.css';
+import ordersData from '../data/ordersData.json'
 
 
 const AddOrder = () => {
+  const [suggestions, setSuggestions] = useState([]);
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(true);
   const [number, setNumber] = useState('');
@@ -30,6 +32,22 @@ const AddOrder = () => {
     Namkeen: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
     Papdi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 250 },
   });
+
+
+  const handleSearch = (value, field) => {
+  let matches = [];
+
+  if (value.trim().length > 0) {
+    matches = ordersData.filter(order => {
+      const target = field === 'name'
+        ? order.name.toLowerCase()
+        : order.number.toLowerCase();
+      return target.includes(value.toLowerCase());
+    });
+  }
+
+  setSuggestions(matches.slice(0, 5)); // limit suggestions
+};
 
   const handleChange = (sweet, field, value) => {
     setOrderData(prevData => ({
@@ -163,33 +181,75 @@ setLoading(true)
             <h1>Add New Order</h1>
             <form onSubmit={handleSubmit}>
               <div className='extra'>
-                <div className="form-group">
-                  <label htmlFor="name"><b>Customer Name* </b>:</label>
-                  <input
-                    type="text"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Enter customer name"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="number"><b>Customer Number* </b>:</label>
-                  <input
-                    type="text"
-                    id="number"
-                    value={number}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      if (/^\d*$/.test(value) && value.length <= 10) {
-                        setNumber(value);
-                      }
-                    }}
-                    placeholder="Enter customer number"
-                    required
-                  />
-                </div>
+                {/* --- Customer Name Input --- */}
+<div className="form-group" style={{ position: 'relative' }}>
+  <label htmlFor="name"><b>Customer Name*</b> :</label>
+  <input
+    type="text"
+    id="name"
+    value={name}
+    onChange={(e) => {
+      setName(e.target.value);
+      handleSearch(e.target.value, 'name');
+    }}
+    placeholder="Enter customer name"
+    required
+  />
+
+  {suggestions.length > 0 && (
+    <ul className="suggestions-list">
+      {suggestions.map((sug, index) => (
+        <li
+          key={index}
+          onClick={() => {
+            setName(sug.name);
+            setNumber(sug.number);
+            setSuggestions([]);
+          }}
+        >
+          {sug.name} — {sug.number}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
+{/* --- Customer Number Input --- */}
+<div className="form-group" style={{ position: 'relative' }}>
+  <label htmlFor="number"><b>Customer Number*</b> :</label>
+  <input
+    type="text"
+    id="number"
+    value={number}
+    onChange={(e) => {
+      const value = e.target.value;
+      if (/^\d*$/.test(value) && value.length <= 10) {
+        setNumber(value);
+        handleSearch(value, 'number');
+      }
+    }}
+    placeholder="Enter customer number"
+    required
+  />
+
+  {suggestions.length > 0 && (
+    <ul className="suggestions-list">
+      {suggestions.map((sug, index) => (
+        <li
+          key={index}
+          onClick={() => {
+            setName(sug.name);
+            setNumber(sug.number);
+            setSuggestions([]);
+          }}
+        >
+          {sug.name} — {sug.number}
+        </li>
+      ))}
+    </ul>
+  )}
+</div>
+
                 
                 
               </div>
