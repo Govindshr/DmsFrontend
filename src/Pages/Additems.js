@@ -12,7 +12,7 @@ const AddItems = () => {
   // Function to fetch data from the API
   const fetchItemsFromAPI = async () => {
     try {
-      const response = await fetch('https://dms-backend-seven.vercel.app/getOrderDetails'); // Replace with your actual GET API endpoint
+      const response = await fetch('http://localhost:2025/getOrderDetails'); // Replace with your actual GET API endpoint
       if (response.ok) {
         const data = await response.json();
         console.log("response", data);
@@ -28,8 +28,8 @@ const AddItems = () => {
   // Function to send data to the API
   const sendItemToAPI = async (newItem) => {
     try {
-      // https://dms-backend-seven.vercel.app/
-      const response = await fetch('https://dms-backend-seven.vercel.app/order_details', { 
+      // http://localhost:2025/
+      const response = await fetch('http://localhost:2025/order_details', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +51,7 @@ const AddItems = () => {
   // Function to delete an item from the list
   const deleteItemFromAPI = async (itemId) => {
     try {
-      const response = await fetch('https://dms-backend-seven.vercel.app/delete_order_details', { 
+      const response = await fetch('http://localhost:2025/delete_order_details', { 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
