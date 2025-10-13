@@ -1,0 +1,99 @@
+/* Dashboard Accordion - scoped styles */
+
+.dash-accordion-container {
+  max-width: 1100px;
+  margin: 30px auto;
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dash-accordion-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.dash-accordion-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background-color: #fff;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.dash-accordion-item:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.dash-accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #0069d9;
+  color: white;
+  padding: 15px 20px;
+  cursor: pointer;
+  font-weight: 500;
+  border-radius: 8px 8px 0 0;
+  transition: background 0.3s;
+}
+
+.dash-accordion-header:hover {
+  background: #0053b3;
+}
+
+.dash-accordion-sweet-name {
+  font-size: 1.1rem;
+  text-transform: capitalize;
+}
+
+.dash-accordion-total {
+  font-weight: 600;
+}
+
+.dash-accordion-toggle {
+  font-size: 1.2rem;
+}
+
+.dash-accordion-body {
+  background: #fafafa;
+  padding: 20px;
+}
+
+.dash-accordion-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dash-accordion-table th,
+.dash-accordion-table td {
+  padding: 12px 10px;
+  border: 1px solid #ccc;
+  text-align: left;
+}
+
+.dash-accordion-table th {
+  background-color: #e9ecef;
+  color: #333;
+}
+
+.dash-accordion-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+@media (max-width: 768px) {
+  .dash-accordion-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .dash-accordion-total,
+  .dash-accordion-toggle {
+    margin-top: 8px;
+  }
+}

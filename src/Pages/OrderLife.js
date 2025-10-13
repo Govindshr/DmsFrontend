@@ -1002,7 +1002,7 @@ if (response.ok) {
                                                 />
                                                 <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
                                             </>)}
-                                        {(activeTab === "initial" || activeTab === "packed" || activeTab === "partial_packed") && (
+                                        {(activeTab === "initial" || activeTab === "packed" ) && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faBox}

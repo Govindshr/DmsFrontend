@@ -1,163 +1,169 @@
-/* src/components/Dashboard.css */
+/* --- Professional Dashboard Accordion Styling --- */
+/* Scoped with dash-accordion- prefix */
 
-.dashboard-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px;
-  background-color: #f1f1f1;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
-  max-width: 100%; /* Make sure it uses the available width */
+.dash-accordion-container {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 30px 25px;
+  background: #f8f9fb;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  font-family: "Poppins", sans-serif;
 }
 
-.dashboard {
-  width: 100%;
-  max-width: 1200px;
-}
-
-.card-container {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.card {
-  background-color: #ffffff;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 10px 0;
-  box-sizing: border-box;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  flex: 1 1 calc(25% - 20px);
-  max-width: calc(25% - 20px);
-  min-width: 250px;
+.dash-accordion-title {
+  font-size: 1.8rem;
+  font-weight: 600;
   text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  margin-bottom: 25px;
+  color: #2f3640;
 }
 
-.card:hover {
-  background-color: #e6e6e6;
-  transform: translateY(-5px);
-}
-
-.card h3 {
-  font-size: 25px;
-  color: #333333;
-  margin-bottom: 15px;
-}
-
-.card p {
-  margin: 5px 0;
-  font-size: 20px;
-  color: #666666;
-  text-align: left;
-  width: 100%;
-}
-
-.table-container {
-  padding: 20px;
-  background-color: #fff;
+/* Accordion container for each sweet */
+.dash-accordion-item {
+  margin-bottom: 14px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  overflow-x: auto;
+  background-color: #ffffff;
+  border: 1px solid #e3e6ea;
+  transition: all 0.25s ease;
 }
 
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
+.dash-accordion-item:hover {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }
 
-.order-table th,
-.order-table td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #070707;
-}
-
-button {
-  margin-top: 20px;
-  padding: 10px 15px;
-  background-color: #ff2727fa;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #8d0a0afa;
-}
-
-.table-header {
+/* Accordion header */
+.dash-accordion-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 14px 20px;
+  background-color: #f4f6f8;
+  color: #333;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
-.table-header h2 {
-  margin: 0;
-  font-size: 24px;
+.dash-accordion-header:hover {
+  background-color: #e9ecef;
+  color: #000;
 }
 
+/* Sweet name */
+.dash-accordion-sweet-name {
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Total KG display */
+/* Total KG display (improved readability and visual hierarchy) */
+.dash-accordion-total {
+  background: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;          /* Deep neutral navy-gray text */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #dce1e6;
+  min-width: 80px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+
+/* Toggle icon */
+.dash-accordion-toggle {
+  font-size: 1.1rem;
+  margin-left: 10px;
+  color: #6c757d;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.dash-accordion-item.open .dash-accordion-toggle {
+  transform: rotate(180deg);
+  color: #007bff;
+}
+
+/* Accordion body */
+.dash-accordion-body {
+  background-color: #fcfcfd;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+  border-top: 1px solid #e3e6ea;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table Styling */
+.dash-accordion-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.dash-accordion-table th,
+.dash-accordion-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+
+.dash-accordion-table th {
+  background-color: #f1f3f5;
+  font-weight: 600;
+  color: #495057;
+}
+
+.dash-accordion-table td {
+  color: #555;
+}
+
+.dash-accordion-table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.dash-accordion-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Subtle box animation */
+.dash-accordion-item.open {
+  border-color: #cdd5df;
+}
+
+/* Mobile responsive adjustments */
 @media (max-width: 768px) {
-  .dashboard-container {
-    margin-left: 0;
+  .dash-accordion-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 
-  .card {
-    flex: 1 1 100%;
-    max-width: 100%;
-    min-width: unset;
+  .dash-accordion-total {
+    align-self: flex-end;
   }
 
-  .card h3 {
-    font-size: 18px;
+  .dash-accordion-body {
+    padding: 15px;
   }
 
-  .card p {
-    font-size: 16px;
-  }
-
-  .table-header h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-  }
-
-  .table-buttons {
-    display: block;
-    width: 100%;
-    margin-top: 10px;
-  }
-
-  .table-buttons button {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  .order-table th,
-  .order-table td {
-    padding: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
+  .dash-accordion-table th,
+  .dash-accordion-table td {
     padding: 10px;
-  }
-
-  .card h3 {
-    font-size: 16px;
-  }
-
-  .card p {
-    font-size: 14px;
   }
 }

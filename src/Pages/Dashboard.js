@@ -1,292 +1,164 @@
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons/faArrowLeft';
 import 'react-toastify/dist/ReactToastify.css';
-import 'react-circular-progressbar/dist/styles.css'; // Import the styles for the circular progress bar
-import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  
   const [loading, setLoading] = useState(true);
   const [totalWeights, setTotalWeights] = useState({});
-  const [Weightobjects, setWeightobject] = useState({});
-  const [PackedWeightobject, setPackedWeightobject] = useState({});
-  const [selectedSweet, setSelectedSweet] = useState(null); // State to track selected sweet
-  const [boxnumber, setBoxnumber] = useState({});
-  const [packedboxnumber, setPackedboxnumber] = useState({});
+  const [boxnumber, setBoxnumber] = useState([]);
+  const [packedboxnumber, setPackedboxnumber] = useState([]);
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
-    let isMounted = true;
-
     const fetchData = async () => {
       try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_dashboard');
-        if (response.ok) {
-          const result = await response.json();
-          if (isMounted) {
-            
-            calculateTotalWeights(result.data);
-            setLoading(false);
-          }
+        const [dashboardRes, boxRes, packedRes] = await Promise.all([
+          fetch('https://dms-backend-seven.vercel.app/get_dashboard'),
+          fetch('https://dms-backend-seven.vercel.app/get_sweets_aggregation'),
+          fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation'),
+        ]);
+
+        if (dashboardRes.ok && boxRes.ok && packedRes.ok) {
+          const [dashboardData, boxData, packedBoxData] = await Promise.all([
+            dashboardRes.json(),
+            boxRes.json(),
+            packedRes.json(),
+          ]);
+          calculateTotalWeights(dashboardData.data);
+          setBoxnumber(boxData.data);
+          setPackedboxnumber(packedBoxData.data);
+          setLoading(false);
         } else {
-          toast.error('Failed to fetch data!');
+          toast.error('Failed to fetch some data!');
         }
       } catch (error) {
-        toast.error('An error occurred while fetching data!');
+        console.error(error);
+        toast.error('Error fetching data!');
       }
     };
-
-    const fetchBoxData = async () => {
-      try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_sweets_aggregation');
-        if (response.ok) {
-          const result = await response.json();
-          if (isMounted) {
-            setBoxnumber(result.data);
-          }
-        } else {
-          toast.error('Failed to fetch data!');
-        }
-      } catch (error) {
-        toast.error('An error occurred while fetching data!');
-      }
-    };
-    const fetchItemsFromAPI = async () => {
-    
-      try {
-          const response = await fetch('https://dms-backend-seven.vercel.app/get_data_by_Sweetname' ,{
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ sweetname: "Badam_Katli" }),
-          });
-
-          if (response.ok) {
-              const data = await response.json();
-
-              
-          } else {
-
-          }
-      } catch (error) {
-
-      }
-  };
-    const fetchPackedBoxData = async () => {
-      try {
-        const response = await fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation');
-        if (response.ok) {
-          const result = await response.json();
-          if (isMounted) {
-            setPackedboxnumber(result.data)
-          }
-        } else {
-          toast.error('No  Unpacked Orders found!');
-        }
-      } catch (error) {
-        toast.error('An error occurred while fetching data!');
-      }
-    };
-
     fetchData();
-    fetchBoxData();
-    fetchPackedBoxData();
-    // fetchItemsFromAPI()
-    return () => {
-      isMounted = false;
-    };
   }, []);
 
   const calculateTotalWeights = (orders) => {
     const totals = {};
-
-    orders.forEach(order => {
-      Object.keys(order.sweets).forEach(sweetName => {
+    orders.forEach((order) => {
+      Object.keys(order.sweets).forEach((sweetName) => {
         const sweetData = order.sweets[sweetName];
         const totalWeight = sweetData.totalWeight || 0;
 
         if (!totals[sweetName]) {
-          totals[sweetName] = { totalWeight: 0, packedWeight: 0, sweetData: sweetData };
+          totals[sweetName] = { totalWeight: 0 };
         }
-
         totals[sweetName].totalWeight += totalWeight;
-
-        if (order.is_packed === 1) {
-          totals[sweetName].packedWeight += totalWeight;
-        }
       });
     });
-
     setTotalWeights(totals);
   };
 
-  const handleCardClick = (sweetName) => {
-    setSelectedSweet(sweetName);
-    const filteredSweets = boxnumber.filter(sweet => sweet.sweetName === sweetName);
+  const toggleAccordion = (sweetName) => {
+    setExpanded((prev) => ({ ...prev, [sweetName]: !prev[sweetName] }));
+  };
 
-    if (filteredSweets.length === 0) {
-      console.log('No sweets found with that name.');
-      return null;
-    }
+  const getSweetDetails = (sweetName) => {
+    const sweet = boxnumber.find((s) => s.sweetName === sweetName);
+    const packedSweet = packedboxnumber.find((s) => s.sweetName === sweetName);
 
-    const sweet = filteredSweets[0]; // Assuming you only want the first match
+    if (!sweet) return null;
 
-    // Create the new object with desired fields
-    const weightObject = {
+    const totalBoxes = {
       '1000gm': sweet.totalOneKg,
       '500gm': sweet.totalHalfKg,
       '250gm': sweet.totalQuarterKg,
     };
 
-    const addOtherObjectFields = (obj) => {
-      Object.keys(obj).forEach(key => {
+    const addOtherObjectFields = (obj, target) => {
+      if (!obj) return;
+      Object.keys(obj).forEach((key) => {
         if (!isNaN(key) && key !== 0) {
-          if (weightObject[`${key}gm`]) {
-            weightObject[`${key}gm`] += obj[key]; // If key exists, add to the existing value
-          } else {
-            weightObject[`${key}gm`] = obj[key]; // If key does not exist, set it
-          }
+          target[`${key}gm`] = (target[`${key}gm`] || 0) + obj[key];
         }
       });
     };
 
-    addOtherObjectFields(sweet.totalOtherWeight);
-    addOtherObjectFields(sweet.totalOtherWeight2);
+    addOtherObjectFields(sweet.totalOtherWeight, totalBoxes);
+    addOtherObjectFields(sweet.totalOtherWeight2, totalBoxes);
 
-    setWeightobject(weightObject);
+    const packedBoxes = { ...totalBoxes };
+    if (packedSweet) {
+      packedBoxes['1000gm'] = packedSweet.totalOneKg;
+      packedBoxes['500gm'] = packedSweet.totalHalfKg;
+      packedBoxes['250gm'] = packedSweet.totalQuarterKg;
 
-    handlePackedBoxNumber(sweetName);
-  };
-
-  const handlePackedBoxNumber = (sweetName) => {
-    if (packedboxnumber.length) {
-      const filteredSweets = packedboxnumber.filter(sweet => sweet.sweetName === sweetName);
-      
-      if (filteredSweets.length === 0) {
-        console.log('No sweets found with that name.');
-        return null;
-      }
-      
-      console.log("swertname", filteredSweets[0])
-      const sweet = filteredSweets[0]; // Assuming you only want the first match
-
-      const weightObject = {
-        '1000gm': sweet.totalOneKg,
-        '500gm': sweet.totalHalfKg,
-        '250gm': sweet.totalQuarterKg,
-      };
-
-      const addOtherObjectFields = (obj) => {
-        Object.keys(obj).forEach(key => {
-          if (!isNaN(key) && key !== 0) {
-            if (weightObject[`${key}gm`]) {
-              weightObject[`${key}gm`] += obj[key]; // If key exists, add to the existing value
-            } else {
-              weightObject[`${key}gm`] = obj[key]; // If key does not exist, set it
-            }
-          }
-        });
-      };
-      console.log("datatattat",sweet.totalOtherWeight)
-if(sweet.totalOtherWeight){
-      addOtherObjectFields(sweet.totalOtherWeight);
+      addOtherObjectFields(packedSweet.totalOtherWeight, packedBoxes);
+      addOtherObjectFields(packedSweet.totalOtherWeight2, packedBoxes);
     }
-    if(sweet.totalOtherWeight2){
-      addOtherObjectFields(sweet.totalOtherWeight2);
-    }
-      setPackedWeightobject(weightObject);
-    }
-  };
 
-  const handleBackClick = () => {
-    setSelectedSweet(null); // Clear the selected sweet and go back to cards view
+    return { totalBoxes, packedBoxes };
   };
 
   return (
-    <>
-      <div className="dashboard-container">
-        <div className="dashboard">
-          <h1>Dashboard</h1>
+    <div className="dash-accordion-container">
+      <h1 className="dash-accordion-title">Dashboard</h1>
+      {loading ? (
+        <p>Loading...</p>
+      ) : (
+        Object.keys(totalWeights).map((sweetName, idx) => {
+          const sweet = totalWeights[sweetName];
+          const sweetDetails = getSweetDetails(sweetName);
+          if (!sweetDetails) return null;
 
-          {!selectedSweet ? (
-            <div className="card-container">
-              {loading ? (
-                <p>Loading...</p>
-              ) : (
-                Object.keys(totalWeights).map((sweetName, index) => {
-                  const { totalWeight, packedWeight } = totalWeights[sweetName];
-                  const percentage = totalWeight > 0 ? (packedWeight / totalWeight) * 100 : 0;
+          const { totalBoxes, packedBoxes } = sweetDetails;
+          return (
+          <div
+  key={idx}
+  className={`dash-accordion-item ${expanded[sweetName] ? 'open' : ''}`}
+>
 
-                  return (
-                    <div className="card" key={index} onClick={() => handleCardClick(sweetName)} style={{ cursor: 'pointer' }}>
-                      <h3>{sweetName.replace(/_/g, ' ')}</h3>
-                      <div style={{ width: '120px', margin: '0 auto', marginTop: '15px' }}>
-                        <CircularProgressbar
-                          value={percentage}
-                          text={`${percentage.toFixed(2)}%`}
-                          styles={buildStyles({
-                            textColor: '#333',
-                            pathColor: '#28a745',
-                            trailColor: '#eee',
-                          })}
-                        />
-                      </div>
-                      <p style={{ marginTop: '30px' }}><b>Total: {totalWeight.toFixed(2)} Kg</b></p>
-                      <p><b>Packed: {packedWeight.toFixed(2)} Kg</b></p>
-                      <p><b>Remaining: {(totalWeight - packedWeight).toFixed(2)} Kg</b></p>
-                    </div>
-                  );
-                })
+              <div className="dash-accordion-header" onClick={() => toggleAccordion(sweetName)}>
+                <span className="dash-accordion-sweet-name">{sweetName.replace(/_/g, ' ')}</span>
+                <span className="dash-accordion-total">Total Order - {sweet.totalWeight.toFixed(2)} Kg</span>
+                <span className="dash-accordion-toggle">
+                  {expanded[sweetName] ? '▲' : '▼'}
+                </span>
+              </div>
+
+              {expanded[sweetName] && (
+                <div className="dash-accordion-body">
+                  <table className="dash-accordion-table">
+                    <thead>
+                      <tr>
+                        <th>Packing</th>
+                        <th>Total Boxes</th>
+                        <th>Packed Boxes</th>
+                        <th>Remaining Boxes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Object.keys(totalBoxes)
+                        .filter((pack) => pack !== '0gm')
+                        .map((pack, i) => {
+                          const packed = packedBoxes[pack] || 0;
+                          const remaining = totalBoxes[pack] - packed;
+                          return (
+                            <tr key={i}>
+                              <td>{pack}</td>
+                              <td>{totalBoxes[pack]}</td>
+                              <td>{packed}</td>
+                              <td>{remaining}</td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="table-container">
-              <div className="table-header">
-                <h2>{selectedSweet.replace(/_/g, ' ')} Boxes</h2>
-              </div>
-              <table className="order-table">
-                <thead>
-                  <tr>
-                    <th>Packing</th>
-                    <th>Total Boxes</th>
-                    <th>Packed Boxes</th>
-                    <th>Remaining Boxes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {console.log("objects",Weightobjects)}
-                  {console.log("objects2",PackedWeightobject)}
-                  {Object.keys(Weightobjects)
-                    .filter(packing => packing !== '0gm')
-                    .map((packing, index) => {
-                      const packedBoxes = PackedWeightobject[packing] || 0;
-                      const remainingBoxes = Weightobjects[packing] - packedBoxes;
-
-                      return (
-                        <tr key={index}>
-                          <td>{packing}</td>
-                          <td>{Weightobjects[packing]}</td>
-                          <td>{packedBoxes}</td>
-                          <td>{remainingBoxes}</td>
-                        </tr>
-                      );
-                    })}
-                </tbody>
-              </table>
-
-              <button onClick={handleBackClick} className="back-button">
-                <FontAwesomeIcon icon={faArrowLeft} style={{ cursor: 'pointer', color: 'white', marginRight: '5px' }} />
-                Back
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
+          );
+        })
+      )}
       <ToastContainer />
-    </>
+    </div>
   );
 };
 
