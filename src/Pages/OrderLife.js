@@ -1052,7 +1052,7 @@ if (response.ok) {
                                                 <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
                                             </>
                                         )}
-                                        {/* {activeTab === "initial" && (
+                                        {activeTab === "initial" && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faEdit}
@@ -1063,7 +1063,7 @@ if (response.ok) {
                                                 />
                                                 <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
                                             </>
-                                        )} */}
+                                        )}
                                         {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
                                             <>
                                                 <FontAwesomeIcon
