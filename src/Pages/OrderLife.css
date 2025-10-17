@@ -1,3 +1,13 @@
+.edit-order-modal {
+  max-width: 1200px; /* wider modal */
+  width: 95%;
+}
+
+.custom-sweets-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 /* OrderLife.css */
 
 .order-life-container {
@@ -200,7 +210,7 @@
   }
   .custom-sweets-modal {
     width: 80%; /* Adjust width as needed */
-    max-width: 1000px; /* Adjust max-width as needed */
+    max-width: 1300px; /* Adjust max-width as needed */
     height: 80%; /* Adjust height as needed */
     max-height: 700px; /* Adjust max-height as needed */
     margin: auto;

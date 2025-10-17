@@ -7,11 +7,13 @@ import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';  
 import 'react-toastify/dist/ReactToastify.css';
 
-const EditOrder = () => {
-  const { id } = useParams(); 
+const EditOrder = ({ orderId, onClose, activeTab, onUpdated }) => {
+  const { id: routeId } = useParams(); 
+  const id = orderId || routeId;
   const [name, setName] = useState('');
   const navigate = useNavigate();
   const [number, setNumber] = useState('');
+  const [originalOrderData, setOriginalOrderData] = useState(null); // Store original data for comparison
   const [orderData, setOrderData] = useState({
     Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
       Dry_Fruit_Barfi: { oneKg: 0, halfKg: 0, quarterKg: 0, otherWeight: 0, otherPackings: 0, otherWeight2: 0, otherPackings2: 0, price: 1000 },
@@ -35,7 +37,7 @@ const EditOrder = () => {
 
   const getEditedData = async (id) => {
     try {
-      const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
+      const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_id: id }),
@@ -44,6 +46,7 @@ const EditOrder = () => {
       if (response.ok) {
         const data = await response.json();
         setOrderData(data.data[0].sweets);
+        setOriginalOrderData(JSON.parse(JSON.stringify(data.data[0].sweets))); // Deep copy for comparison
         setName(data.data[0].name);
         setNumber(data.data[0].number);
       } else {
@@ -94,6 +97,58 @@ const EditOrder = () => {
     };
   }, [orderData]);
 
+  // Calculate stock differences for packed orders
+  const calculateStockDifferences = () => {
+    if (!originalOrderData || activeTab !== 'packed') return null;
+
+    const stockChanges = {};
+    
+    Object.keys(orderData).forEach(sweet => {
+      const current = orderData[sweet];
+      const original = originalOrderData[sweet] || { oneKg: 0, halfKg: 0, quarterKg: 0, otherPackings: 0, otherPackings2: 0 };
+      
+      const oneKgDiff = current.oneKg - original.oneKg;
+      const halfKgDiff = current.halfKg - original.halfKg;
+      const quarterKgDiff = current.quarterKg - original.quarterKg;
+      const otherPackingsDiff = current.otherPackings - original.otherPackings;
+      const otherPackings2Diff = current.otherPackings2 - original.otherPackings2;
+      
+      // Only include sweets with actual changes
+      if (oneKgDiff !== 0 || halfKgDiff !== 0 || quarterKgDiff !== 0 || otherPackingsDiff !== 0 || otherPackings2Diff !== 0) {
+        stockChanges[sweet] = {
+          oneKg: oneKgDiff,
+          halfKg: halfKgDiff,
+          quarterKg: quarterKgDiff,
+          otherPackings: otherPackingsDiff,
+          otherPackings2: otherPackings2Diff,
+          otherWeight: current.otherWeight,
+          otherWeight2: current.otherWeight2,
+        };
+      }
+    });
+    
+    return stockChanges;
+  };
+
+  // Update stock based on differences
+  const updateStock = async (stockChanges) => {
+    if (!stockChanges || Object.keys(stockChanges).length === 0) return;
+
+    try {
+      const response = await fetch('http://localhost:2025/update_stock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_data: { sweets: stockChanges } }),
+      });
+      
+      if (!response.ok) {
+        console.warn('Stock update failed, but order was updated successfully');
+      }
+    } catch (error) {
+      console.warn('Stock update error:', error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -119,7 +174,7 @@ const EditOrder = () => {
     };
 
     try {
-      const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order', {
+      const response = await fetch('http://localhost:2025/update_sweet_order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -128,8 +183,37 @@ const EditOrder = () => {
       });
 
       if (response.ok) {
-        navigate('/order-life'); 
+        // Calculate stock differences and update stock for packed orders
+        if (activeTab === 'packed') {
+          const stockChanges = calculateStockDifferences();
+          if (stockChanges) {
+            await updateStock(stockChanges);
+          }
+        }
+
+        // If editing from packed tab, keep it packed by zeroing remaining via backend helper
+        if (orderId && activeTab === 'packed') {
+          try {
+            await fetch('http://localhost:2025/update_sweet_order_packed', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId: id }),
+            });
+          } catch (err) {
+            // ignore soft failure; main update already succeeded
+          }
+        }
+        // If used inside a modal (orderId provided), don't navigate away
+        if (!orderId) {
+          navigate('/order-life'); 
+        }
         toast.success('Order updated successfully!');
+        if (onUpdated) {
+          onUpdated();
+        }
+        if (onClose) {
+          onClose();
+        }
       } else {
         toast.error('Failed to update order!');
       }
@@ -175,6 +259,7 @@ const EditOrder = () => {
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter customer name"
                     required
+                    className={name ? 'highlighted-input' : ''}
                   />
                 </div>
                 <div className="form-group" >
@@ -193,6 +278,7 @@ const EditOrder = () => {
                     }}
                     placeholder="Enter customer number"
                     required
+                    className={number ? 'highlighted-input' : ''}
                   />
                 </div>
               </div>
@@ -224,6 +310,7 @@ const EditOrder = () => {
                           onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
+                          className={orderData[sweet].oneKg > 0 ? 'highlighted-input' : ''}
                         />
                       </td>
                       <td>
@@ -234,6 +321,7 @@ const EditOrder = () => {
                           onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
+                          className={orderData[sweet].halfKg > 0 ? 'highlighted-input' : ''}
                         />
                       </td>
                       <td>
@@ -244,6 +332,7 @@ const EditOrder = () => {
                           onWheel={(e) => e.target.blur()} 
                           min="0"
                           placeholder="Enter quantity"
+                          className={orderData[sweet].quarterKg > 0 ? 'highlighted-input' : ''}
                         />
                       </td>
                       <td>
@@ -255,7 +344,7 @@ const EditOrder = () => {
                             min="0"
                             onWheel={(e) => e.target.blur()} 
                             placeholder="Weight (g)"
-                            className="custom-packing-weight"
+                            className={`custom-packing-weight ${orderData[sweet].otherWeight > 0 ? 'highlighted-input' : ''}`}
                           />
                           <FontAwesomeIcon icon={faXmark} style={{ cursor: 'pointer', color: 'Black', margin: '4px' }} />
                           <input
@@ -265,7 +354,7 @@ const EditOrder = () => {
                             min="0"
                             onWheel={(e) => e.target.blur()} 
                             placeholder="No. of packs"
-                            className="custom-packing-quantity"
+                            className={`custom-packing-quantity ${orderData[sweet].otherPackings > 0 ? 'highlighted-input' : ''}`}
                           />
                         </div>
                       </td>
@@ -278,7 +367,7 @@ const EditOrder = () => {
                             min="0"
                             onWheel={(e) => e.target.blur()} 
                             placeholder="Weight (g)"
-                            className="custom-packing-weight"
+                            className={`custom-packing-weight ${orderData[sweet].otherWeight2 > 0 ? 'highlighted-input' : ''}`}
                           />
                           <FontAwesomeIcon icon={faXmark} style={{ cursor: 'pointer', color: 'Black', margin: '4px' }} />
                           <input
@@ -288,12 +377,12 @@ const EditOrder = () => {
                             min="0"
                             onWheel={(e) => e.target.blur()} 
                             placeholder="No. of packs"
-                            className="custom-packing-quantity"
+                            className={`custom-packing-quantity ${orderData[sweet].otherPackings2 > 0 ? 'highlighted-input' : ''}`}
                           />
                         </div>
                       </td>
                       <td>
-                        <b>{(
+                        <b className="highlighted-cell">{(
                           orderData[sweet].oneKg * 1 +
                           orderData[sweet].halfKg * 0.5 +
                           orderData[sweet].quarterKg * 0.25 +

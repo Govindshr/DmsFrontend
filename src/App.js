@@ -18,7 +18,7 @@ import AddRetailOrders from './Pages/AddRetailOrder';
 const Layout = ({ children }) => {
   const location = useLocation();
   const { user } = useAuth(); // Use the user from AuthContext
-const shouldRenderHeaderAndSidebar = location.pathname !== '/login' && user;
+const shouldRenderHeaderAndSidebar = true;
 
 
   return (
@@ -45,15 +45,15 @@ function App() {
           <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/login" element={<Login /> } />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/inventory" element={<ProtectedRoute><AddItems /></ProtectedRoute>} />
-            <Route path="/add-order" element={<ProtectedRoute><AddOrder /></ProtectedRoute>} />
-            <Route path="/retail-order" element={<ProtectedRoute><AddRetailOrders/></ProtectedRoute>}/>
-            <Route path="/order-life" element={<ProtectedRoute><OrderLife /></ProtectedRoute>} />
-            <Route path="/expense" element={<ProtectedRoute><Expense /></ProtectedRoute>} />
-            <Route path="/extra-sweets" element={<ProtectedRoute><ExtraSweets /></ProtectedRoute>} />
-            <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
-            <Route path="/edit-order/:id" element={<ProtectedRoute><EditOrder /></ProtectedRoute>} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/inventory" element={<AddItems />} />
+            <Route path="/add-order" element={<AddOrder />} />
+            <Route path="/retail-order" element={<AddRetailOrders/>}/>
+            <Route path="/order-life" element={<OrderLife />} />
+            <Route path="/expense" element={<Expense />} />
+            <Route path="/extra-sweets" element={<ExtraSweets />} />
+            <Route path="/report" element={<Report />} />
+            <Route path="/edit-order/:id" element={<EditOrder />} />
             {/* Add more protected routes as needed */}
           </Routes>
         </Layout>

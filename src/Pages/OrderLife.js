@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faPlus, faTrashAlt, faBox, faThumbsUp, faShippingFast, faArrowLeft, faL } from '@fortawesome/free-solid-svg-icons';
-import { faEdit } from '@fortawesome/free-solid-svg-icons/faEdit';
 import { Tooltip } from 'react-tooltip';
 import { faSearch } from '@fortawesome/free-solid-svg-icons/faSearch';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
@@ -9,13 +8,14 @@ import { faFileInvoice } from '@fortawesome/free-solid-svg-icons/faFileInvoice';
 import { faX } from '@fortawesome/free-solid-svg-icons/faX';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useNavigate } from 'react-router-dom';
+// removed navigate
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import GenerateBill from '../Components/Generatebill';
 import './OrderLife.css';
 import Pagination from '../Components/Pagination';
 import Loader from '../Components/Loader';
+import EditOrder from './EditOrder';
 
 Modal.setAppElement('#root');
 
@@ -25,7 +25,6 @@ const OrderLife = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [items, setItems] = useState([]);
     const [selectedValues, setSelectedValues] = useState({});
-    const navigate = useNavigate();
     const [selectedItem, setSelectedItem] = useState(null);
     const [sweetsfordropdown, setSweetsfordropdown] = useState([])
     const [orderData, setOrderData] = useState(null);
@@ -39,6 +38,7 @@ const OrderLife = () => {
     const [billmodel, setBillmodel] = useState(false);
     const [billData, setBillData] = useState(null);
     const [billData2, setBillData2] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 
 
@@ -55,36 +55,36 @@ const OrderLife = () => {
 // console.log("hanfle page change ",pageNumber)
     currentPage=pageNumber;
         if (activeTab === "initial") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
         } else if (activeTab === "all") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
         } else if (activeTab === "partial_packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
         }
         else if (activeTab === "packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
         } else if (activeTab === "delivered") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
         } else if (activeTab === "paid") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
         }
         // Fetch new data based on `pageNumber` if needed
     };
 
     useEffect(() => {
         if (activeTab === "initial") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
         } else if (activeTab === "all") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_all_orders')
         } else if (activeTab === "partial_packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
         }
         else if (activeTab === "packed") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
         } else if (activeTab === "delivered") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
         } else if (activeTab === "paid") {
-            fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
         }
         if (remainingOrder) {
 
@@ -248,7 +248,7 @@ const OrderLife = () => {
         }, {});
         setLoading(true)
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_remaining_order', {
+            const response = await fetch('http://localhost:2025/update_remaining_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -285,7 +285,7 @@ const OrderLife = () => {
         setLoading(true)
 
         try {
-         const response = await fetch('https://dms-backend-seven.vercel.app/update_sweets', {
+         const response = await fetch('http://localhost:2025/update_sweets', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ order_id: id, count: selectedValue, sweet_name: sweetName, box: weightType }),
@@ -296,7 +296,7 @@ if (response.ok) {
   toast.success('Packed successfully!');
   
   // ✅ Step 1: Refresh the current modal data live
-  const refreshed = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
+  const refreshed = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ order_id: id }),
@@ -310,10 +310,10 @@ if (response.ok) {
 
   // ✅ Step 2: Refresh visible table (move to Partial Packed)
   if (activeTab === 'initial') {
-    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders');
+    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders');
     setActiveTab('partial_packed');
   } else {
-    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders');
+    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders');
   }
 
   setLoading(false);
@@ -444,7 +444,7 @@ if (response.ok) {
 
         setLoading(true)
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_name', {
+            const response = await fetch('http://localhost:2025/get_order_based_on_name', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -473,7 +473,7 @@ if (response.ok) {
         setLoading(true)
 
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_order_based_on_order_no', {
+            const response = await fetch('http://localhost:2025/get_order_based_on_order_no', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -500,7 +500,7 @@ if (response.ok) {
         // console.log("chal rah ahe ")
         setLoading(true)
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/get_data_by_Sweetname', {
+            const response = await fetch('http://localhost:2025/get_data_by_Sweetname', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -532,11 +532,19 @@ if (response.ok) {
         postViewAPI(item._id, '');
     }
 
+    const openEditModal = () => {
+        setIsEditModalOpen(true);
+    };
+
+    const closeEditModal = () => {
+        setIsEditModalOpen(false);
+    };
+
     const postViewAPI = async (id, type) => {
         const data = { order_id: id };
         setLoading(false)
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
+            const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -595,6 +603,7 @@ if (response.ok) {
         setPaymentMode('')
         setModelOnHover(false)
         setBillmodel(false)
+        setIsEditModalOpen(false)
     };
 
     const handlePackedClick = (itemId, obj) => {
@@ -634,7 +643,7 @@ if (response.ok) {
     const updateispacked = async (itemId) => {
         
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_packed', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_packed', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: itemId }),
@@ -642,18 +651,18 @@ if (response.ok) {
             if (response.ok) {
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -669,7 +678,7 @@ if (response.ok) {
         }
         
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_stock', {
+            const response = await fetch('http://localhost:2025/update_stock', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order_data: order_data }),
@@ -717,7 +726,7 @@ if (response.ok) {
 
     const CallDeliveredAPI = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_delivered', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_delivered', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -728,18 +737,18 @@ if (response.ok) {
 
                 Swal.fire('Success!', 'The order has been marked as packed.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -751,7 +760,7 @@ if (response.ok) {
 
     const callDeleteApi = async (itemId) => {
         try {
-            const response = await fetch('https://dms-backend-seven.vercel.app/delete_order', {
+            const response = await fetch('http://localhost:2025/delete_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -762,18 +771,18 @@ if (response.ok) {
 
                 Swal.fire('Success!', 'The order has been Deleted.', 'success');
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to mark the order as packed.', 'error');
@@ -802,7 +811,7 @@ if (response.ok) {
 
         try {
 
-            const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_paid', {
+            const response = await fetch('http://localhost:2025/update_sweet_order_paid', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ orderId: itempaid._id, received_amount: receivedMoney, payment_mode: paymentMode }),
@@ -811,18 +820,18 @@ if (response.ok) {
                 Swal.fire('Success!', 'Payment has been successfully recorded.', 'success');
                 closeModal();
                 if (activeTab === "initial") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details');
+                    fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
                 } else if (activeTab === "all") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_all_orders')
                 } else if (activeTab === "partial_packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders')
                 }
                 else if (activeTab === "packed") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_packed_orders')
                 } else if (activeTab === "delivered") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders')
+                    fetchItemsFromAPI('http://localhost:2025/get_delivered_orders')
                 } else if (activeTab === "paid") {
-                    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders');
+                    fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
                 }
             } else {
                 Swal.fire('Error!', 'Failed to submit payment.', 'error');
@@ -831,9 +840,7 @@ if (response.ok) {
             Swal.fire('Error!', 'An error occurred while processing your request.', 'error');
         }
     };
-    const handleEditClick = (route, id) => {
-        navigate(`${route}/${id}`);
-    };
+    // removed navigate-based edit handler (editing happens via modal now)
 
 
 
@@ -848,37 +855,37 @@ if (response.ok) {
                         <div className="tabs">
                             <button
                                 className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_all_orders'); }}
+                                onClick={() => { handleTabClick('all'); fetchItemsFromAPI('http://localhost:2025/get_all_orders'); }}
                             >
                                 All
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'initial' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_sweet_order_details'); }}
+                                onClick={() => { handleTabClick('initial'); fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details'); }}
                             >
                                 Initial
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'partial_packed' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('partial_packed'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_half_packed_orders'); }}
+                                onClick={() => { handleTabClick('partial_packed'); fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders'); }}
                             >
                                 Partial Packed
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'packed' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_packed_orders'); }}
+                                onClick={() => { handleTabClick('packed'); fetchItemsFromAPI('http://localhost:2025/get_packed_orders'); }}
                             >
                                 Packed
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'delivered' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_delivered_orders'); }}
+                                onClick={() => { handleTabClick('delivered'); fetchItemsFromAPI('http://localhost:2025/get_delivered_orders'); }}
                             >
                                 Delivered
                             </button>
                             <button
                                 className={`tab-button ${activeTab === 'paid' ? 'active' : ''}`}
-                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_paid_orders'); }}
+                                onClick={() => { handleTabClick('paid'); fetchItemsFromAPI('http://localhost:2025/get_paid_orders'); }}
                             >
                                 Completed
                             </button>
@@ -1052,18 +1059,7 @@ if (response.ok) {
                                                 <Tooltip id="complete-tooltip" place="top" type="dark" effect="solid" />
                                             </>
                                         )}
-                                        {activeTab === "initial" && (
-                                            <>
-                                                <FontAwesomeIcon
-                                                    icon={faEdit}
-                                                    style={{ cursor: 'pointer', color: '#333', marginLeft: '7px' }}
-                                                    data-tooltip-id="edit-tooltip"
-                                                    data-tooltip-content="Edit Order"
-                                                    onClick={() => handleEditClick('/edit-order', item._id)}
-                                                />
-                                                <Tooltip id="edit-tooltip" place="top" type="dark" effect="solid" />
-                                            </>
-                                        )}
+                                        
                                         {activeTab === "all" && activeTab !== "packed" && activeTab !== "paid" && (
                                             <>
                                                 <FontAwesomeIcon
@@ -1224,7 +1220,12 @@ if (response.ok) {
             >
                 <div>
                     <div className="order-details">
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h2>Order Details</h2>
+                            {selectedItem && (activeTab === 'initial' || activeTab === 'packed') && (
+                                <button onClick={openEditModal}  className="download-btn">Edit Order</button>
+                            )}
+                        </div>
 
                         <div style={{ display: 'flex' }}>
                             <div >
@@ -1333,7 +1334,7 @@ if (response.ok) {
                                                             {activeTab !== "all" &&
                                                              <td> {remainingSweet.oneKg > 0 &&
                                                                <button
-                                                               className="btn btn-primary"
+                                                               className="download-btn"
   disabled={!selectedValues[sweetName]?.oneKg || selectedValues[sweetName]?.oneKg === 0}
   onClick={() => handlePack(sweetName, "oneKg", orderData._id)}
   style={{
@@ -1408,7 +1409,7 @@ if (response.ok) {
                                                                 {remainingSweet.quarterKg > 0 &&
                                                                     // <button onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}>Packed</button>
                                                                     <button
-                                                                    className='btn'
+                                                                    className="download-btn"
   disabled={!selectedValues[sweetName]?.quarterKg || selectedValues[sweetName]?.quarterKg === 0}
   onClick={() => handlePack(sweetName, "quarterKg", orderData._id)}
   style={{
@@ -1446,6 +1447,7 @@ if (response.ok) {
                                                                 {remainingSweet.otherPackings > 0 &&
                                                                     // <button onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}>Packed</button>
                                                                     <button
+                                                                     className="download-btn"
   disabled={!selectedValues[sweetName]?.otherPackings || selectedValues[sweetName]?.otherPackings === 0}
   onClick={() => handlePack(sweetName, "otherPackings", orderData._id)}
   style={{
@@ -1484,6 +1486,7 @@ if (response.ok) {
                                                                 {remainingSweet.otherPackings2 > 0 &&
                                                                     // <button onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}>Packed</button>
                                                                     <button
+                                                                     className="download-btn"
   disabled={!selectedValues[sweetName]?.otherPackings2 || selectedValues[sweetName]?.otherPackings2 === 0}
   onClick={() => handlePack(sweetName, "otherPackings2", orderData._id)}
   style={{
@@ -1511,6 +1514,38 @@ if (response.ok) {
                 </div>
 
 
+            </Modal>
+
+            {/* Nested Edit Modal overlaying the view modal */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onRequestClose={closeEditModal}
+                contentLabel="Edit Order Modal"
+                className="custom-sweets-modal edit-order-modal"
+                overlayClassName="custom-sweets-overlay"
+            >
+                {selectedItem && (
+                    <EditOrder orderId={selectedItem._id} onClose={closeEditModal} activeTab={activeTab} onUpdated={() => {
+                        // refresh the table after editing
+                        if (activeTab === 'initial') {
+                            fetchItemsFromAPI('http://localhost:2025/get_sweet_order_details');
+                        } else if (activeTab === 'partial_packed') {
+                            fetchItemsFromAPI('http://localhost:2025/get_half_packed_orders');
+                        } else if (activeTab === 'packed') {
+                            fetchItemsFromAPI('http://localhost:2025/get_packed_orders');
+                        } else if (activeTab === 'delivered') {
+                            fetchItemsFromAPI('http://localhost:2025/get_delivered_orders');
+                        } else if (activeTab === 'paid') {
+                            fetchItemsFromAPI('http://localhost:2025/get_paid_orders');
+                        } else if (activeTab === 'all') {
+                            fetchItemsFromAPI('http://localhost:2025/get_all_orders');
+                        }
+                        // refresh current modal data too
+                        if (selectedItem?._id) {
+                            postViewAPI(selectedItem._id, '');
+                        }
+                    }} />
+                )}
             </Modal>
 
             <Modal

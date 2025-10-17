@@ -16,9 +16,9 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const [dashboardRes, boxRes, packedRes] = await Promise.all([
-          fetch('https://dms-backend-seven.vercel.app/get_dashboard'),
-          fetch('https://dms-backend-seven.vercel.app/get_sweets_aggregation'),
-          fetch('https://dms-backend-seven.vercel.app/get_packed_sweets_aggregation'),
+          fetch('http://localhost:2025/get_dashboard'),
+          fetch('http://localhost:2025/get_sweets_aggregation'),
+          fetch('http://localhost:2025/get_packed_sweets_aggregation'),
         ]);
 
         if (dashboardRes.ok && boxRes.ok && packedRes.ok) {

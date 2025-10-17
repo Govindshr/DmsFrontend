@@ -1,0 +1,38 @@
+/* Highlight pre-filled values ONLY in EditOrder modal */
+.add-order-container .highlighted-input {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    font-weight: bold;
+    color: #856404;
+}
+
+.add-order-container .highlighted-cell {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    font-weight: bold;
+    color: #856404;
+}
+
+/* Ensure input fields with pre-filled values are highlighted ONLY in EditOrder */
+.add-order-container input[value]:not([value=""]):not([value="0"]) {
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+    font-weight: bold;
+    color: #856404;
+}
+
+/* Highlight table cells with calculated values ONLY in EditOrder */
+.add-order-container .order-table td b {
+    background-color: #fff3cd !important;
+    color: #856404;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Specific highlighting for total weight cells ONLY in EditOrder */
+.add-order-container .order-table td:last-child {
+    background-color: #fff3cd !important;
+    color: #856404;
+    font-weight: bold;
+}
