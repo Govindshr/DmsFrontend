@@ -125,31 +125,43 @@ const handleSharePdfOnWhatsApp = async () => {
   try {
     const { pdfBlob } = await generateInvoicePdf();
 
-    // Check if device/browser supports native sharing
-    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], 'Invoice.pdf', { type: 'application/pdf' })] })) {
-      const file = new File([pdfBlob], `Invoice-${data?.name || 'Customer'}.pdf`, { type: 'application/pdf' });
+    const festiveMessage = `🧾 *Shringi Food Services*\n\nThank you for your order, *${data?.name || 'Valued Customer'}*! 💛\n\nWe truly appreciate your trust and support.\n\n🎉 *Wishing you and your family a very Happy Diwali!* 🪔\n\nHere’s your invoice:\n• Order No: ${data?.order_no || 'N/A'}\n• Total Amount: ₹${grandTotalPrice.toFixed(2)}\n\nPlease find the attached PDF below 👇`;
+
+    // ✅ Mobile browsers (Android/iOS) — native share with PDF
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({
+        files: [new File([pdfBlob], 'Invoice.pdf', { type: 'application/pdf' })],
+      })
+    ) {
+      const file = new File(
+        [pdfBlob],
+        `Invoice-${data?.name || 'Customer'}.pdf`,
+        { type: 'application/pdf' }
+      );
 
       await navigator.share({
         title: 'Invoice',
-        text: `🧾 Invoice for ${data?.name}\nOrder No: ${data?.order_no}\nTotal: ₹${grandTotalPrice.toFixed(2)}`,
+        text: festiveMessage,
         files: [file],
       });
 
       console.log('Shared successfully!');
     } else {
-      // Fallback for desktop or unsupported browsers
-      const message = `🧾 *Invoice for ${data?.name}*\nOrder No: ${data?.order_no}\nTotal: ₹${grandTotalPrice.toFixed(2)}\n\n(Download PDF manually to send)`;
+      // ✅ Fallback for desktop — open WhatsApp Web with message
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       const whatsappBaseUrl = isMobile
         ? 'https://wa.me/?text='
         : 'https://web.whatsapp.com/send?text=';
-      const whatsappUrl = `${whatsappBaseUrl}${encodeURIComponent(message)}`;
+      const whatsappUrl = `${whatsappBaseUrl}${encodeURIComponent(festiveMessage)}`;
       window.open(whatsappUrl, '_blank');
     }
   } catch (error) {
     console.error('Error sharing PDF:', error);
   }
 };
+
 
 
 
@@ -210,7 +222,8 @@ const handleSharePdfOnWhatsApp = async () => {
         </table>
 
         <footer className="invoice-footer">
-          <p><strong>Payment Mode:</strong> Cash</p>
+          <p><strong>Thank you for your order,We truly appreciate your trust and support.
+              🎉 Wishing you and your family a very <strong>Happy Diwali!</strong> 🪔</strong> </p>
         </footer>
       </div>
 
