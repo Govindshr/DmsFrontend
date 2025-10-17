@@ -157,6 +157,21 @@
   transform: translateY(-1px);
 }
 
+.whatsapp-btn {
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  font-size: 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.whatsapp-btn:hover {
+  background-color: #1ebe5d;
+}
+
 /* ====== RESPONSIVE ====== */
 @media (max-width: 600px) {
   .invoice-header {

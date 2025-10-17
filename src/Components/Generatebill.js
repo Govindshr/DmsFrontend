@@ -99,6 +99,38 @@ const handleDownloadPdf = async () => {
   setShowDownloadButton(true);
 };
 
+const handleShareOnWhatsApp = async () => {
+  try {
+    // Capture invoice as image
+    const canvas = await html2canvas(invoiceRef.current, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    });
+
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+
+    // Option 1: send text + image (works best when uploaded manually)
+    const message = `🧾 *Invoice Details*\nOrder No: ${data?.order_no || 'N/A'}\nCustomer: ${data?.name}\nTotal: ₹${grandTotalPrice.toFixed(2)}\n\nInvoice attached below 👇`;
+
+    // Create WhatsApp link (without phone number, so user can choose contact)
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+
+    // Open WhatsApp Web / Mobile app
+    window.open(whatsappUrl, "_blank");
+
+    // Optional: download image to share manually in WhatsApp (as file upload)
+    const link = document.createElement('a');
+    link.href = imgData;
+    link.download = `Invoice-${data?.name || 'Customer'}.jpg`;
+    link.click();
+
+  } catch (error) {
+    console.error("Error generating invoice for WhatsApp:", error);
+  }
+};
+
+
   return (
     <>
       <div className="invoice-container" ref={invoiceRef}>
@@ -160,13 +192,19 @@ const handleDownloadPdf = async () => {
         </footer>
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '15px' }}>
-        {showDownloadButton && (
-          <button onClick={handleDownloadPdf} className="download-btn">
-            Download Invoice
-          </button>
-        )}
-      </div>
+      <div style={{ textAlign: 'center', marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+  {showDownloadButton && (
+    <>
+      <button onClick={handleDownloadPdf} className="download-btn">
+        Download Invoice
+      </button>
+      <button onClick={handleShareOnWhatsApp} className="download-btn">
+        Share on WhatsApp
+      </button>
+    </>
+  )}
+</div>
+
     </>
   );
 };
