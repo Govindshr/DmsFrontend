@@ -48,7 +48,7 @@ const [quantity, setQuantity] = useState(0);
 
     const fetchData = async () => {
         try {
-            const response = await fetch('http://localhost:2025/get_extra_sweets');
+            const response = await fetch('https://dms-backend-seven.vercel.app/get_extra_sweets');
             if (response.ok) {
                 const result = await response.json();
                 setSweets(result.result);
@@ -63,7 +63,7 @@ const [quantity, setQuantity] = useState(0);
     // Handle delete action
     const handleDelete = async (id) => {
         try {
-            const response = await fetch('http://localhost:2025/delete_extra_sweets', {
+            const response = await fetch('https://dms-backend-seven.vercel.app/delete_extra_sweets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ const handleSubmit = async (e) => {
   };
 
   try {
-    const response = await fetch('http://localhost:2025/add_extra_sweets', {
+    const response = await fetch('https://dms-backend-seven.vercel.app/add_extra_sweets', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(stockData),
@@ -162,7 +162,7 @@ const handleSubmit = async (e) => {
 
 
         try {
-            const response = await fetch('http://localhost:2025/update_extra_sweets', {
+            const response = await fetch('https://dms-backend-seven.vercel.app/update_extra_sweets', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

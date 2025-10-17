@@ -37,7 +37,7 @@ const EditOrder = ({ orderId, onClose, activeTab, onUpdated }) => {
 
   const getEditedData = async (id) => {
     try {
-      const response = await fetch('http://localhost:2025/view_sweets_orders_by_id', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/view_sweets_orders_by_id', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_id: id }),
@@ -135,7 +135,7 @@ const EditOrder = ({ orderId, onClose, activeTab, onUpdated }) => {
     if (!stockChanges || Object.keys(stockChanges).length === 0) return;
 
     try {
-      const response = await fetch('http://localhost:2025/update_stock', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/update_stock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_data: { sweets: stockChanges } }),
@@ -174,7 +174,7 @@ const EditOrder = ({ orderId, onClose, activeTab, onUpdated }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:2025/update_sweet_order', {
+      const response = await fetch('https://dms-backend-seven.vercel.app/update_sweet_order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -194,7 +194,7 @@ const EditOrder = ({ orderId, onClose, activeTab, onUpdated }) => {
         // If editing from packed tab, keep it packed by zeroing remaining via backend helper
         if (orderId && activeTab === 'packed') {
           try {
-            await fetch('http://localhost:2025/update_sweet_order_packed', {
+            await fetch('https://dms-backend-seven.vercel.app/update_sweet_order_packed', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ orderId: id }),
