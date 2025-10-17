@@ -56,12 +56,11 @@ const GenerateBill = ({ sweets, data }) => {
     }
   });
 
-const handleDownloadPdf = async () => {
+const generateInvoicePdf = async () => {
   setShowDownloadButton(false);
 
-  // Capture the invoice element at higher resolution
   const canvas = await html2canvas(invoiceRef.current, {
-    scale: 3, // higher DPI for sharpness
+    scale: 3,
     useCORS: true,
     backgroundColor: '#ffffff'
   });
@@ -70,34 +69,27 @@ const handleDownloadPdf = async () => {
   const pdf = new jsPDF('p', 'mm', 'a4');
 
   const pdfWidth = pdf.internal.pageSize.getWidth();
-  const pdfHeight = pdf.internal.pageSize.getHeight();
+  const imgHeight = (canvas.height * pdfWidth) / canvas.width;
 
-  // Get image aspect ratio and scale proportionally to A4 width
-  const imgWidth = pdfWidth - 20; // 10mm margins on each side
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, imgHeight);
 
-  let yPosition = 10; // top padding
+  const pdfBlob = pdf.output('blob');
+  const pdfUrl = URL.createObjectURL(pdfBlob);
 
-  if (imgHeight > pdfHeight - 20) {
-    // Handle multi-page invoices automatically
-    let remainingHeight = imgHeight;
-    let position = 0;
-    while (remainingHeight > 0) {
-      pdf.addImage(imgData, 'JPEG', 10, yPosition, imgWidth, imgHeight);
-      remainingHeight -= pdfHeight;
-      if (remainingHeight > 0) {
-        pdf.addPage();
-        position -= pdfHeight;
-      }
-    }
-  } else {
-    // For shorter invoices, single page
-    pdf.addImage(imgData, 'JPEG', 10, yPosition, imgWidth, imgHeight);
-  }
-
-  pdf.save(`Invoice-${data?.name || 'Customer'}.pdf`);
   setShowDownloadButton(true);
+
+  return { pdfBlob, pdfUrl };
 };
+
+const handleDownloadPdf = async () => {
+  const { pdfUrl } = await generateInvoicePdf();
+
+  const link = document.createElement('a');
+  link.href = pdfUrl;
+  link.download = `Invoice-${data?.name || 'Customer'}.pdf`;
+  link.click();
+};
+
 
 const handleShareOnWhatsApp = async () => {
   try {
@@ -129,6 +121,36 @@ const handleShareOnWhatsApp = async () => {
     console.error("Error generating invoice for WhatsApp:", error);
   }
 };
+const handleSharePdfOnWhatsApp = async () => {
+  try {
+    const { pdfBlob } = await generateInvoicePdf();
+
+    // Check if device/browser supports native sharing
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [new File([pdfBlob], 'Invoice.pdf', { type: 'application/pdf' })] })) {
+      const file = new File([pdfBlob], `Invoice-${data?.name || 'Customer'}.pdf`, { type: 'application/pdf' });
+
+      await navigator.share({
+        title: 'Invoice',
+        text: `🧾 Invoice for ${data?.name}\nOrder No: ${data?.order_no}\nTotal: ₹${grandTotalPrice.toFixed(2)}`,
+        files: [file],
+      });
+
+      console.log('Shared successfully!');
+    } else {
+      // Fallback for desktop or unsupported browsers
+      const message = `🧾 *Invoice for ${data?.name}*\nOrder No: ${data?.order_no}\nTotal: ₹${grandTotalPrice.toFixed(2)}\n\n(Download PDF manually to send)`;
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const whatsappBaseUrl = isMobile
+        ? 'https://wa.me/?text='
+        : 'https://web.whatsapp.com/send?text=';
+      const whatsappUrl = `${whatsappBaseUrl}${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  } catch (error) {
+    console.error('Error sharing PDF:', error);
+  }
+};
+
 
 
   return (
@@ -192,18 +214,19 @@ const handleShareOnWhatsApp = async () => {
         </footer>
       </div>
 
-      <div style={{ textAlign: 'center', marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
+   <div style={{ textAlign: 'center', marginTop: '15px', display: 'flex', justifyContent: 'center', gap: '10px' }}>
   {showDownloadButton && (
     <>
       <button onClick={handleDownloadPdf} className="download-btn">
         Download Invoice
       </button>
-      <button onClick={handleShareOnWhatsApp} className="download-btn">
-        Share on WhatsApp
+      <button onClick={handleSharePdfOnWhatsApp} className="whatsapp-btn">
+        Share Invoice on WhatsApp
       </button>
     </>
   )}
 </div>
+
 
     </>
   );
