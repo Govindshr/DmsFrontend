@@ -1,3 +1,4 @@
+// src/components/Dashboard.js
 import React, { useState, useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,6 +10,7 @@ const Dashboard = () => {
   const [boxnumber, setBoxnumber] = useState([]);
   const [packedboxnumber, setPackedboxnumber] = useState([]);
   const [expanded, setExpanded] = useState({});
+  const [overallBoxSummary, setOverallBoxSummary] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +30,7 @@ const Dashboard = () => {
           calculateTotalWeights(dashboardData.data);
           setBoxnumber(boxData.data);
           setPackedboxnumber(packedBoxData.data);
+          calculateOverallBoxSummary(boxData.data);
           setLoading(false);
         } else {
           toast.error('Failed to fetch some data!');
@@ -54,6 +57,37 @@ const Dashboard = () => {
       });
     });
     setTotalWeights(totals);
+  };
+
+  const calculateOverallBoxSummary = (boxData) => {
+    const summary = {};
+
+    boxData.forEach((sweet) => {
+      const weights = {
+        '1000gm': sweet.totalOneKg || 0,
+        '500gm': sweet.totalHalfKg || 0,
+        '250gm': sweet.totalQuarterKg || 0,
+      };
+
+      const addOtherWeights = (obj) => {
+        if (!obj) return;
+        Object.keys(obj).forEach((key) => {
+          if (!isNaN(key) && key !== 0) {
+            const w = `${key}gm`;
+            summary[w] = (summary[w] || 0) + obj[key];
+          }
+        });
+      };
+
+      Object.keys(weights).forEach((key) => {
+        summary[key] = (summary[key] || 0) + weights[key];
+      });
+
+      addOtherWeights(sweet.totalOtherWeight);
+      addOtherWeights(sweet.totalOtherWeight2);
+    });
+
+    setOverallBoxSummary(summary);
   };
 
   const toggleAccordion = (sweetName) => {
@@ -84,7 +118,12 @@ const Dashboard = () => {
     addOtherObjectFields(sweet.totalOtherWeight, totalBoxes);
     addOtherObjectFields(sweet.totalOtherWeight2, totalBoxes);
 
-    const packedBoxes = { ...totalBoxes };
+    const packedBoxes = {
+      '1000gm': 0,
+      '500gm': 0,
+      '250gm': 0,
+    };
+
     if (packedSweet) {
       packedBoxes['1000gm'] = packedSweet.totalOneKg;
       packedBoxes['500gm'] = packedSweet.totalHalfKg;
@@ -100,6 +139,37 @@ const Dashboard = () => {
   return (
     <div className="dash-accordion-container">
       <h1 className="dash-accordion-title">Dashboard</h1>
+
+      {/* 📦 Total Boxes Summary Section */}
+      {!loading && (
+      <div className="dash-summary-card">
+  <h2 className="dash-summary-title">📦 Total Boxes Summary</h2>
+  <div className="dash-summary-grid">
+    {Object.keys(overallBoxSummary)
+      .filter((key) => overallBoxSummary[key] > 0 && key !== '0gm')
+      .sort((a, b) => parseInt(a) - parseInt(b))
+      .map((key, idx) => (
+        <div
+          className="dash-summary-item"
+          key={idx}
+          data-weight={key.replace('gm', '')}
+        >
+          <span className="dash-summary-weight">{key}</span>
+          <span className="dash-summary-value">
+            {overallBoxSummary[key]} boxes
+          </span>
+        </div>
+      ))}
+  </div>
+
+  <div className="dash-summary-total">
+    Total Boxes:{" "}
+    {Object.values(overallBoxSummary).reduce((sum, val) => sum + val, 0)}
+  </div>
+</div>
+
+      )}
+
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -110,14 +180,22 @@ const Dashboard = () => {
 
           const { totalBoxes, packedBoxes } = sweetDetails;
           return (
-          <div
-  key={idx}
-  className={`dash-accordion-item ${expanded[sweetName] ? 'open' : ''}`}
->
-
-              <div className="dash-accordion-header" onClick={() => toggleAccordion(sweetName)}>
-                <span className="dash-accordion-sweet-name">{sweetName.replace(/_/g, ' ')}</span>
-                <span className="dash-accordion-total">Total Order - {sweet.totalWeight.toFixed(2)} Kg</span>
+            <div
+              key={idx}
+              className={`dash-accordion-item ${
+                expanded[sweetName] ? 'open' : ''
+              }`}
+            >
+              <div
+                className="dash-accordion-header"
+                onClick={() => toggleAccordion(sweetName)}
+              >
+                <span className="dash-accordion-sweet-name">
+                  {sweetName.replace(/_/g, ' ')}
+                </span>
+                <span className="dash-accordion-total">
+                  Total Order - {sweet.totalWeight.toFixed(2)} Kg
+                </span>
                 <span className="dash-accordion-toggle">
                   {expanded[sweetName] ? '▲' : '▼'}
                 </span>

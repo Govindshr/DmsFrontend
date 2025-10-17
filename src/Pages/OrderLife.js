@@ -1002,7 +1002,7 @@ if (response.ok) {
                                                 />
                                                 <Tooltip id="view-tooltip" place="top" type="dark" effect="solid" />
                                             </>)}
-                                        {(activeTab === "initial" || activeTab === "packed" ) && (
+                                        {(activeTab === "initial"  ) && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faBox}
@@ -1014,7 +1014,7 @@ if (response.ok) {
                                                 <Tooltip id="packed-tooltip" place="top" type="dark" effect="solid" />
                                             </>)}
 
-                                        {(activeTab === "packed" || activeTab === "partial_packed") && (
+                                        {(activeTab === "packed" ) && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faShippingFast}
@@ -1028,7 +1028,7 @@ if (response.ok) {
                                         )}
 
 
-                                        {activeTab !== "paid" && activeTab !== "all" && (
+                                        {activeTab !== "paid" && activeTab !== "all" && activeTab !== "partial_packed"  && (
                                             <>
                                                 <FontAwesomeIcon
                                                     icon={faThumbsUp}
@@ -1333,6 +1333,7 @@ if (response.ok) {
                                                             {activeTab !== "all" &&
                                                              <td> {remainingSweet.oneKg > 0 &&
                                                                <button
+                                                               className="btn btn-primary"
   disabled={!selectedValues[sweetName]?.oneKg || selectedValues[sweetName]?.oneKg === 0}
   onClick={() => handlePack(sweetName, "oneKg", orderData._id)}
   style={{
@@ -1369,6 +1370,7 @@ if (response.ok) {
                                                             {activeTab !== "all" && <td>
                                                                 {remainingSweet.halfKg > 0 &&
                                                                    <button
+                                                                   className="download-btn"
   disabled={!selectedValues[sweetName]?.halfKg || selectedValues[sweetName]?.halfKg === 0}
   onClick={() => handlePack(sweetName, "halfKg", orderData._id)}
   style={{

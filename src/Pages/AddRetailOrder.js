@@ -394,6 +394,7 @@ const handleSubmit = (e) => {
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
         <button
           style={{ marginRight: '10px' }}
+          className="download-btn"
           onClick={() => setPaymentModal(true)} // open second modal
         >
           Finish Order
