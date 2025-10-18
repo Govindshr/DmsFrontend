@@ -172,11 +172,11 @@ const handleSharePdfOnWhatsApp = async () => {
           <div className="header-left">
             <h2>Shringi Food Services</h2>
             <p>Prajapat Colony, Near Algoja Resort, Nainwa Road, Bundi</p>
-            <p>Phone: 9694487748</p>
+            <p>Phone: 9694487748 ,9414394181</p>
             <p>Email: shekharshringi@gmail.com</p>
           </div>
           <div className="header-right">
-            <h1>Tax Invoice</h1>
+            <h1> Bill Details</h1>
             <p><strong>Order No:</strong> {data?.order_no || 'N/A'}</p>
             <p><strong>Date:</strong> {formattedDate}</p>
             <p><strong>Time:</strong> {formattedTime}</p>
