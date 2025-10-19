@@ -889,7 +889,7 @@ if (response.ok) {
                             >
                                 Completed
                             </button>
-                            <button
+                            {/* <button
   className={`tab-button ${activeTab === 'retail' ? 'active' : ''}`}
   onClick={() => { 
     handleTabClick('retail'); 
@@ -897,7 +897,7 @@ if (response.ok) {
   }}
 >
   Retail Orders
-</button>
+</button> */}
 
                         </div>
 
