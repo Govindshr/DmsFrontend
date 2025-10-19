@@ -183,6 +183,30 @@ const handleSharePdfOnWhatsApp = async () => {
           </div>
         </header>
 
+        {/* Business Details Block */}
+{/* Business Details Block */}
+<section className="business-info">
+  <table className="business-info-table">
+    <tbody>
+      <tr>
+        <td>
+          <strong>MSME No. :</strong> UDYAM-RJ-09-0002959
+        </td>
+        <td>
+          <strong>Shop Act No. :</strong> SCA/2024/8/132613
+        </td>
+      </tr>
+      <tr>
+        <td colSpan="2">
+          <strong>FSSAI No. :</strong> 2222055000595
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+
         <section className="bill-to">
           <p><strong>Bill To:</strong> {data?.name}</p>
           <p><strong>Contact No:</strong> {data?.number}</p>

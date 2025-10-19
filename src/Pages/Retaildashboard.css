@@ -107,17 +107,16 @@
 
 /* Tooltip (hover info box) */
 .rtdash-tooltip {
-  position: absolute;
-  top: 60px;
-  right: 30px;
+  position: fixed; /* ✅ match React inline style */
   background: white;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
   padding: 15px 20px;
   width: 350px;
-  z-index: 10;
-  animation: fadeIn 0.2s ease;
+  z-index: 9999;
+  animation: fadeIn 0.15s ease;
+  pointer-events: none;
 }
 
 .rtdash-tooltip h4 {
@@ -144,6 +143,7 @@
 .rtdash-tooltip-item .sweet-name {
   color: #1e293b;
   font-weight: 500;
+  font-size: 15px;
 }
 
 .rtdash-tooltip-item .sweet-info {
@@ -162,6 +162,7 @@
   }
 }
 
+
 @media (max-width: 900px) {
   .rtdash-container {
     padding: 20px;
@@ -172,4 +173,74 @@
     top: auto;
     bottom: 20px;
   }
+}
+/* Modal Overlay */
+.rtdash-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+}
+
+/* Modal Box */
+.rtdash-modal {
+  background: #fff;
+  border-radius: 10px;
+  width: 450px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.2s ease;
+}
+
+.rtdash-modal h3 {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+  color: #1e293b;
+}
+
+/* Modal Content */
+.rtdash-modal-content {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+}
+
+/* Buttons */
+.rtdash-view-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.rtdash-view-btn:hover {
+  background: #1e40af;
+}
+
+.rtdash-close-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.rtdash-close-btn:hover {
+  background: #b91c1c;
 }

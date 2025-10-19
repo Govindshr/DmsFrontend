@@ -22,7 +22,7 @@ const RetailDashboard = () => {
     totalWeight: 0,
     totalBoxes: 0,
   });
-  const [hoveredOrder, setHoveredOrder] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -100,67 +100,32 @@ const RetailDashboard = () => {
         </div>
       </div>
 
-      {/* Bar Chart */}
+      {/* Chart */}
       <div className="rtdash-chart-full">
         <h3>Sweet-wise Box Distribution by Weight</h3>
-      <ResponsiveContainer width="100%" height={450}>
-  <BarChart data={sweetTotals.slice(0, 15)}>
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis
-      dataKey="name"
-      angle={-30}
-      textAnchor="end"
-      interval={0}
-      height={90}
-    />
-    <YAxis />
-    <Tooltip
-      content={({ active, payload, label }) => {
-        if (active && payload && payload.length) {
-          const data = payload[0].payload;
-          const totalBoxes = data.oneKg + data.halfKg + data.quarterKg;
-          return (
-            <div
-              style={{
-                background: "#fff",
-                border: "1px solid #ddd",
-                borderRadius: "8px",
-                padding: "10px 12px",
-                boxShadow: "0 3px 8px rgba(0,0,0,0.15)",
-              }}
-            >
-              <h4 style={{ margin: 0, fontSize: "0.95rem", color: "#111" }}>
-                {label}
-              </h4>
-              <p style={{ margin: "5px 0", fontSize: "0.85rem", color: "#374151" }}>
-                <strong>Total Boxes:</strong> {totalBoxes}
-              </p>
-              <p style={{ margin: "2px 0", fontSize: "0.85rem", color: "#374151" }}>
-                <strong>Total Weight:</strong> {data.totalWeight.toFixed(2)} kg
-              </p>
-              <hr style={{ borderTop: "1px solid #e5e7eb", margin: "6px 0" }} />
-              <p style={{ margin: "2px 0", color: "#2563EB" }}>
-                1 Kg Boxes: {data.oneKg}
-              </p>
-              <p style={{ margin: "2px 0", color: "#10B981" }}>
-                500 g Boxes: {data.halfKg}
-              </p>
-              <p style={{ margin: "2px 0", color: "#F59E0B" }}>
-                250 g Boxes: {data.quarterKg}
-              </p>
-            </div>
-          );
-        }
-        return null;
-      }}
-    />
-    <Legend />
-    <Bar dataKey="oneKg" stackId="a" fill="#2563EB" name="1 Kg Boxes" />
-    <Bar dataKey="halfKg" stackId="a" fill="#10B981" name="500 g Boxes" />
-    <Bar dataKey="quarterKg" stackId="a" fill="#F59E0B" name="250 g Boxes" />
-  </BarChart>
-</ResponsiveContainer>
-
+        <ResponsiveContainer width="100%" height={450}>
+          <BarChart data={sweetTotals.slice(0, 15)}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="name"
+              angle={-30}
+              textAnchor="end"
+              interval={0}
+              height={90}
+            />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="oneKg" stackId="a" fill="#2563EB" name="1 Kg Boxes" />
+            <Bar dataKey="halfKg" stackId="a" fill="#10B981" name="500 g Boxes" />
+            <Bar
+              dataKey="quarterKg"
+              stackId="a"
+              fill="#F59E0B"
+              name="250 g Boxes"
+            />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Orders Table */}
@@ -175,34 +140,44 @@ const RetailDashboard = () => {
               <th>Total Weight (Kg)</th>
               <th>Total Boxes</th>
               <th>Created</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr
-                key={order._id}
-                onMouseEnter={() => setHoveredOrder(order)}
-                onMouseLeave={() => setHoveredOrder(null)}
-              >
+              <tr key={order._id}>
                 <td>{order.order_no}</td>
                 <td>{order.name}</td>
                 <td>{order.payment_mode}</td>
                 <td>{order.summary?.totalWeight}</td>
                 <td>{order.summary?.totalBoxes}</td>
                 <td>{order.created}</td>
+                <td>
+                  <button
+                    className="rtdash-view-btn"
+                    onClick={() => setSelectedOrder(order)}
+                  >
+                    View
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
 
-        {/* Hover Tooltip */}
-        {hoveredOrder && (
-          <div className="rtdash-tooltip">
-            <h4>
-              {hoveredOrder.order_no} — {hoveredOrder.name}
-            </h4>
-            <div className="rtdash-tooltip-content">
-              {Object.entries(hoveredOrder.sweets)
+      {/* Modal for Order Details */}
+      {selectedOrder && (
+        <div className="rtdash-modal-overlay" onClick={() => setSelectedOrder(null)}>
+          <div
+            className="rtdash-modal"
+            onClick={(e) => e.stopPropagation()} // prevent overlay click
+          >
+            <h3>
+              {selectedOrder.order_no} — {selectedOrder.name}
+            </h3>
+            <div className="rtdash-modal-content">
+              {Object.entries(selectedOrder.sweets)
                 .filter(([_, s]) => s.totalWeight > 0)
                 .map(([sweetName, s], idx) => (
                   <div key={idx} className="rtdash-tooltip-item">
@@ -214,9 +189,12 @@ const RetailDashboard = () => {
                   </div>
                 ))}
             </div>
+            <button className="rtdash-close-btn" onClick={() => setSelectedOrder(null)}>
+              Close
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <ToastContainer />
     </div>
