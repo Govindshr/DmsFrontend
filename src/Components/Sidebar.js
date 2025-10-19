@@ -37,6 +37,12 @@ console.log(location)
               Dashboard
             </Link>
           </li>
+           <li className={window.location.pathname.includes("/retail-dashboard") ? 'active' : ''}>
+            <Link to="/retail-dashboard" onClick={() => handleItemClick('/retail-dashboard')}>
+              <FontAwesomeIcon icon={faHouse} className="fa-icon" />
+              Retails-Dashboard
+            </Link>
+          </li>
            <li className={window.location.pathname.includes("/add-order") ? 'active' : ''}>
             <Link to="/add-order" onClick={() => handleItemClick('/add-order')}>
               <FontAwesomeIcon icon={faTag} className="fa-icon" />

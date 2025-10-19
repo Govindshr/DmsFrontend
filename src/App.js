@@ -11,6 +11,7 @@ import Expense from './Pages/Expense';
 import Report from './Pages/Report';
 import ExtraSweets from './Pages/ExtraSweets';
 import EditOrder from './Pages/EditOrder';
+import Retaildashboard from './Pages/RetailDashboard';
 import Login from './Pages/Login';
 import './App.css';
 import AddRetailOrders from './Pages/AddRetailOrder';
@@ -53,6 +54,7 @@ function App() {
             <Route path="/expense" element={<ProtectedRoute><Expense /></ProtectedRoute>} />
             <Route path="/extra-sweets" element={<ProtectedRoute><ExtraSweets /></ProtectedRoute>} />
             <Route path="/report" element={<ProtectedRoute><Report /></ProtectedRoute>} />
+             <Route path="/retail-dashboard" element={<ProtectedRoute><Retaildashboard /></ProtectedRoute>} />
             <Route path="/edit-order/:id" element={<ProtectedRoute><EditOrder /></ProtectedRoute>} />
             {/* Add more protected routes as needed */}
           </Routes>

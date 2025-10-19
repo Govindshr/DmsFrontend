@@ -889,6 +889,16 @@ if (response.ok) {
                             >
                                 Completed
                             </button>
+                            <button
+  className={`tab-button ${activeTab === 'retail' ? 'active' : ''}`}
+  onClick={() => { 
+    handleTabClick('retail'); 
+    fetchItemsFromAPI('https://dms-backend-seven.vercel.app/get_retail_orders'); 
+  }}
+>
+  Retail Orders
+</button>
+
                         </div>
 
                     </div>
@@ -904,7 +914,7 @@ if (response.ok) {
                             <FontAwesomeIcon icon={faSearch} className="search-icon" />
                         </div>
 
-                        <div className="search-container" style={{marginRight:"10px"}}>
+                        {/* <div className="search-container" style={{marginRight:"10px"}}>
                             <input
                                 type="number"
                                 placeholder="Order Number"
@@ -913,7 +923,7 @@ if (response.ok) {
                                 onChange={handleorderinput}
                             />
                             <FontAwesomeIcon icon={faSearch} className="search-icon" />
-                        </div>
+                        </div> */}
 
                         <div className="search-container">
                             <div className="form-group ml-3">

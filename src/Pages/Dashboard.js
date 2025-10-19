@@ -203,32 +203,36 @@ const Dashboard = () => {
 
               {expanded[sweetName] && (
                 <div className="dash-accordion-body">
-                  <table className="dash-accordion-table">
-                    <thead>
-                      <tr>
-                        <th>Packing</th>
-                        <th>Total Boxes</th>
-                        <th>Packed Boxes</th>
-                        <th>Remaining Boxes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {Object.keys(totalBoxes)
-                        .filter((pack) => pack !== '0gm')
-                        .map((pack, i) => {
-                          const packed = packedBoxes[pack] || 0;
-                          const remaining = totalBoxes[pack] - packed;
-                          return (
-                            <tr key={i}>
-                              <td>{pack}</td>
-                              <td>{totalBoxes[pack]}</td>
-                              <td>{packed}</td>
-                              <td>{remaining}</td>
-                            </tr>
-                          );
-                        })}
-                    </tbody>
-                  </table>
+                <table className="dash-accordion-table">
+  <thead>
+    <tr>
+      <th>Packing</th>
+      <th>Total Boxes</th>
+      <th>Packed Boxes</th>
+      <th>Remaining Boxes</th>
+      <th>Total Weight (Kg)</th> {/* 🆕 New column */}
+    </tr>
+  </thead>
+  <tbody>
+    {Object.keys(totalBoxes)
+      .filter((pack) => pack !== '0gm')
+      .map((pack, i) => {
+        const packed = packedBoxes[pack] || 0;
+        const remaining = totalBoxes[pack] - packed;
+        const totalKg = (parseInt(pack) / 1000) * totalBoxes[pack]; // 🧮 convert gm to kg
+        return (
+          <tr key={i}>
+            <td>{pack}</td>
+            <td>{totalBoxes[pack]}</td>
+            <td>{packed}</td>
+            <td>{remaining}</td>
+            <td>{totalKg.toFixed(2)}</td> {/* 🆕 shows total kg */}
+          </tr>
+        );
+      })}
+  </tbody>
+</table>
+
                 </div>
               )}
             </div>
