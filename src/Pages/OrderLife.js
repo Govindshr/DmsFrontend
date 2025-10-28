@@ -279,7 +279,7 @@ const OrderLife = () => {
     };
     const handlePack = async (sweetName, weightType, id) => {
         const selectedValue = selectedValues[sweetName]?.[weightType] || 0;
-        console.log(`Packing ${selectedValue} boxes of ${weightType} for ${sweetName}`);
+        // console.log(`Packing ${selectedValue} boxes of ${weightType} for ${sweetName}`);
 
 
         setLoading(true)
@@ -409,7 +409,7 @@ if (response.ok) {
 
     const fetchItemsFromAPI = async (url) => {
         setItems([])
-        console.log("api ke just pehle ",currentPage)
+        // console.log("api ke just pehle ",currentPage)
         setLoading(true)
         try {
             const response = await fetch(url, {
@@ -423,7 +423,6 @@ if (response.ok) {
             if (response.ok) {
                 setLoading(false)
                 const data = await response.json();
-
                 setItems(data);
             } else {
                 setLoading(false)
@@ -608,7 +607,7 @@ if (response.ok) {
 
     const handlePackedClick = (itemId, obj) => {
 
-        console.log(obj)
+        // console.log(obj)
         Swal.fire({
             title: 'Are you sure?',
             text: "Is This Order Cmpletely Packed Or Any Item is Remaining?",
@@ -672,7 +671,7 @@ if (response.ok) {
         }
     };
     const callPackedAPI = async (itemId, sweets) => {
-        console.log("Sweets", sweets)
+        // console.log("Sweets", sweets)
         let order_data = {
             sweets: sweets,
         }
@@ -971,6 +970,7 @@ if (response.ok) {
                                 <th><b>Price</b></th>
                                 {activeTab === 'all' && <th><b>Amount Received</b></th>}
                                 {activeTab === 'all' && <th><b>Difference Amount</b></th>}
+                                 {activeTab === 'all' && <th><b>Payment Mode</b></th>}
                                 <th><b>Date & Time</b></th>
                                 <th><b>Action</b></th>
                             </tr>
@@ -1006,6 +1006,7 @@ if (response.ok) {
                                             ? 'highlight-row'
                                             : ''
                                     }><b>₹{item.received_amount && item?.summary?.totalPrice ? item?.summary?.totalPrice - item.received_amount.toFixed(2) : " NA"}</b></td>}
+                                   {activeTab === 'all' && <td><b>{item.payment_mode ? item.payment_mode : " NA"}</b></td>}
                                     <td><b>{item.created}</b></td>
                                     <td>
                                         {(activeTab === "packed" || activeTab === "partial_packed" || activeTab === "all" || activeTab === "initial") && (
@@ -1292,7 +1293,7 @@ if (response.ok) {
                             </div>
                         </div>
 
-                        {console.log("order Data", orderData)}
+                        {/* {console.log("order Data", orderData)} */}
                         {orderData && (
                             <div className="sweet-details-container">
                                 {Object.keys(orderData.sweets).map((sweetName, index) => {
